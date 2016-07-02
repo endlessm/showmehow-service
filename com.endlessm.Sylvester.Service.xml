@@ -1,0 +1,17 @@
+<node>
+  <interface name="com.endlessm.Sylvester.Service">
+    <method name="DownloadSourcesForSelectedWindow">
+    </method>
+    <method name="DownloadSourcesForPID">
+      <arg name="pid" direction="in" type="i"/>
+    </method>
+    <method name="LaunchBuilderForDpkgBundle">
+      <arg name="dpkg_directory" direction="in" type="s"/>
+      <arg name="pid" direction="out" type="i"/>
+    </method>
+    <signal name="RotateBetweenPidWindows">
+      <arg name="src" type="i"/>
+      <arg name="dest" type="i"/>
+    </signal>
+  </interface>
+<node>
