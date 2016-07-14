@@ -131,17 +131,17 @@ function get_sources_for_pkg(pkg, done_callback) {
     }
     
     cmd_to_run[cmd_to_run.length - 1] += ["gdbus",
-										  "call",
-										  "--session",
-										  "-d",
-										  "com.endlessm.Sylvester.Service",
-										  "-o",
-										  "/com/endlessm/Sylvester/Service",
-										  "-m",
-										  "com.endlessm.Sylvester.Service.LaunchBuilderForDpkgBundle",
-										  pkg].join(" ") + ";";
+                                          "call",
+                                          "--session",
+                                          "-d",
+                                          "com.endlessm.Sylvester.Service",
+                                          "-o",
+                                          "/com/endlessm/Sylvester/Service",
+                                          "-m",
+                                          "com.endlessm.Sylvester.Service.LaunchBuilderForDpkgBundle",
+                                          pkg].join(" ") + "; sleep 10;";
 
-    return launch_and_watch_pid(["/usr/bin/gnome-terminal", "-x"].concat(cmd_to_run),
+    return launch_and_watch_pid(["/usr/bin/xterm", "-e"].concat(cmd_to_run),
                                 function(pid, status) {
                                     if (done_callback)
                                         done_callback(pkg, status);
