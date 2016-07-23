@@ -6,7 +6,9 @@ CLEANFILES =
 
 # Generate the Showmehow GDBus Skeleton library
 libshowmehow_1_0_la_SOURCES = Showmehow.c \
-							  Showmehow.h
+							  Showmehow.h \
+							  showmehow-resources.c \
+							  showmehow-resources.h
 libshowmehow_1_0_la_CFLAGS = @SHOWMEHOW_CFLAGS@
 libshowmehow_1_0_la_LDFLAGS = @SHOWMEHOW_LDFLAGS@
 libshowmehow_1_0_la_LIBADD = @SHOWMEHOW_LIBS@
@@ -43,4 +45,19 @@ endif
 Showmehow.c:
 	gdbus-codegen --generate-c-code Showmehow --c-namespace Showmehow --c-generate-object-manager --interface-prefix com.endlessm.Showmehow. $(abs_top_srcdir)/com.endlessm.Showmehow.Service.xml
 
+
+# GSettings schemas
+gsettings_SCHEMAS = com.endlessm.showmehow.gschema.xml
+
+@GSETTINGS_RULES@
+
+# GResources
+
+resource_files = $(shell glib-compile-resources --sourcedir=$(srcdir) --generate-dependencies $(srcdir)/com.endlessm.showmehow.gresource.xml)
+showmehow-resources.h: com.endlessm.showmehow.gresource.xml $(js_resource_files)
+	$(AM_V_GEN) glib-compile-resources --target=$@ --sourcedir=$(srcdir) --sourcedir=$(builddir) --generate --c-name showmehow $<
+showmehow-resources.c: com.endlessm.showmehow.gresource.xml $(js_resource_files)
+	$(AM_V_GEN) glib-compile-resources --target=$@ --sourcedir=$(srcdir) --sourcedir=$(builddir) --generate --c-name showmehow $<
+
+js_built_sources = showmehow-resources.c showmehow-resources.h
 

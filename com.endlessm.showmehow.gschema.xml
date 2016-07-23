@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<schemalist>
+  <schema path="/com/endlessm/showmehow/" id="com.endlessm.showmehow">
+    <key name='unlocked-lessons' type='as'>
+      <default>['showmehow']</default>
+      <summary>Unlocked lessons</summary>
+      <description>
+        Lessons which have been unlocked and are available to the user.
+      </description>
+    </key>
+  </schema>
+</schemalist>

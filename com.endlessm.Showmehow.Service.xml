@@ -1,4 +1,7 @@
 <node>
   <interface name="com.endlessm.Showmehow.Service">
+    <method name="GetUnlockedLessons">
+      <arg name="lessons" direction="out" type="a(ss)"/>
+    </method>
   </interface>
 <node>

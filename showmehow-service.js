@@ -15,6 +15,8 @@ const Showmehow = imports.gi.Showmehow;
 
 const Lang = imports.lang;
 
+const SHOWMEHOW_SCHEMA = 'com.endlessm.showmehow';
+
 function read_file_contents(path) {
     const cmdlineFile = Gio.File.new_for_path(path);
     const [ok, contents, etag] = cmdlineFile.load_contents(null);
@@ -99,6 +101,17 @@ const ShowmehowService = new Lang.Class({
     Extends: Showmehow.ServiceSkeleton,
     _init: function(props) {
         this.parent(props);
+        this._settings = new Gio.Settings({ schema_id: SHOWMEHOW_SCHEMA });
+        /* This isn't the preferable way of doing it, though it seems like resource
+         * paths are not working, at least not locally */
+        this._descriptors = JSON.parse(Gio.resources_lookup_data("/com/endlessm/showmehow/data/lessons.json",
+                                                                 Gio.ResourceLookupFlags.NONE).get_data());
+        this.connect("handle-get-unlocked-lessons", Lang.bind(this, function(iface, method) {
+            let ret = this._settings.get_strv("unlocked-lessons").map(l => [
+                l, this._descriptors.filter(d => d.name == l)[0].desc
+            ]);
+            iface.complete_get_unlocked_lessons(method, GLib.Variant.new("a(ss)", ret));
+        }));
     },
 });
 

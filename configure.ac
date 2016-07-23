@@ -12,6 +12,9 @@ LT_INIT
 # Set up GObject-Introspection
 GOBJECT_INTROSPECTION_CHECK([1.30.0])
 
+# Set up GSettings
+GLIB_GSETTINGS
+
 # Checks for programs.
 
 # Checks for libraries.
