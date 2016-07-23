@@ -32,7 +32,18 @@ function environment_object_to_envp(environment) {
     }
 }
 
-function execute_command_for_output(argv, environment) {
+function environment_as_object() {
+    let environment = {};
+    GLib.listenv().forEach(key => environment[key] = GLib.getenv(key));
+    return environment;
+}
+
+function execute_command_for_output(argv, user_environment={}) {
+    let environment = environment_as_object();
+    Object.keys(user_environment).forEach(key => {
+        environment[key] = user_environment[key]
+    });
+
     const [ok, stdout, stderr, status] = GLib.spawn_sync(null,
                                                          argv,
                                                          environment_object_to_envp(environment),
@@ -202,7 +213,7 @@ const ShowmehowService = new Lang.Class({
                                     method,
                                     "Couldn't run task " + task + " on lesson " + lesson,
                                     function(executor, validator) {
-                    const result = executor(input_code);
+                    const result = executor(input_code, task_detail.environment);
                     const success = validator(result.validatable_output,
                                               task_detail.expected.value);
                     const wait_message = select_random_from(WAIT_MESSAGES);
