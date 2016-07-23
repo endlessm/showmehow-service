@@ -3,5 +3,10 @@
     <method name="GetUnlockedLessons">
       <arg name="lessons" direction="out" type="a(ssis)"/>
     </method>
+    <method name="GetTaskDescription">
+      <arg name="lesson" direction="in" type="s"/>
+      <arg name="task" direction="in" type="i"/>
+      <arg name="description" direction="out" type="(sss)"/>
+    </method>
   </interface>
 <node>

@@ -95,6 +95,7 @@ function directory_names_matching_in(regex, path) {
 
 const ShowmehowErrorDomain = GLib.quark_from_string("showmehow-error");
 const ShowmehowErrors = {
+    INVALID_TASK: 0
 };
 const ShowmehowService = new Lang.Class({
     Name: "ShowmehowService",
@@ -115,7 +116,29 @@ const ShowmehowService = new Lang.Class({
             })(this._descriptors.filter(d => d.name === l)[0]));
             iface.complete_get_unlocked_lessons(method, GLib.Variant.new("a(ssis)", ret));
         }));
+        this.connect("handle-get-task-description", Lang.bind(this, function(iface, method, lesson, task) {
+            /* Return the descriptions for this task */
+            this._validateAndFetchTask(lesson, task, method, function(task_detail) {
+                iface.complete_get_task_description(method,
+                                                    GLib.Variant.new("(sss)",
+                                                                     [task_detail.task,
+                                                                      task_detail.success,
+                                                                      task_detail.fail]));
+            });
+        }));
     },
+    _validateAndFetchTask: function(lesson, task, method, success) {
+        try {
+            let task_detail = this._descriptors.filter(d => d.name === lesson)[0].practice[task];
+            return success(task_detail);
+        } catch(e) {
+            return method.return_error_literal(ShowmehowErrorDomain,
+                                               ShowmehowErrors.INVALID_TASK,
+                                               "Either the lesson " + lesson +
+                                               " or task number " + task +
+                                               " was invalid\n" + e);
+        }
+    }
 });
 
 let loop = GLib.MainLoop.new(null, false);
