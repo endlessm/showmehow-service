@@ -23,8 +23,21 @@ function read_file_contents(path) {
     return contents;
 }
 
-function execute_command_for_output(argv) {
-    const [ok, stdout, stderr, status] = GLib.spawn_sync(null, argv, null, 0, null);
+function environment_object_to_envp(environment) {
+    if (environment) {
+        return Object.keys(environment)
+                     .map(key => key + "=" + environment[key]);
+    } else {
+        return null;
+    }
+}
+
+function execute_command_for_output(argv, environment) {
+    const [ok, stdout, stderr, status] = GLib.spawn_sync(null,
+                                                         argv,
+                                                         environment_object_to_envp(environment),
+                                                         0,
+                                                         null);
     return {
         status: status,
         stdout: String(stdout),
@@ -93,9 +106,61 @@ function directory_names_matching_in(regex, path) {
     });
 }
 
+function select_random_from(array) {
+    return array[Math.floor(Math.random() * array.length)];
+}
+
+const WAIT_MESSAGES = [
+    "Wait for it",
+    "Combubulating transistors",
+    "Adjusting for combinatorial flux",
+    "Hacking the matrix",
+    "Exchanging electrical bits",
+    "Refuelling source code",
+    "Fetching arbitrary refs",
+    "Resolving mathematical contradictions",
+    "Fluxing liquid input"
+]
+
+function regex_validator(result, regex) {
+    return result.match(new RegExp(regex));
+}
+
+function other_command_regex_validator(result, spec) {
+    const execution_result = execute_command_for_output(spec.command);
+    return regex_validator(execution_result.stdout + "\n" + execution_result.stderr,
+                           spec.output_regex);
+}
+
+/* Executing raw shellcode. What could possibly go wrong? */
+function shell_executor(shellcode, environment) {
+    return execute_command_for_output(["/bin/bash", "-c", shellcode + "; exit 0"],
+                                      environment);
+}
+
+function shell_executor_output(shellcode, environment) {
+    const result = shell_executor(shellcode, environment);
+    return {
+        validatable_output: result.stdout + "\n" + result.stderr,
+        printable_output: result.stdout + "\n" + result.stderr
+    };
+}
+
+
+const KNOWN_VALIDATORS = {
+    "regex": regex_validator,
+    "command": other_command_regex_validator
+};
+
+const KNOWN_EXECUTORS = {
+    "shell": shell_executor_output
+};
+
+
 const ShowmehowErrorDomain = GLib.quark_from_string("showmehow-error");
 const ShowmehowErrors = {
-    INVALID_TASK: 0
+    INVALID_TASK: 0,
+    INVALID_TASK_SPEC: 1
 };
 const ShowmehowService = new Lang.Class({
     Name: "ShowmehowService",
@@ -126,6 +191,29 @@ const ShowmehowService = new Lang.Class({
                                                                       task_detail.fail]));
             });
         }));
+        this.connect("handle-attempt-lesson-remote", Lang.bind(this, function(iface,
+                                                                              method,
+                                                                              lesson,
+                                                                              task,
+                                                                              input_code) {
+            this._validateAndFetchTask(lesson, task, method, Lang.bind(this, function(task_detail) {
+                this._attemptLesson("shell",
+                                    task_detail.expected.type,
+                                    method,
+                                    "Couldn't run task " + task + " on lesson " + lesson,
+                                    function(executor, validator) {
+                    const result = executor(input_code);
+                    const success = validator(result.validatable_output,
+                                              task_detail.expected.value);
+                    const wait_message = select_random_from(WAIT_MESSAGES);
+                    iface.complete_attempt_lesson_remote(method,
+                                                         GLib.Variant.new("(ssb)",
+                                                                          [wait_message,
+                                                                           result.printable_output,
+                                                                           success]));
+                });
+            }));
+        }));
     },
     _validateAndFetchTask: function(lesson, task, method, success) {
         try {
@@ -138,6 +226,36 @@ const ShowmehowService = new Lang.Class({
                                                " or task number " + task +
                                                " was invalid\n" + e);
         }
+    },
+    _attemptLesson: function(executor_spec, validator_spec, method, err_prefix, callback) {
+        /* This function finds the executor and validator specified
+         * and runs callback. If it can't find them, for instance, they
+         * are invalid, it returns an error. */
+        let executor, validator;
+
+        try {
+            executor = KNOWN_EXECUTORS[executor_spec];
+        } catch (e) {
+            method.return_error_literal(ShowmehowErrorDomain,
+                                        ShowmehowErrors.INVALID_TASK_SPEC,
+                                        err_prefix +
+                                        ": Attempting to use executor " +
+                                        executor_spec +
+                                        " but no such executor exists");
+        }
+
+        try {
+            validator = KNOWN_VALIDATORS[validator_spec];
+        } catch (e) {
+            method.return_error_literal(ShowmehowErrorDomain,
+                                        ShowmehowErrors.INVALID_TASK_SPEC,
+                                        err_prefix +
+                                        ": Attempting to use validator " +
+                                        validator_spec +
+                                        " but no such validator exists");
+        }
+
+        return callback(executor, validator);
     }
 });
 

@@ -8,5 +8,11 @@
       <arg name="task" direction="in" type="i"/>
       <arg name="description" direction="out" type="(sss)"/>
     </method>
+    <method name="AttemptLessonRemote">
+      <arg name="lesson" direction="in" type="s"/>
+      <arg name="task" direction="in" type="i"/>
+      <arg name="input" direction="in" type="s"/>
+      <arg name="result" direction="out" type="(ssb)"/>
+    </method>
   </interface>
 <node>
