@@ -107,10 +107,13 @@ const ShowmehowService = new Lang.Class({
         this._descriptors = JSON.parse(Gio.resources_lookup_data("/com/endlessm/showmehow/data/lessons.json",
                                                                  Gio.ResourceLookupFlags.NONE).get_data());
         this.connect("handle-get-unlocked-lessons", Lang.bind(this, function(iface, method) {
-            let ret = this._settings.get_strv("unlocked-lessons").map(l => [
-                l, this._descriptors.filter(d => d.name == l)[0].desc
-            ]);
-            iface.complete_get_unlocked_lessons(method, GLib.Variant.new("a(ss)", ret));
+            /* An immediately invoked function expression to extract the relevant
+             * useful information from a lesson descriptor without extracting
+             * everything all at once. */
+            let ret = this._settings.get_strv("unlocked-lessons").map(l => (d => {
+                return [d.name, d.desc, d.practice.length, d.done];
+            })(this._descriptors.filter(d => d.name === l)[0]));
+            iface.complete_get_unlocked_lessons(method, GLib.Variant.new("a(ssis)", ret));
         }));
     },
 });
