@@ -10,7 +10,10 @@
                     "value": "Hey.*"
                 },
                 "success": "That's right! Though now you need to tell showmehow what task you want to try. This is called an 'argument'. Try giving showmehow an argument so that it knows what to do. Want to know what argument to give it? There's only one, and it just told you what it was.",
-                "fail": "Nope, that wasn't what I thought would happen! Try typing just 'showmehow' and hit 'enter'. No more, no less (though surrounding spaces are okay)."
+                "fail": "Nope, that wasn't what I thought would happen! Try typing just 'showmehow' and hit 'enter'. No more, no less (though surrounding spaces are okay).",
+                "environment": {
+                    "NONINTERACTIVE": "1"
+                }
             },
             {
                 "task": "Lets try giving an argument to 'showmehow'. Arguments are words that come after the main command",
