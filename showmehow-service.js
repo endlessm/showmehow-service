@@ -212,17 +212,22 @@ const ShowmehowService = new Lang.Class({
                                     task_detail.expected.type,
                                     method,
                                     "Couldn't run task " + task + " on lesson " + lesson,
-                                    function(executor, validator) {
+                                    Lang.bind(this, function(executor, validator) {
                     const result = executor(input_code, task_detail.environment);
                     const success = validator(result.validatable_output,
                                               task_detail.expected.value);
                     const wait_message = select_random_from(WAIT_MESSAGES);
+
+                    if (success) {
+                        this._unlockRelevantLessons(lesson, task);
+                    }
+
                     iface.complete_attempt_lesson_remote(method,
                                                          GLib.Variant.new("(ssb)",
                                                                           [wait_message,
                                                                            result.printable_output,
                                                                            success]));
-                });
+                }));
             }));
         }));
     },
@@ -267,6 +272,26 @@ const ShowmehowService = new Lang.Class({
         }
 
         return callback(executor, validator);
+    },
+    _unlockRelevantLessons: function(lesson, task) {
+        let lesson_detail = this._descriptors.filter(d => d.name === lesson)[0];
+
+        /* Unlock additional tasks if this task is the last one */
+        if (task < lesson_detail.practice.length - 1) {
+            return;
+        }
+
+        /* Get all unlocked tasks and this task's unlocks value and
+         * combine the two together into a single set */
+        let unlocks = this._descriptors.filter(d => d.name === lesson)[0].unlocks;
+        let unlocked = this._settings.get_strv("unlocked-lessons");
+        this._settings.set_strv("unlocked-lessons",
+                                unlocks.concat(unlocked).reduce((p, c) => {
+                                    if (p.indexOf(c) < 0) {
+                                        p.push(c);
+                                    }
+                                    return p;
+                                }, []));
     }
 });
 
