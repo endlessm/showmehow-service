@@ -6,21 +6,6 @@ EXTRA_DIST = com.endlessm.Showmehow.Service.xml \
 	     showmehow-service
 CLEANFILES =
 
-# Generate the Showmehow GDBus Skeleton library
-libshowmehow_1_0_la_SOURCES = Showmehow.c \
-			      Showmehow.h \
-			      showmehow-resources.c \
-			      showmehow-resources.h
-libshowmehow_1_0_la_CFLAGS = @SHOWMEHOW_CFLAGS@
-libshowmehow_1_0_la_LDFLAGS = @SHOWMEHOW_LDFLAGS@
-libshowmehow_1_0_la_LIBADD = @SHOWMEHOW_LIBS@
-
-# All libraries
-lib_LTLIBRARIES = libshowmehow-1.0.la
-
-# Scripts to install
-bin_SCRIPTS = showmehow-service
-
 # Rename the showmehow-service script
 showmehow-service:
 	cp showmehow-service.js showmehow-service
@@ -45,6 +30,20 @@ showmehow-resources.c: com.endlessm.showmehow.gresource.xml $(resource_files)
 	$(AM_V_GEN) glib-compile-resources --target=$@ --sourcedir=$(srcdir) --sourcedir=$(builddir) --generate --c-name showmehow $<
 
 resources_built_sources = showmehow-resources.c showmehow-resources.h
+
+# Generate the Showmehow GDBus Skeleton library
+libshowmehow_1_0_la_SOURCES = $(resources_built_sources) \
+			      $(gdbus_codegen_built_sources) \
+			      $(NULL)
+libshowmehow_1_0_la_CFLAGS = @SHOWMEHOW_CFLAGS@
+libshowmehow_1_0_la_LDFLAGS = @SHOWMEHOW_LDFLAGS@
+libshowmehow_1_0_la_LIBADD = @SHOWMEHOW_LIBS@
+
+# All libraries
+lib_LTLIBRARIES = libshowmehow-1.0.la
+
+# Scripts to install
+bin_SCRIPTS = showmehow-service
 
 # GObject-Introspection support
 include $(INTROSPECTION_MAKEFILE)
