@@ -3,6 +3,7 @@ AM_DISTCHECK_CONFIGURE_FLAGS = --enable-introspection
 EXTRA_DIST = com.endlessm.Showmehow.Service.xml \
 	     com.endlessm.showmehow.gschema.xml \
 	     com.endlessm.showmehow.gresource.xml \
+	     data/lessons.json \
 	     showmehow-service
 CLEANFILES =
 
