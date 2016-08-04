@@ -2,7 +2,8 @@ AM_CONFIG_MACRO_DIR =
 AM_DISTCHECK_CONFIGURE_FLAGS = --enable-introspection
 EXTRA_DIST = com.endlessm.Showmehow.Service.xml \
 	     com.endlessm.showmehow.gschema.xml \
-	     com.endlessm.showmehow.gresource.xml
+	     com.endlessm.showmehow.gresource.xml \
+	     showmehow-service
 
 
 # Generate the Showmehow GDBus Skeleton library
@@ -16,6 +17,12 @@ libshowmehow_1_0_la_LIBADD = @SHOWMEHOW_LIBS@
 
 # All libraries
 lib_LTLIBRARIES = libshowmehow-1.0.la
+
+# Scripts to install
+bin_SCRIPTS = showmehow-service
+
+# Things to get rid of later
+CLEANFILES = $(bin_SCRIPTS)
 
 # GObject-Introspection support
 include $(INTROSPECTION_MAKEFILE)
@@ -42,6 +49,10 @@ typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
 CLEANFILES += $(gir_DATA) $(typelib_DATA)
 endif
 
+# Rename the showmehow-service script
+showmehow-service:
+	cp showmehow-service.js showmehow-service
+
 # GDBus-Codegen for Showmehow
 Showmehow.c:
 	gdbus-codegen --generate-c-code Showmehow --c-namespace Showmehow --c-generate-object-manager --interface-prefix com.endlessm.Showmehow. $(abs_top_srcdir)/com.endlessm.Showmehow.Service.xml
@@ -61,4 +72,3 @@ showmehow-resources.c: com.endlessm.showmehow.gresource.xml $(js_resource_files)
 	$(AM_V_GEN) glib-compile-resources --target=$@ --sourcedir=$(srcdir) --sourcedir=$(builddir) --generate --c-name showmehow $<
 
 js_built_sources = showmehow-resources.c showmehow-resources.h
-
