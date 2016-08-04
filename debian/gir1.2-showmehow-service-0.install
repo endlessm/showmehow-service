@@ -1,0 +1,2 @@
+debian/tmp/usr/lib/girepository-1.0/*
+debian/tmp/usr/share/gir-1.0/*
