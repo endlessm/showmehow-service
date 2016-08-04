@@ -1,7 +1,8 @@
 AM_CONFIG_MACRO_DIR =
 AM_DISTCHECK_CONFIGURE_FLAGS = --enable-introspection
-EXTRA_DIST = com.endlessm.Showmehow.Service.xml
-CLEANFILES = 
+EXTRA_DIST = com.endlessm.Showmehow.Service.xml \
+	     com.endlessm.showmehow.gschema.xml \
+	     com.endlessm.showmehow.gresource.xml
 
 
 # Generate the Showmehow GDBus Skeleton library
