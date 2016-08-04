@@ -39,9 +39,9 @@ gsettings_SCHEMAS = com.endlessm.showmehow.gschema.xml
 # GResources
 
 resource_files = $(shell glib-compile-resources --sourcedir=$(srcdir) --generate-dependencies $(srcdir)/com.endlessm.showmehow.gresource.xml)
-showmehow-resources.h: com.endlessm.showmehow.gresource.xml $(js_resource_files)
+showmehow-resources.h: com.endlessm.showmehow.gresource.xml $(resource_files)
 	$(AM_V_GEN) glib-compile-resources --target=$@ --sourcedir=$(srcdir) --sourcedir=$(builddir) --generate --c-name showmehow $<
-showmehow-resources.c: com.endlessm.showmehow.gresource.xml $(js_resource_files)
+showmehow-resources.c: com.endlessm.showmehow.gresource.xml $(resource_files)
 	$(AM_V_GEN) glib-compile-resources --target=$@ --sourcedir=$(srcdir) --sourcedir=$(builddir) --generate --c-name showmehow $<
 
 resources_built_sources = showmehow-resources.c showmehow-resources.h
