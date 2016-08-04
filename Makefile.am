@@ -8,9 +8,9 @@ CLEANFILES =
 
 # Generate the Showmehow GDBus Skeleton library
 libshowmehow_1_0_la_SOURCES = Showmehow.c \
-							  Showmehow.h \
-							  showmehow-resources.c \
-							  showmehow-resources.h
+			      Showmehow.h \
+			      showmehow-resources.c \
+			      showmehow-resources.h
 libshowmehow_1_0_la_CFLAGS = @SHOWMEHOW_CFLAGS@
 libshowmehow_1_0_la_LDFLAGS = @SHOWMEHOW_LDFLAGS@
 libshowmehow_1_0_la_LIBADD = @SHOWMEHOW_LIBS@
