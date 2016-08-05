@@ -261,7 +261,7 @@ const ShowmehowService = new Lang.Class({
                     const wait_message = select_random_from(WAIT_MESSAGES);
 
                     if (success) {
-                        this._unlockRelevantLessons(lesson, task);
+                        this._onPracticeCompleted(lesson, task);
                     }
 
                     iface.complete_attempt_lesson_remote(method,
@@ -315,7 +315,7 @@ const ShowmehowService = new Lang.Class({
 
         return callback(executor, validator);
     },
-    _unlockRelevantLessons: function(lesson, task) {
+    _onPracticeCompleted: function(lesson, task) {
         let lesson_detail = this._descriptors.filter(d => d.name === lesson)[0];
 
         /* Unlock additional tasks if this task is the last one */
