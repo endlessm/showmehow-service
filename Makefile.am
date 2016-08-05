@@ -8,11 +8,11 @@ EXTRA_DIST = com.endlessm.Showmehow.Service.xml \
 CLEANFILES =
 
 # Rename the showmehow-service script
-showmehow-service:
+showmehow-service: showmehow-service.js
 	cp showmehow-service.js showmehow-service
 
 # GDBus-Codegen for Showmehow
-Showmehow.c:
+Showmehow.c: $(abs_top_srcdir)/com.endlessm.Showmehow.Service.xml
 	gdbus-codegen --generate-c-code Showmehow --c-namespace Showmehow --c-generate-object-manager --interface-prefix com.endlessm.Showmehow. $(abs_top_srcdir)/com.endlessm.Showmehow.Service.xml
 
 gdbus_codegen_built_sources = Showmehow.c Showmehow.h
