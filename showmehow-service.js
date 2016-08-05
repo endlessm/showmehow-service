@@ -173,10 +173,16 @@ const KNOWN_EXECUTORS = {
  *
  * Given some array, add another array and ensure
  * that all elements are unique.
+ *
+ * Provide the third "arraySearch" argument if you
+ * need to provide a custom function to search
+ * the existing array for the value that
+ * is being added.
  */
-function addArrayUnique(lhs, rhs) {
+function addArrayUnique(lhs, rhs, arraySearchArg) {
+    const arraySearch = arraySearchArg || ((c, p) => p.indexOf(c));
     return lhs.concat(rhs).reduce((p, c) => {
-        if (p.indexOf(c) < 0) {
+        if (arraySearch(c, p) < 0) {
             p.push(c);
         }
         return p;
@@ -209,6 +215,19 @@ function lessonDescriptorMatching(lesson, descriptors) {
     ];
 }
 
+/**
+ * findLessonDescriptorMatching:
+ *
+ * Find a lesson descriptor that matches the name
+ * in the provided array.
+ */
+function findLessonDescriptorMatching(lesson, array) {
+    if (array.some(d => d[0] === lesson[0])) {
+        return 0;
+    }
+    return -1;
+}
+
 const ShowmehowErrorDomain = GLib.quark_from_string("showmehow-error");
 const ShowmehowErrors = {
     INVALID_TASK: 0,
@@ -231,7 +250,7 @@ const ShowmehowService = new Lang.Class({
             let showmehowLesson = lessonDescriptorMatching("showmehow", this._descriptors);
             let ret = addArrayUnique(this._settings.get_strv("unlocked-lessons").map(l => {
                 return lessonDescriptorMatching(l, this._descriptors);
-            }), [showmehowLesson]);
+            }), [showmehowLesson], findLessonDescriptorMatching);
             iface.complete_get_unlocked_lessons(method, GLib.Variant.new("a(ssis)", ret));
         }));
         this.connect("handle-get-known-spells", Lang.bind(this, function(iface, method) {
