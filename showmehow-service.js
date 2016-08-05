@@ -234,6 +234,15 @@ const ShowmehowService = new Lang.Class({
             }), [showmehowLesson]);
             iface.complete_get_unlocked_lessons(method, GLib.Variant.new("a(ssis)", ret));
         }));
+        this.connect("handle-get-known-spells", Lang.bind(this, function(iface, method) {
+            /* Get all the lesson details for the "known" spells, eg, the ones the
+             * user has already completed.
+             */
+            let ret = this._settings.get_strv("known-spells").map(l => {
+                return lessonDescriptorMatching(l, this._descriptors);
+            });
+            iface.complete_get_known_spells(method, GLib.Variant.new("a(ssis)", ret));
+        }));
         this.connect("handle-get-task-description", Lang.bind(this, function(iface, method, lesson, task) {
             /* Return the descriptions for this task */
             this._validateAndFetchTask(lesson, task, method, function(task_detail) {
@@ -327,13 +336,11 @@ const ShowmehowService = new Lang.Class({
          * combine the two together into a single set */
         let unlocks = this._descriptors.filter(d => d.name === lesson)[0].unlocks;
         let unlocked = this._settings.get_strv("unlocked-lessons");
-        this._settings.set_strv("unlocked-lessons",
-                                unlocks.concat(unlocked).reduce((p, c) => {
-                                    if (p.indexOf(c) < 0) {
-                                        p.push(c);
-                                    }
-                                    return p;
-                                }, []));
+        this._settings.set_strv("unlocked-lessons", addArrayUnique(unlocked, unlocks));
+
+        /* Add this lesson to the known-spells key */
+        let known = this._settings.get_strv("known-spells");
+        this._settings.set_strv("known-spells", addArrayUnique(known, [lesson]));
     }
 });
 

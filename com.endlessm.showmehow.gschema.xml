@@ -2,10 +2,17 @@
 <schemalist>
   <schema path="/com/endlessm/showmehow/" id="com.endlessm.showmehow">
     <key name='unlocked-lessons' type='as'>
-      <default>['showmehow']</default>
+      <default>[]</default>
       <summary>Unlocked lessons</summary>
       <description>
         Lessons which have been unlocked and are available to the user.
+      </description>
+    </key>
+    <key name='known-spells' type='as'>
+      <default>[]</default>
+      <summary>Known Spells</summary>
+      <description>
+        Spells which you already know.
       </description>
     </key>
   </schema>
