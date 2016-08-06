@@ -20,6 +20,15 @@ GLIB_GSETTINGS
 # Checks for libraries.
 PKG_CHECK_MODULES(SHOWMEHOW, [glib-2.0 gio-2.0 gobject-2.0 gio-unix-2.0])
 
+# Checks for SystemD
+systemdsystemunitdir="$($PKG_CONFIG systemd --variable=systemdsystemunitdir)"
+dnl Allow overriding systemdsystemunitdir during distcheck in order to trick
+dnl Automake into allowing an install outside of $prefix
+AC_ARG_WITH([systemdsystemunitdir],
+    [AS_HELP_STRING([--with-systemdsystemunitdir=PATH], [directory for systemd service files])],
+    [systemdsystemunitdir="$withval"])
+AC_SUBST([systemdsystemunitdir])
+
 # Checks for header files.
 
 # Checks for typedefs, structures, and compiler characteristics.

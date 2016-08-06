@@ -1,6 +1,8 @@
 AM_CONFIG_MACRO_DIR =
 AM_DISTCHECK_CONFIGURE_FLAGS = --enable-introspection
 EXTRA_DIST = com.endlessm.Showmehow.Service.xml \
+	     com.endlessm.Showmehow.Service.desktop \
+	     com.endlessm.Showmehow.Service.service.in \
 	     com.endlessm.showmehow.gschema.xml \
 	     com.endlessm.showmehow.gresource.xml \
 	     data/lessons.json \
@@ -71,8 +73,20 @@ typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
 CLEANFILES += $(gir_DATA) $(typelib_DATA)
 endif
 
+servicedir = $(datadir)/dbus-1/services
+service_DATA = com.endlessm.Showmehow.Service.service
+
+# DBus Service
+com.endlessm.Showmehow.Service.service: com.endlessm.Showmehow.Service.service.in
+	$(AM_V_GEN) sed -e 's|@bindir[@]|${bindir}|g' com.endlessm.Showmehow.Service.service.in > com.endlessm.Showmehow.Service.service
+
+# XDG Autostart
+autostartdir = $(sysconfdir)/xdg/autostart
+dist_autostart_DATA = com.endlessm.Showmehow.Service.desktop
+
 # Things to get rid of later
 CLEANFILES += $(bin_SCRIPTS) \
+	      $(service_DATA) \
 	      $(resources_built_sources) \
 	      $(gdbus_codegen_built_sources) \
 	      $(NULL)
