@@ -363,19 +363,32 @@ const ShowmehowService = new Lang.Class({
     }
 });
 
-let loop = GLib.MainLoop.new(null, false);
-Gio.bus_own_name(Gio.BusType.SESSION,
-                 "com.endlessm.Showmehow.Service",
-                 Gio.BusNameOwnerFlags.ALLOW_REPLACEMENT |
-                 Gio.BusNameOwnerFlags.REPLACE,
-                 function(conn, name) {
-                     let manager = Gio.DBusObjectManagerServer.new("/com/endlessm/Showmehow");
-                     let obj = Showmehow.ObjectSkeleton.new("/com/endlessm/Showmehow/Service");
-                     obj.set_service(new ShowmehowService());
-                     manager.export(obj);
-                     manager.set_connection(conn);
-                 },
-                 null,
-                 null);
-loop.run();
-                 
+const ShowmehowServiceApplication = new Lang.Class({
+    Name: 'ShowmehowServiceApplication',
+    Extends: Gio.Application,
+    _init: function(params) {
+        this.parent(params);
+        this._skeleton = null;
+    },
+    vfunc_startup: function() {
+        this.parent();
+        this.hold();
+    },
+    vfunc_dbus_register: function(conn, object_path) {
+        this.parent(conn, object_path);
+        this._skeleton = new ShowmehowService();
+        this._skeleton.export(conn, object_path);
+        return true;
+    },
+    vfunc_dbus_unregister: function(conn, object_path) {
+        if (this._skeleton) {
+            this._skeleton.unexport();
+        }
+    }
+});
+
+let application = new ShowmehowServiceApplication({
+    "application-id": "com.endlessm.Showmehow.Service",
+    "flags": Gio.ApplicationFlags.IS_SERVICE
+});
+application.run(ARGV);
