@@ -10,12 +10,12 @@ EXTRA_DIST = com.endlessm.Showmehow.Service.xml \
 CLEANFILES =
 
 # Rename the showmehow-service script
-showmehow-service: showmehow-service.js
-	cp showmehow-service.js showmehow-service
+showmehow-service: $(abs_top_srcdir)/showmehow-service.js
+	cp $< $@
 
 # GDBus-Codegen for Showmehow
 Showmehow.c: $(abs_top_srcdir)/com.endlessm.Showmehow.Service.xml
-	gdbus-codegen --generate-c-code Showmehow --c-namespace Showmehow --c-generate-object-manager --interface-prefix com.endlessm.Showmehow. $(abs_top_srcdir)/com.endlessm.Showmehow.Service.xml
+	gdbus-codegen --generate-c-code Showmehow --c-namespace Showmehow --c-generate-object-manager --interface-prefix com.endlessm.Showmehow. $<
 
 gdbus_codegen_built_sources = Showmehow.c Showmehow.h
 
@@ -27,9 +27,9 @@ gsettings_SCHEMAS = com.endlessm.showmehow.gschema.xml
 # GResources
 
 resource_files = $(shell glib-compile-resources --sourcedir=$(srcdir) --generate-dependencies $(srcdir)/com.endlessm.showmehow.gresource.xml)
-showmehow-resources.h: com.endlessm.showmehow.gresource.xml $(resource_files)
+showmehow-resources.h: $(abs_top_srcdir)/com.endlessm.showmehow.gresource.xml $(resource_files)
 	$(AM_V_GEN) glib-compile-resources --target=$@ --sourcedir=$(srcdir) --sourcedir=$(builddir) --generate --c-name showmehow $<
-showmehow-resources.c: com.endlessm.showmehow.gresource.xml $(resource_files)
+showmehow-resources.c: $(abs_top_srcdir)/com.endlessm.showmehow.gresource.xml $(resource_files)
 	$(AM_V_GEN) glib-compile-resources --target=$@ --sourcedir=$(srcdir) --sourcedir=$(builddir) --generate --c-name showmehow $<
 
 resources_built_sources = showmehow-resources.c showmehow-resources.h
@@ -77,8 +77,8 @@ servicedir = $(datadir)/dbus-1/services
 service_DATA = com.endlessm.Showmehow.Service.service
 
 # DBus Service
-com.endlessm.Showmehow.Service.service: com.endlessm.Showmehow.Service.service.in
-	$(AM_V_GEN) sed -e 's|@bindir[@]|${bindir}|g' com.endlessm.Showmehow.Service.service.in > com.endlessm.Showmehow.Service.service
+com.endlessm.Showmehow.Service.service: $(abs_top_srcdir)/com.endlessm.Showmehow.Service.service.in
+	$(AM_V_GEN) sed -e 's|@bindir[@]|${bindir}|g' $< > $@
 
 # XDG Autostart
 autostartdir = $(sysconfdir)/xdg/autostart
