@@ -6,7 +6,7 @@ EXTRA_DIST = com.endlessm.Showmehow.Service.xml \
 	     com.endlessm.showmehow.gschema.xml \
 	     com.endlessm.showmehow.gresource.xml \
 	     data/lessons.json \
-	     showmehow-service
+	     showmehow-service.js
 CLEANFILES =
 
 # Rename the showmehow-service script
