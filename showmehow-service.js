@@ -341,8 +341,27 @@ const ShowmehowService = new Lang.Class({
 
         return callback(executor, validator);
     },
-    _onPracticeCompleted: function(lesson, task) {
+    _onPracticeCompleted: function(lesson, task, method) {
         let lesson_detail = this._descriptors.filter(d => d.name === lesson)[0];
+        const success_side_effect = lesson_detail.practice[task].success_side_effect;
+
+        /* Perform any side effects */
+        if (success_side_effect) {
+            let executor;
+
+            try {
+                executor = KNOWN_EXECUTORS[success_side_effect.executor];
+            } catch (e) {
+                method.return_error_literal(ShowmehowErrorDomain,
+                                            ShowmehowErrors.INVALID_TASK_SPEC,
+                                            err_prefix +
+                                            ": Attempting to use executor " +
+                                            executor_spec +
+                                            " but no such executor exists");
+            }
+
+            executor(success_side_effect.command);
+        }
 
         /* Unlock additional tasks if this task is the last one */
         if (task < lesson_detail.practice.length - 1) {
