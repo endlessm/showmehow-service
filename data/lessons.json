@@ -1,5 +1,66 @@
 [
     {
+        "name": "intro",
+        "desc": "Introduction",
+        "available_to": ["shell"],
+        "practice": [
+            {
+                "task": "Hey you",
+                "expected": {
+                    "executor": "input",
+                    "type": "regex",
+                    "value": ".*"
+                },
+                "success": "Yes, I'm talking to you",
+                "fail": ""
+            },
+            {
+                "task": "Wanna see something cool?",
+                "expected": {
+                    "executor": "input",
+                    "type": "regex",
+                    "value": "(yes|sure|ok|okay|yeah|what|what).*"
+                },
+                "success": "Okay, here goes.",
+                "success_side_effect": {
+                    "executor": "shell",
+                    "command": "gsettings set org.gnome.shell wobbly-effect true"
+                },
+                "fail": "You're boring! Sure you don't?"
+            },
+            {
+                "task": "Open a window and move it around and tell me what you think",
+                "expected": {
+                    "executor": "input",
+                    "type": "regex",
+                    "value": ".+"
+                },
+                "success": "Things are not as they seem around here.",
+                "success_side_effect": {
+                    "executor": "shell",
+                    "command": "gsettings set org.gnome.shell wobbly-effect false"
+                },
+                "fail": "You must think something about it!"
+            },
+            {
+                "task": "You think I can teach you something cool? Try this: install-programming",
+                "expected": {
+                    "executor": "input",
+                    "type": "regex",
+                    "value": "install\\-programming.*"
+                },
+                "success": "Buckle up Dorothy, because Kansas is going bye-bye!",
+                "success_side_effect": {
+                    "executor": "shell",
+                    "command": "echo 'Would install Programming App'"
+                },
+                "fail": "'install-programming' EXACTLY. I haven't got all day!"
+            }
+        ],
+        "unlocks": ["showmehow"],
+        "done": "See you in the 'Coding Fun' app on your desktop!"
+    },
+    {
         "name": "showmehow",
         "desc": "Show me how to do things in this mysterious environment...",
         "available_to": ["console"],
