@@ -157,6 +157,13 @@ function shell_executor_output(shellcode, environment) {
     };
 }
 
+function input_executor_output(input, environment) {
+    return {
+        validatable_output: input,
+        printable_output: ""
+    };
+}
+
 
 const KNOWN_VALIDATORS = {
     "regex": regex_validator,
@@ -164,7 +171,8 @@ const KNOWN_VALIDATORS = {
 };
 
 const KNOWN_EXECUTORS = {
-    "shell": shell_executor_output
+    "shell": shell_executor_output,
+    "input": input_executor_output
 };
 
 
@@ -278,7 +286,7 @@ const ShowmehowService = new Lang.Class({
                                                                               task,
                                                                               input_code) {
             this._validateAndFetchTask(lesson, task, method, Lang.bind(this, function(task_detail) {
-                this._attemptLesson("shell",
+                this._attemptLesson(task_detail.expected.executor || "shell",
                                     task_detail.expected.type,
                                     method,
                                     "Couldn't run task " + task + " on lesson " + lesson,
