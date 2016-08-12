@@ -201,8 +201,7 @@ function addArrayUnique(lhs, rhs, arraySearchArg) {
  * lessonDescriptorMatching:
  *
  * Given a lesson name and lesson descriptors, return
- * a tuple of (name, desciption, n, done_msg) describing
- * the lesson.
+ * the lesson descriptor.
  */
 function lessonDescriptorMatching(lesson, descriptors) {
     /* An immediately invoked function expression to extract the relevant
@@ -214,27 +213,9 @@ function lessonDescriptorMatching(lesson, descriptors) {
         throw new Error("Expected only a single match from " + lesson);
     }
 
-    const matched_lesson = matches[0];
-    return [
-        matched_lesson.name,
-        matched_lesson.desc,
-        matched_lesson.practice.length,
-        matched_lesson.done
-    ];
+    return matches[0];
 }
 
-/**
- * findLessonDescriptorMatching:
- *
- * Find a lesson descriptor that matches the name
- * in the provided array.
- */
-function findLessonDescriptorMatching(lesson, array) {
-    if (array.some(d => d[0] === lesson[0])) {
-        return 0;
-    }
-    return -1;
-}
 
 const ShowmehowErrorDomain = GLib.quark_from_string("showmehow-error");
 const ShowmehowErrors = {
@@ -251,23 +232,32 @@ const ShowmehowService = new Lang.Class({
          * paths are not working, at least not locally */
         this._descriptors = JSON.parse(Gio.resources_lookup_data("/com/endlessm/showmehow/data/lessons.json",
                                                                  Gio.ResourceLookupFlags.NONE).get_data());
-        this.connect("handle-get-unlocked-lessons", Lang.bind(this, function(iface, method) {
+        this.connect("handle-get-unlocked-lessons", Lang.bind(this, function(iface, method, client) {
             /* We call addArrayUnique here to ensure that showmehow is always in the
              * list, even if the gsettings key messes up and gets reset to an
              * empty list. */
             let showmehowLesson = lessonDescriptorMatching("showmehow", this._descriptors);
-            let ret = addArrayUnique(this._settings.get_strv("unlocked-lessons").map(l => {
+            let introductionLesson = lessonDescriptorMatching("intro", this._descriptors);
+            let unlocked = addArrayUnique(this._settings.get_strv("unlocked-lessons"), [
+                "showmehow",
+                "intro"
+            ]).map(l => {
                 return lessonDescriptorMatching(l, this._descriptors);
-            }), [showmehowLesson], findLessonDescriptorMatching);
-            iface.complete_get_unlocked_lessons(method, GLib.Variant.new("a(ssis)", ret));
+            }).filter(d => {
+                return d.available_to.indexOf(client) !== -1;
+            }).map(d => [d.name, d.desc, d.practice.length, d.done]);
+
+            iface.complete_get_unlocked_lessons(method, GLib.Variant.new("a(ssis)", unlocked));
         }));
-        this.connect("handle-get-known-spells", Lang.bind(this, function(iface, method) {
+        this.connect("handle-get-known-spells", Lang.bind(this, function(iface, method, client) {
             /* Get all the lesson details for the "known" spells, eg, the ones the
              * user has already completed.
              */
             let ret = this._settings.get_strv("known-spells").map(l => {
                 return lessonDescriptorMatching(l, this._descriptors);
-            });
+            }).filter(d => {
+                return d.available_to.indexOf(client) !== -1;
+            }).map(d => [d.name, d.desc, d.practice.length, d.done]);
             iface.complete_get_known_spells(method, GLib.Variant.new("a(ssis)", ret));
         }));
         this.connect("handle-get-task-description", Lang.bind(this, function(iface, method, lesson, task) {

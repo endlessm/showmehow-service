@@ -2,6 +2,7 @@
     {
         "name": "showmehow",
         "desc": "Show me how to do things in this mysterious environment...",
+        "available_to": ["console"],
         "practice": [
             {
                 "task": "'showmehow' is a command that you can type, just like any other command. Try typing it and see what happens.",
@@ -33,6 +34,7 @@
     },
     {
         "name": "joke",
+        "available_to": ["console"],
         "desc": "Tell me a joke",
         "practice": [
             {
@@ -58,6 +60,7 @@
     },
     {
         "name": "readfile",
+        "available_to": ["console"],
         "desc": "Read a file",
         "practice": [
             {
@@ -84,6 +87,7 @@
     },
     {
         "name": "breakit",
+        "available_to": ["console"],
         "desc": "See how it is almost impossible to break anything",
         "unlocks": ["changesetting"],
         "practice": [
@@ -101,6 +105,7 @@
     },
     {
         "name": "changesetting",
+        "available_to": ["console"],
         "desc": "Escape the terminal and tweak the OS",
         "unlocks": ["escapevelocity"],
         "practice": [
@@ -190,6 +195,7 @@
     },
     {
         "name": "playsong",
+        "available_to": ["console"],
         "desc": "Play some music",
         "practice": [
             {
@@ -206,6 +212,7 @@
     },
     {
         "name": "escapevelocity",
+        "available_to": ["console"],
         "desc": "Beyond your wildest dreams....",
         "practice": [
             {
