@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([sylvester], [0.0.1], [http://www.endlessm.com])
+AC_INIT([showmehow], [0.0.0], [http://www.endlessm.com])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_SILENT_RULES([yes])
 
@@ -12,10 +12,22 @@ LT_INIT
 # Set up GObject-Introspection
 GOBJECT_INTROSPECTION_CHECK([1.30.0])
 
+# Set up GSettings
+GLIB_GSETTINGS
+
 # Checks for programs.
 
 # Checks for libraries.
 PKG_CHECK_MODULES(SHOWMEHOW, [glib-2.0 gio-2.0 gobject-2.0 gio-unix-2.0])
+
+# Checks for SystemD
+systemdsystemunitdir="$($PKG_CONFIG systemd --variable=systemdsystemunitdir)"
+dnl Allow overriding systemdsystemunitdir during distcheck in order to trick
+dnl Automake into allowing an install outside of $prefix
+AC_ARG_WITH([systemdsystemunitdir],
+    [AS_HELP_STRING([--with-systemdsystemunitdir=PATH], [directory for systemd service files])],
+    [systemdsystemunitdir="$withval"])
+AC_SUBST([systemdsystemunitdir])
 
 # Checks for header files.
 
