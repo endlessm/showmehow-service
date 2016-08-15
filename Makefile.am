@@ -5,7 +5,8 @@ EXTRA_DIST = com.endlessm.Showmehow.Service.xml \
 	     com.endlessm.Showmehow.Service.service.in \
 	     com.endlessm.showmehow.gschema.xml \
 	     com.endlessm.showmehow.gresource.xml \
-	     data/lessons.json \
+	     data/lessons.json.unvalidated.in \
+	     showmehow-validator.js \
 	     showmehow-service.js
 CLEANFILES =
 
@@ -26,9 +27,16 @@ gsettings_SCHEMAS = com.endlessm.showmehow.gschema.xml
 
 @GSETTINGS_RULES@
 
+# Validation of lessons (produces data.lessons)
+data/lessons.json: $(abs_top_srcdir)/data/lessons.json.unvalidated.in
+	gjs $(abs_top_srcdir)/showmehow-validator.js $(abs_top_srcdir)/data/lessons.json.unvalidated.in
+	mkdir -p data
+	cp $< $@
+
 # GResources
 
-resource_files = $(shell glib-compile-resources --sourcedir=$(srcdir) --generate-dependencies $(srcdir)/com.endlessm.showmehow.gresource.xml)
+resource_files = data/lessons.json
+
 showmehow-resources.h: $(abs_top_srcdir)/com.endlessm.showmehow.gresource.xml $(resource_files)
 	$(AM_V_GEN) glib-compile-resources --target=$@ --sourcedir=$(srcdir) --sourcedir=$(builddir) --generate --c-name showmehow $<
 showmehow-resources.c: $(abs_top_srcdir)/com.endlessm.showmehow.gresource.xml $(resource_files)
@@ -96,4 +104,5 @@ CLEANFILES += $(bin_SCRIPTS) \
 	      $(service_DATA) \
 	      $(resources_built_sources) \
 	      $(gdbus_codegen_built_sources) \
+	      data/lessons.json \
 	      $(NULL)
