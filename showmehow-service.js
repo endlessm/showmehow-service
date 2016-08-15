@@ -134,7 +134,7 @@ const WAIT_MESSAGES = [
 ]
 
 function regex_validator(result, regex) {
-    return result.match(new RegExp(regex));
+    return result.match(new RegExp(regex, "m")) !== null;
 }
 
 function other_command_regex_validator(result, spec) {
