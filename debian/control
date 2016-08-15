@@ -40,6 +40,7 @@ Architecture: any
 Depends: gir1.2-glib-2.0,
          gir1.2-showmehow-service-0 (= ${binary:Version}),
          libshowmehow-service-0 (= ${binary:Version}),
+         gjs,
          ${misc:Depends}
 Description: Showmehow Service
  A service for code and systems administration lessons in Mission, library files.

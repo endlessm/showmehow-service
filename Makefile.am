@@ -21,6 +21,10 @@ CLEANFILES =
 showmehow-service: $(abs_top_srcdir)/showmehow-service.js
 	cp $< $@
 
+# Rename the showmehow-validator script
+showmehow-validator: $(abs_top_srcdir)/showmehow-validator.js
+	cp $< $@
+
 # GDBus-Codegen for Showmehow
 Showmehow.c: $(abs_top_srcdir)/com.endlessm.Showmehow.Service.xml
 	gdbus-codegen --generate-c-code Showmehow --c-namespace Showmehow --c-generate-object-manager --interface-prefix com.endlessm.Showmehow. $<
@@ -65,7 +69,8 @@ libshowmehow_1_0_la_LIBADD = @SHOWMEHOW_LIBS@
 lib_LTLIBRARIES = libshowmehow-1.0.la
 
 # Scripts to install
-bin_SCRIPTS = showmehow-service
+bin_SCRIPTS = showmehow-service \
+	      showmehow-validator
 
 # Header files to install
 showmehowincludedir = $(includedir)/showmehow-service
