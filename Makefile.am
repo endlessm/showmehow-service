@@ -17,6 +17,8 @@ showmehow-service: $(abs_top_srcdir)/showmehow-service.js
 Showmehow.c: $(abs_top_srcdir)/com.endlessm.Showmehow.Service.xml
 	gdbus-codegen --generate-c-code Showmehow --c-namespace Showmehow --c-generate-object-manager --interface-prefix com.endlessm.Showmehow. $<
 
+Showmehow.h: Showmehow.c
+
 gdbus_codegen_built_sources = Showmehow.c Showmehow.h
 
 # GSettings schemas
@@ -47,6 +49,11 @@ lib_LTLIBRARIES = libshowmehow-1.0.la
 
 # Scripts to install
 bin_SCRIPTS = showmehow-service
+
+# Header files to install
+showmehowincludedir = $(includedir)/showmehow-service
+nobase_showmehowinclude_HEADERS = \
+	Showmehow.h
 
 # GObject-Introspection support
 include $(INTROSPECTION_MAKEFILE)
