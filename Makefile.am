@@ -1,3 +1,11 @@
+# All javascript modules
+js_files = \
+	showmehow-validator.js \
+	showmehow-service.js \
+	lib/validation.js \
+	$(NULL)
+
+
 AM_CONFIG_MACRO_DIR =
 AM_DISTCHECK_CONFIGURE_FLAGS = --enable-introspection
 EXTRA_DIST = com.endlessm.Showmehow.Service.xml \
@@ -6,8 +14,7 @@ EXTRA_DIST = com.endlessm.Showmehow.Service.xml \
 	     com.endlessm.showmehow.gschema.xml \
 	     com.endlessm.showmehow.gresource.xml \
 	     data/lessons.json.unvalidated.in \
-	     showmehow-validator.js \
-	     showmehow-service.js
+	     $(js_files)
 CLEANFILES =
 
 # Rename the showmehow-service script
@@ -29,7 +36,9 @@ gsettings_SCHEMAS = com.endlessm.showmehow.gschema.xml
 
 # Validation of lessons (produces data.lessons)
 data/lessons.json: $(abs_top_srcdir)/data/lessons.json.unvalidated.in
-	gjs $(abs_top_srcdir)/showmehow-validator.js $(abs_top_srcdir)/data/lessons.json.unvalidated.in
+	gjs --include-path=$(abs_top_srcdir) \
+	    $(abs_top_srcdir)/showmehow-validator.js \
+	    $(abs_top_srcdir)/data/lessons.json.unvalidated.in
 	mkdir -p data
 	cp $< $@
 
