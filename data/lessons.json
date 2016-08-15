@@ -117,7 +117,8 @@
                 "fail": "Hmmm, I thought a cow was going to say that."
             }
         ],
-        "done": "Try some more jokes in the shell!"
+        "done": "Try some more jokes in the shell!",
+        "unlocks": []
     },
     {
         "name": "readfile",
@@ -269,7 +270,8 @@
                 "fail": "We need this song to get things into the right mood. Can you play it?"
             }
         ],
-        "done": "You can find some more music in ...."
+        "done": "You can find some more music in ....",
+        "unlocks": []
     },
     {
         "name": "escapevelocity",
@@ -308,6 +310,7 @@
                 "only_continue_on": "enter"
             }
         ],
-        "done": "!!!!!!!!!!!!! . !!!!!!!!!!!!!!!!!! . What. on. EARTH. is. THAT!?!?!"
+        "done": "!!!!!!!!!!!!! . !!!!!!!!!!!!!!!!!! . What. on. EARTH. is. THAT!?!?!",
+        "unlocks": []
     }
 ]
