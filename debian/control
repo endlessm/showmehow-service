@@ -29,7 +29,7 @@ Package: gir1.2-showmehow-service-0
 Section: non-free/libs
 Architecture: any
 Depends: gir1.2-glib-2.0,
-         libshowmehow-service-0,
+         libshowmehow-service-0 (= ${binary:Version}),
          ${misc:Depends}
 Description: Showmehow Service
  A service for code and systems administration lessons in Mission, GObject Introspection files.
@@ -38,8 +38,8 @@ Package: libshowmehow-service-0-dev
 Section: non-free/libs
 Architecture: any
 Depends: gir1.2-glib-2.0,
-         gir1.2-showmehow-service-0,
-         libshowmehow-service-0,
+         gir1.2-showmehow-service-0 (= ${binary:Version}),
+         libshowmehow-service-0 (= ${binary:Version}),
          ${misc:Depends}
 Description: Showmehow Service
  A service for code and systems administration lessons in Mission, library files.
@@ -48,8 +48,8 @@ Package: showmehow-service
 Section: non-free/libs
 Architecture: any
 Depends: gir1.2-glib-2.0,
-         gir1.2-showmehow-service-0,
-         libshowmehow-service-0,
+         gir1.2-showmehow-service-0 (= ${binary:Version}),
+         libshowmehow-service-0 (= ${binary:Version}),
          gjs,
          ${misc:Depends}
 Description: Showmehow Service
