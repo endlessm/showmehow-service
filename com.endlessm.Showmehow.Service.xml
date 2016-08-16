@@ -22,5 +22,6 @@
       <arg name="input" direction="in" type="s"/>
       <arg name="result" direction="out" type="(ssb)"/>
     </method>
+    <signal name="LessonsChanged"/>
   </interface>
 <node>

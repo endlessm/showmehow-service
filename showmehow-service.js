@@ -227,6 +227,28 @@ function lessonDescriptorMatching(lesson, descriptors) {
 }
 
 /**
+ * loadLessonDescriptorsFromFile
+ *
+ * Given a GFile, load and validate lesson descriptors from it. Returns
+ * the descriptors and warnings as a tuple.
+ */
+function loadLessonDescriptorsFromFile(file) {
+    let warnings = [];
+    let descriptors = [];
+    let success = false;
+
+    try {
+        const [ok, contents, etag] = file.load_contents(null);
+        [descriptors, warnings] = Validation.validateDescriptors(JSON.parse(contents));
+        success = true;
+    } catch (e) {
+        warnings.push("Unable to load " + filenamesToTry[i] + ": " + String(e));
+    }
+
+    return [descriptors, warnings, success]
+}
+
+/**
  * loadLessonDescriptors
  *
  * Attempts to load lesson descriptors from a file.
@@ -243,6 +265,10 @@ function lessonDescriptorMatching(lesson, descriptors) {
  * there were some errors that should be dealt with. Client applications
  * may query for errors and display them appropriately. This is
  * to help the lesson authors quickly catch problems.
+ *
+ * Returns a tuple of [descriptors, monitor]. The monitor may
+ * hold a reference to a GFileMonitor or null, which needs to
+ * be kept in scope to watch for changes to files.
  */
 function loadLessonDescriptors(cmdlineFilename) {
     const filenamesToTry = [
@@ -252,19 +278,26 @@ function loadLessonDescriptors(cmdlineFilename) {
 
     var warnings = [];
     var descriptors = null;
+    let monitor = null;
 
     /* Here we use a "dumb" for loop, since we need to update
      * warnings if a filename didn't exist */
     for (let i = 0; i < filenamesToTry.length; ++i) {
         let file = Gio.File.new_for_path(filenamesToTry[i]);
-        try {
-            let validateWarnings = [];
-            let [ok, contents, etag] = file.load_contents(null);
-            [descriptors, validateWarnings] = Validation.validateDescriptors(JSON.parse(contents));
-            warnings = warnings.concat(validateWarnings);
+        let [descriptors, loadWarnings, success] = loadLessonDescriptorsFromFile(file);
+
+        /* Concat the warnings anyway even if we weren't successful, since
+         * the developer might still be interested in them. */
+        warnings = warnings.concat(loadWarnings);
+
+        /* If we were successful, then break here, otherwise try and load
+         * the next file.
+         *
+         * Note that success is defined as "we were able to partially load
+         * a file." */
+        if (success) {
+            monitor = file.monitor(Gio.FileMonitorFlags.NONE, null);
             break;
-        } catch (e) {
-            warnings.push("Unable to load " + filenamesToTry[i] + ": " + String(e));
         }
     }
 
@@ -280,7 +313,7 @@ function loadLessonDescriptors(cmdlineFilename) {
 
     /* Add a "warnings" key to descriptors. */
     descriptors.warnings = warnings;
-    return descriptors;
+    return [descriptors, monitor];
 }
 
 const ShowmehowErrorDomain = GLib.quark_from_string("showmehow-error");
@@ -291,10 +324,11 @@ const ShowmehowErrors = {
 const ShowmehowService = new Lang.Class({
     Name: "ShowmehowService",
     Extends: Showmehow.ServiceSkeleton,
-    _init: function(props, descriptors) {
+    _init: function(props, descriptors, monitor) {
         this.parent(props);
         this._settings = new Gio.Settings({ schema_id: SHOWMEHOW_SCHEMA });
         this._descriptors = descriptors;
+        this._monitor = monitor;
 
         /* Log the warnings, and also make them available to clients who are interested.
          *
@@ -372,6 +406,24 @@ const ShowmehowService = new Lang.Class({
                                                                            success]));
                 }));
             }));
+        }));
+
+        /* If we did have a monitor on the file, it means that we can notify clients
+         * when a reload has happened. To do that, connect to the "changed" signal
+         * and emit the "content-refreshed" signal when a change happens. Clients
+         * should reset their internal state when this happens. */
+        this._monitor.connect('changed', Lang.bind(this, function(monitor, file, other, type) {
+            if (type === Gio.FileMonitorEvent.CHANGED) {
+                log("Refreshing file " + file.get_parse_name());
+                let [descriptors, warnings, success] = loadLessonDescriptorsFromFile(file);
+
+                if (success) {
+                    this._descriptors = descriptors;
+                    this._descriptors.warnings = warnings;
+
+                    this.emit_lessons_changed();
+                }
+            }
         }));
     },
     _validateAndFetchTask: function(lesson, task, method, success) {
@@ -535,8 +587,9 @@ const ShowmehowServiceApplication = new Lang.Class({
     },
     vfunc_dbus_register: function(conn, object_path) {
         this.parent(conn, object_path);
+        const [descriptors, monitor] = loadLessonDescriptors(this._commandLineFilename);
         this._skeleton = new ShowmehowService({
-        }, loadLessonDescriptors(this._commandLineFilename));
+        }, descriptors, monitor);
         this._skeleton.export(conn, object_path);
         return true;
     },
