@@ -13,7 +13,17 @@ const GLib = imports.gi.GLib;
 const Gio = imports.gi.Gio;
 const Showmehow = imports.gi.Showmehow;
 
+/* This is a hack to cause Showmehow js resources to get loaded */
+const ShowmehowResource = imports.gi.Showmehow.get_resource();
+
 const Lang = imports.lang;
+
+/* Put ourself in the search path. Note that we have the least priority.
+ * This will allow us to run locally against non-packed files that
+ * are already on disk if the user sets GJS_PATH appropriately. */
+imports.searchPath.push('resource:///com/endlessm/showmehow')
+
+const Validation = imports.lib.validation;
 
 const SHOWMEHOW_SCHEMA = 'com.endlessm.showmehow';
 
@@ -216,6 +226,62 @@ function lessonDescriptorMatching(lesson, descriptors) {
     return matches[0];
 }
 
+/**
+ * loadLessonDescriptors
+ *
+ * Attempts to load lesson descriptors from a file.
+ *
+ * The default case is to load the descriptors from the internal resource
+ * file that makes up Showmehow's binary. However, we first:
+ *  1. Look at the command line to see if a file was provided there
+ *  2. Look in $XDG_CONFIG_HOME for a file called "lessons.json"
+ *  3. Use the internal resource named "data/lessons.json"
+ *
+ * The first two are assumed to be "untrusted" - they will be validated
+ * before being loaded in. If there are any errors, we try to use
+ * what we can, but will add in an "errors" entry to signify that
+ * there were some errors that should be dealt with. Client applications
+ * may query for errors and display them appropriately. This is
+ * to help the lesson authors quickly catch problems.
+ */
+function loadLessonDescriptors(cmdlineFilename) {
+    const filenamesToTry = [
+        cmdlineFilename,
+        GLib.build_pathv("/", [GLib.get_user_config_dir(), "showmehow", "lessons.json"])
+    ].filter(f => !!f);
+
+    var warnings = [];
+    var descriptors = null;
+
+    /* Here we use a "dumb" for loop, since we need to update
+     * warnings if a filename didn't exist */
+    for (let i = 0; i < filenamesToTry.length; ++i) {
+        let file = Gio.File.new_for_path(filenamesToTry[i]);
+        try {
+            let validateWarnings = [];
+            let [ok, contents, etag] = file.load_contents(null);
+            [descriptors, validateWarnings] = Validation.validateDescriptors(JSON.parse(contents));
+            warnings = warnings.concat(validateWarnings);
+            break;
+        } catch (e) {
+            warnings.push("Unable to load " + filenamesToTry[i] + ": " + String(e));
+        }
+    }
+
+    /* If we don't have a file to work with here, go with the resources
+     * path, but assume that it is trusted.
+     *
+     * This isn't the preferable way of doing it, though it seems like resource
+     * paths are not working, at least not locally */
+    if (!descriptors) {
+        descriptors = JSON.parse(Gio.resources_lookup_data("/com/endlessm/showmehow/data/lessons.json",
+                                                           Gio.ResourceLookupFlags.NONE).get_data());
+    }
+
+    /* Add a "warnings" key to descriptors. */
+    descriptors.warnings = warnings;
+    return descriptors;
+}
 
 const ShowmehowErrorDomain = GLib.quark_from_string("showmehow-error");
 const ShowmehowErrors = {
@@ -225,13 +291,22 @@ const ShowmehowErrors = {
 const ShowmehowService = new Lang.Class({
     Name: "ShowmehowService",
     Extends: Showmehow.ServiceSkeleton,
-    _init: function(props) {
+    _init: function(props, descriptors) {
         this.parent(props);
         this._settings = new Gio.Settings({ schema_id: SHOWMEHOW_SCHEMA });
-        /* This isn't the preferable way of doing it, though it seems like resource
-         * paths are not working, at least not locally */
-        this._descriptors = JSON.parse(Gio.resources_lookup_data("/com/endlessm/showmehow/data/lessons.json",
-                                                                 Gio.ResourceLookupFlags.NONE).get_data());
+        this._descriptors = descriptors;
+
+        /* Log the warnings, and also make them available to clients who are interested.
+         *
+         * XXX: For some odd reason, I'm not able to return "as" here and need to
+         * return an array of structures in order to get this to work. */
+        this._descriptors.warnings.forEach(w => log(w));
+        this.connect("handle-get-warnings", Lang.bind(this, function(iface, method) {
+            iface.complete_get_warnings(method, GLib.Variant.new("a(s)",
+                                                                 this._descriptors.warnings.map(function(w, i) {
+                return [w];
+            })));
+        }));
         this.connect("handle-get-unlocked-lessons", Lang.bind(this, function(iface, method, client) {
             /* We call addArrayUnique here to ensure that showmehow is always in the
              * list, even if the gsettings key messes up and gets reset to an
@@ -380,20 +455,88 @@ const ShowmehowService = new Lang.Class({
     }
 });
 
+/**
+ * parseArguments
+ *
+ * Sadly, GOptionEntry is not supported by Gjs, so this is a poor-man's
+ * option parser.
+ *
+ * This option parser is a simple "state machine" option parser. It just
+ * has a state as to whether it is parsing a double-dash option, or
+ * if it is parsing something else. There is no type checking or
+ * validation.
+ *
+ * Sadly, this means that there is no way to add arguments to --help
+ * to show the user.
+ *
+ * Everything is stored as an array.
+ */
+function parseArguments(argv) {
+    var parsing = null;
+    var options = {};
+
+    argv.forEach(function(arg, i) {
+        const isDoubleDash = arg.startsWith("--");
+        if (isDoubleDash) {
+            parsing = arg.slice(2);
+        }
+
+        const key = parsing || arg;
+        options[key] = options[key] || [];
+
+        /* Whether we push arg to the options
+         * list depends on what is ahead of us.
+         *
+         * If this was a double-dash argument
+         * then check if the next argument
+         * starts with something that is
+         * not a double dash. If so, we should
+         * treat this argument as a key and
+         * not a value, otherwise treat it
+         * truthy value.
+         */
+        if (!isDoubleDash ||
+            i === argv.length - 1 ||
+            argv[i + 1].startsWith("--")) {
+            options[key].push(isDoubleDash ? !!arg : arg);
+        }
+    });
+
+    return options;
+}
+
 const ShowmehowServiceApplication = new Lang.Class({
     Name: 'ShowmehowServiceApplication',
     Extends: Gio.Application,
     _init: function(params) {
         this.parent(params);
         this._skeleton = null;
+        this._commandLineFilename = null;
     },
     vfunc_startup: function() {
         this.parent();
         this.hold();
     },
+    vfunc_handle_local_options: function(options) {
+        this.parent(options);
+
+        /* For some rather daft reasons, we have to parse ARGV
+         * directly to find out some interesting things. */
+        const parsed = parseArguments(ARGV);
+        try {
+            this._commandLineFilename = parsed["lessons-file"][0];
+        } catch (e) {
+            this._commandLineFilename = null;
+        }
+
+        /* Must return -1 here to continue processing, otherwise
+         * we will exit with a code */
+        return -1;
+    },
     vfunc_dbus_register: function(conn, object_path) {
         this.parent(conn, object_path);
-        this._skeleton = new ShowmehowService();
+        this._skeleton = new ShowmehowService({
+        }, loadLessonDescriptors(this._commandLineFilename));
         this._skeleton.export(conn, object_path);
         return true;
     },
@@ -406,6 +549,7 @@ const ShowmehowServiceApplication = new Lang.Class({
 
 let application = new ShowmehowServiceApplication({
     "application-id": "com.endlessm.Showmehow.Service",
-    "flags": Gio.ApplicationFlags.IS_SERVICE
+    "flags": Gio.ApplicationFlags.IS_SERVICE |
+             Gio.ApplicationFlags.HANDLES_COMMAND_LINE
 });
 application.run(ARGV);
