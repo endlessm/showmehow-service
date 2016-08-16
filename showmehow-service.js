@@ -319,10 +319,16 @@ function loadLessonDescriptors(cmdlineFilename) {
     return [descriptors, monitor];
 }
 
+const KNOWN_CLUE_TYPES = [
+    "text",
+    "image-path"
+];
+
 const ShowmehowErrorDomain = GLib.quark_from_string("showmehow-error");
 const ShowmehowErrors = {
     INVALID_TASK: 0,
-    INVALID_TASK_SPEC: 1
+    INVALID_TASK_SPEC: 1,
+    INVALID_CLUE_TYPE: 2
 };
 const ShowmehowService = new Lang.Class({
     Name: "ShowmehowService",
@@ -407,6 +413,19 @@ const ShowmehowService = new Lang.Class({
                                                                            success]));
                 }));
             }));
+        }));
+
+        this.connect("handle-register-clue", Lang.bind(this, function(iface, method, type, clue) {
+            try {
+                this._registerClue(type, clue);
+                iface.complete_register_clue(method);
+            } catch (e) {
+                method.return_error_literal(ShowmehowErrorDomain,
+                                            ShowmehowErrors.INVALID_CLUE_TYPE,
+                                            String(e));
+                log(String(e));
+                log(String(e.stack));
+            }
         }));
 
         /* If we did have a monitor on the file, it means that we can notify clients
@@ -505,6 +524,22 @@ const ShowmehowService = new Lang.Class({
         /* Add this lesson to the known-spells key */
         let known = this._settings.get_strv("known-spells");
         this._settings.set_strv("known-spells", addArrayUnique(known, [lesson]));
+    },
+    _registerClue: function(type, content) {
+        if (KNOWN_CLUE_TYPES.indexOf(type) === -1) {
+            throw new Error("Tried to register clue of type " + type + " but " +
+                            "the service does not know how to handle that type. " +
+                            "Known clue types are " + KNOWN_CLUE_TYPES.join(" "));
+        }
+
+        let clues = this._settings.get_value("clues").deep_unpack();
+        clues = addArrayUnique(clues, [[content, type]], function(v, array) {
+            return array.filter(function(existingClue) {
+                return existingClue[0] == v[0] &&
+                       existingClue[1] == v[1];
+            }).length === 0;
+        });
+        this._settings.set_value("clues", GLib.Variant.new("a(ss)", clues));
     }
 });
 

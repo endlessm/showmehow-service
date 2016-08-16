@@ -22,6 +22,10 @@
       <arg name="input" direction="in" type="s"/>
       <arg name="result" direction="out" type="(ssb)"/>
     </method>
+    <method name="RegisterClue">
+      <arg name="type" direction="in" type="s"/>
+      <arg name="clue" direction="in" type="s"/>
+    </method>
     <signal name="LessonsChanged"/>
   </interface>
 <node>

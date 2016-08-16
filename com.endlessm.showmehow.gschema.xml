@@ -15,5 +15,12 @@
         Spells which you already know.
       </description>
     </key>
+    <key name='clues' type='a(ss)'>
+      <default>[]</default>
+      <summary>Accumulated Clues</summary>
+      <description>
+        Clues which have been accumulated
+      </description>
+    </key>
   </schema>
 </schemalist>
