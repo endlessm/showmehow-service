@@ -1,8 +1,13 @@
+# Resource javascript modules
+resource_js_files = \
+	lib/validation.js \
+	$(NULL)
+
 # All javascript modules
-js_files = \
+all_js_files = \
 	showmehow-validator.js \
 	showmehow-service.js \
-	lib/validation.js \
+	$(resource_js_files)
 	$(NULL)
 
 
@@ -14,7 +19,7 @@ EXTRA_DIST = com.endlessm.Showmehow.Service.xml \
 	     com.endlessm.showmehow.gschema.xml \
 	     com.endlessm.showmehow.gresource.xml \
 	     data/lessons.json.unvalidated.in \
-	     $(js_files)
+	     $(all_js_files)
 CLEANFILES =
 
 # Rename the showmehow-service script
@@ -48,7 +53,9 @@ data/lessons.json: $(abs_top_srcdir)/data/lessons.json.unvalidated.in
 
 # GResources
 
-resource_files = data/lessons.json
+resource_files = $(resource_js_files) \
+	data/lessons.json \
+	$(NULL)
 
 showmehow-resources.h: $(abs_top_srcdir)/com.endlessm.showmehow.gresource.xml $(resource_files)
 	$(AM_V_GEN) glib-compile-resources --target=$@ --sourcedir=$(srcdir) --sourcedir=$(builddir) --generate --c-name showmehow $<
