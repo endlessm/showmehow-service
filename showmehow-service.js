@@ -242,7 +242,7 @@ function loadLessonDescriptorsFromFile(file) {
         [descriptors, warnings] = Validation.validateDescriptors(JSON.parse(contents));
         success = true;
     } catch (e) {
-        warnings.push("Unable to load " + filenamesToTry[i] + ": " + String(e));
+        warnings.push("Unable to load " + file.get_parse_name() + ": " + String(e));
     }
 
     return [descriptors, warnings, success]
