@@ -144,7 +144,8 @@ const WAIT_MESSAGES = [
 ]
 
 function regex_validator(result, regex) {
-    return result.match(new RegExp(regex, "m")) !== null;
+    /* Case insensitive and multi-line */
+    return result.match(new RegExp(regex, "mi")) !== null;
 }
 
 function other_command_regex_validator(result, spec) {
