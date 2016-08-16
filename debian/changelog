@@ -1,3 +1,9 @@
+showmehow-service (0.0.1) eos; urgency=medium
+
+  * New upstream release
+
+ -- Sam Spilsbury <sam@endlessm.com>  Wed, 17 Aug 2016 02:31:38 +0800
+
 showmehow-service (0.0.0) eos; urgency=low
 
   * Initial release
