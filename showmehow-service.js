@@ -221,7 +221,9 @@ function lessonDescriptorMatching(lesson, descriptors) {
     const matches = descriptors.filter(d => d.name === lesson);
 
     if (matches.length !== 1) {
-        throw new Error("Expected only a single match from " + lesson);
+        log("Expected only a single match from " + lesson +
+            " but there were " + matches.length + " matches");
+        return null;
     }
 
     return matches[0];
