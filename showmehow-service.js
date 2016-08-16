@@ -348,15 +348,13 @@ const ShowmehowService = new Lang.Class({
             /* We call addArrayUnique here to ensure that showmehow is always in the
              * list, even if the gsettings key messes up and gets reset to an
              * empty list. */
-            let showmehowLesson = lessonDescriptorMatching("showmehow", this._descriptors);
-            let introductionLesson = lessonDescriptorMatching("intro", this._descriptors);
             let unlocked = addArrayUnique(this._settings.get_strv("unlocked-lessons"), [
                 "showmehow",
                 "intro"
             ]).map(l => {
                 return lessonDescriptorMatching(l, this._descriptors);
             }).filter(d => {
-                return d.available_to.indexOf(client) !== -1;
+                return d && d.available_to.indexOf(client) !== -1;
             }).map(d => [d.name, d.desc, d.practice.length, d.done]);
 
             iface.complete_get_unlocked_lessons(method, GLib.Variant.new("a(ssis)", unlocked));
@@ -368,7 +366,7 @@ const ShowmehowService = new Lang.Class({
             let ret = this._settings.get_strv("known-spells").map(l => {
                 return lessonDescriptorMatching(l, this._descriptors);
             }).filter(d => {
-                return d.available_to.indexOf(client) !== -1;
+                return d && d.available_to.indexOf(client) !== -1;
             }).map(d => [d.name, d.desc, d.practice.length, d.done]);
             iface.complete_get_known_spells(method, GLib.Variant.new("a(ssis)", ret));
         }));
