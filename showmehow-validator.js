@@ -11,16 +11,7 @@
 
 const System = imports.system;
 
-/* Note that while Showmehow is technically unused as an import here, we
- * need to import it anyway because it will cause resource paths to be
- * registered by Gio internally. */
 const Gio = imports.gi.Gio;
-const ShowmehowResource = imports.gi.Showmehow.get_resource();
-
-/* Put ourself in the search path. Note that we have the least priority.
- * This will allow us to run locally against non-packed files that
- * are already on disk if the user sets GJS_PATH appropriately. */
-imports.searchPath.push('resource:///com/endlessm/showmehow')
 
 const Validation = imports.lib.validation;
 
