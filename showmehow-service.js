@@ -199,9 +199,9 @@ const KNOWN_EXECUTORS = {
  * is being added.
  */
 function addArrayUnique(lhs, rhs, arraySearchArg) {
-    const arraySearch = arraySearchArg || ((c, p) => p.indexOf(c));
+    const arraySearch = arraySearchArg || ((c, p) => p.indexOf(c) === -1);
     return lhs.concat(rhs).reduce((p, c) => {
-        if (arraySearch(c, p) < 0) {
+        if (arraySearch(c, p)) {
             p.push(c);
         }
         return p;
