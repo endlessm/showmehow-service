@@ -428,6 +428,9 @@ const ShowmehowService = new Lang.Class({
             }
         }));
 
+        this.connect("handle-get-clues", Lang.bind(this, function(iface, method) {
+            iface.complete_get_clues(method, this._settings.get_value("clues"));
+        }));
         /* If we did have a monitor on the file, it means that we can notify clients
          * when a reload has happened. To do that, connect to the "changed" signal
          * and emit the "content-refreshed" signal when a change happens. Clients

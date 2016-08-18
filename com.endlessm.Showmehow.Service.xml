@@ -26,6 +26,10 @@
       <arg name="type" direction="in" type="s"/>
       <arg name="clue" direction="in" type="s"/>
     </method>
+    <method name="GetClues">
+      <arg name="client" direction="in" type="s"/>
+      <arg name="clues" direction="out" type="a(ss)"/>
+    </method>
     <signal name="LessonsChanged"/>
   </interface>
 <node>
