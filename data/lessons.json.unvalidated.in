@@ -129,7 +129,7 @@
             "showmehow": {
                 "task": "'showmehow' is a command that you can type, just like any other command. Try typing it and see what happens.",
                 "input": "console",
-                "mappers": [
+                "mapper": [
                     {
                         "type": "shell",
                         "value": {
@@ -156,7 +156,7 @@
             "showmehow_argument": {
                 "task": "Lets try giving an argument to 'showmehow'. Arguments are words that come after the main command",
                 "input": "console",
-                "mappers": [
+                "mapper": [
                     {
                         "type": "shell",
                         "value": {
@@ -193,7 +193,7 @@
             "fortune": {
                 "task": "'fortune' is a command that can tell you a joke",
                 "input": "console",
-                "mappers": ["shell", {
+                "mapper": ["shell", {
                     "type": "regex",
                     "value": ".+"
                 }],
@@ -210,7 +210,7 @@
             "fortune_cowsay": {
                 "task": "In the shell, you can pipe (|) the output of commands around into other processes. One of these processes is 'cowsay'. See what happens when you try:\n    $ fortune | cowsay",
                 "input": "console",
-                "mappers": ["shell", {
+                "mapper": ["shell", {
                     "type": "regex",
                     "value": "^.*_.*$"
                 }],
@@ -235,7 +235,7 @@
             "cat": {
                 "task": "'cat' can be used to read files on your computer. Meow! Lets read the file on your computer which says what operating system we're running. That file is found at /etc/os-release",
                 "input": "console",
-                "mappers": ["shell", {
+                "mapper": ["shell", {
                     "type": "regex",
                     "value": "NAME=.*"
                 }],
@@ -252,7 +252,7 @@
             "cat_cowsay": {
                 "task": "And for good measure, lets get a cow to say it too.",
                 "input": "console",
-                "mappers": ["shell", {
+                "mapper": ["shell", {
                     "type": "regex",
                     "value": "^.*_.*$"
                 }],
@@ -278,7 +278,7 @@
             "breakit": {
                 "task": "Its pretty difficult to break things on the command line. Try typing gibberish.",
                 "input": "console",
-                "mappers": ["shell", {
+                "mapper": ["shell", {
                     "type": "regex",
                     "value": ".*command.*"
                 }],
