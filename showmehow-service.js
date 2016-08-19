@@ -123,18 +123,6 @@ function shell_custom_executor_output(shellcode, settings) {
     return shell_executor_output(settings.command, settings);
 }
 
-function input_executor_output(input, environment) {
-    return {
-        validatable_output: input,
-        printable_output: ""
-    };
-}
-
-const KNOWN_EXECUTORS = {
-    "shell": shell_executor_output,
-    "input": input_executor_output
-};
-
 
 /**
  * addArrayUnique:
