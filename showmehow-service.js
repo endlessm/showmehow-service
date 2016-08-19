@@ -63,7 +63,7 @@ function execute_command_for_output(argv, user_environment={}) {
         status: status,
         stdout: String(stdout),
         stderr: String(stderr)
-    }   
+    }
 }
 
 function launch_and_watch_pid(argv, on_exit_callback) {
@@ -74,11 +74,11 @@ function launch_and_watch_pid(argv, on_exit_callback) {
                                              null);
 
     GLib.child_watch_add(GLib.PRIORITY_DEFAULT_IDLE, child_pid, function(pid, status) {
-        
+
         if (on_exit_callback)
             on_exit_callback(pid, status);
     });
-    
+
     return child_pid;
 }
 
@@ -90,7 +90,7 @@ function execute_command_for_output_success(argv) {
                         "\nOutput: " + result.stdout +
                         "\nError Messages: " + result.stderr);
     }
-    
+
     return {
         stdout: result.stdout,
         stderr: result.stderr
@@ -100,11 +100,11 @@ function execute_command_for_output_success(argv) {
 function generate_array_from_function(func) {
     let arr = [];
     let result;
-    
+
     while ((result = func.apply(this, arguments)) !== null) {
         arr.push(result);
     }
-    
+
     return arr;
 }
 
