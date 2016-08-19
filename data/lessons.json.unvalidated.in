@@ -303,84 +303,154 @@
         "practice": {
             "gsettings": {
                 "task": "Settings for your computer can be controlled with the `gsettings` tool. Lets find out what you can do with `gsettings`.",
-                "expected": {
+                "input": "console",
+                "mapper": ["shell", {
                     "type": "regex",
                     "value": ".*Usage.*"
-                },
-                "success": "The `gsettings` tool just told you about a bunch of `commands`. You can access these commands by providing the command name as an argument to `gsettings`.",
-                "fail": "I thought that you were going to run `gsettings`?"
+                }],
+                "effects": {
+                    "success": {
+                        "reply": "The `gsettings` tool just told you about a bunch of `commands`. You can access these commands by providing the command name as an argument to `gsettings`.",
+                        "move_to": "list_schemas"
+                    },
+                    "failure": {
+                        "reply": "I thought that you were going to run `gsettings`?"
+                    }
+                }
             },
             "list_schemas": {
                 "task": "Lets try listing all the categories, called `schemas` on your system.",
-                "expected": {
+                "input": "console",
+                "mapper": ["shell", {
                     "type": "regex",
                     "value": "org.*"
-                },
-                "success": "Those are all the categories. Now lets look at settings you can tweak in your shell.",
-                "fail": "Where are my settings categories? Try running the list-schemas subcommand for gsettings"
+                }],
+                "effects": {
+                    "success": {
+                        "reply": "Those are all the categories. Now lets look at settings you can tweak in your shell.",
+                        "move_to": "list_keys_help"
+                    },
+                    "failure": {
+                        "reply": "Where are my settings categories? Try running the list-schemas subcommand for gsettings"
+                    }
+                }
             },
-            "list_keys": {
+            "list_keys_help": {
                 "task": "Lets see how to use the `list-keys` subcommand. You can use the `help` command followed by a sub-command you want help for to see how to use it",
-                "expected": {
+                "input": "console",
+                "mapper": ["shell", {
                     "type": "regex",
                     "value": ".*Usage.*"
-                },
-                "success": "Okay, so gsettings [--schemadir SCHEMADIR] list-keys SCHEMA[:PATH] is how you do it",
-                "fail": "I don't know how to use this list-keys option! Get me some help for it!"
+                }],
+                "effects": {
+                    "success": {
+                        "reply": "Okay, so gsettings [--schemadir SCHEMADIR] list-keys SCHEMA[:PATH] is how you do it",
+                        "move_to": "list_settings"
+                    },
+                    "failure": {
+                        "reply": "I don't know how to use this list-keys option! Get me some help for it!"
+                    }
+                }
             },
             "list_settings": {
                 "task": "Now that we know how to use list-keys, lets list all the settings available on the org.gnome.shell category, or 'schema', as it is called. Pipe it to `sort` to get them in alphabetical order",
-                "expected": {
+                "input": "console",
+                "mapper": ["shell", {
                     "type": "regex",
-                    "value": "^always-show-log-out$"
-                },
-                "success": "Interesting.... I wonder what we can play around with here...",
-                "fail": "I want to know about the settings available for org.gnome.shell in sorted order? Can you list-schemas on org.gnome.shell using gsettings and then pipe (|) the output to `sort`?"
+                    "expected": "^always-show-log-out$"
+                }],
+                "effects": {
+                    "success": {
+                        "reply": "Interesting.... I wonder what we can play around with here...",
+                        "move_to": "disable_social_bar"
+                    },
+                    "failure": {
+                        "reply": "I want to know about the settings available for org.gnome.shell in sorted order? Can you list-schemas on org.gnome.shell using gsettings and then pipe (|) the output to `sort`?"
+                    }
+                }
             },
             "disable_social_bar": {
                 "task": "Lets disable the social bar! The social bar's setting is enable-social-bar and it is a `boolean` setting, meaning it is either 'true' or 'false'. I checked `gsettings help set` for you and it said you can use the `set` command to change a setting with gsettings [--schemadir SCHEMADIR] set SCHEMA[:PATH] KEY VALUE",
-                "expected": {
-                    "type": "command",
+                "input": "console",
+                "mapper": ["shell", {
+                    "type": "shell_custom",
                     "value": {
-                        "command": ["gsettings", "get", "org.gnome.shell", "enable-social-bar"],
-                        "output_regex": "false"
+                        "command": "gsettings get org.gnome.shell enable-social-bar"
                     }
-                },
-                "success": "There we go! No facebook icon!",
-                "fail": "Hmm, I thought you'd change the value of org.gnome.shell enable-social-bar to false, but it is still true"
+                }, {
+                    "type": "regex",
+                    "value": "false"
+                }],
+                "effects": {
+                    "success": {
+                        "reply": "There we go! No facebook icon!",
+                        "move_to": "enable_social_bar"
+                    },
+                    "failure": {
+                        "reply": "Hmm, I thought you'd change the value of org.gnome.shell enable-social-bar to false, but it is still true"
+                    }
+                }
             },
             "enable_social_bar": {
                 "task": "Now lets change it back to true",
-                "expected": {
-                    "type": "command",
+                "input": "console",
+                "mapper": ["shell", {
+                    "type": "shell_custom",
                     "value": {
-                        "command": ["gsettings", "get", "org.gnome.shell", "enable-social-bar"],
-                        "output_regex": "true"
+                        "command": "gsettings get org.gnome.shell enable-social-bar"
                     }
-                },
-                "success": "Okay, phew, facebook is back",
-                "fail": "Quick! I need facebook to come back! Change enable-social-bar on org.gnome.shell back to 'true'!"
+                }, {
+                    "type": "regex",
+                    "value": "true"
+                }],
+                "effects": {
+                    "success": {
+                        "reply": "Okay, phew, facebook is back",
+                        "move_to": "add_terminal_pinned_help"
+                    },
+                    "failure": {
+                        "reply": "Quick! I need facebook to come back! Change enable-social-bar on org.gnome.shell back to 'true'!"
+                    }
+                }
             },
             "add_terminal_pinned_help": {
                 "task": "Oh I know, we should add the Terminal to your pinned apps! To do that, we can add it to the list inside of the taskbar-pins setting. But first lets see what the taskbar-pins setting looks like.",
-                "expected": {
+                "input": "console",
+                "mapper": ["input", {
                     "type": "regex",
                     "value": ".+"
-                },
-                "success": "Okay, so it is a list in square brackets, where every element is surrounded by quotation marks and separated by a comma. Just like this: ['chromium-browser.desktop', 'my-other-app.desktop']",
-                "fail": "You didn't show me your pinned apps!"
+                }],
+                "effects": {
+                    "success": {
+                        "reply": "Okay, so it is a list in square brackets, where every element is surrounded by quotation marks and separated by a comma. Just like this: ['chromium-browser.desktop', 'my-other-app.desktop']",
+                        "move_to": "add_terminal_pinned"
+                    },
+                    "failure": {
+                        "reply": "You didn't show me your pinned apps!"
+                    }
+                }
             },
             "add_terminal_pinned": {
                 "task": "Okay, lets pin the Terminal. The Terminal's App ID is 'org.gnome.Terminal', so we should add the 'org.gnome.Terminal.desktop' entry to that list in taskbar-pins",
-                "expected": {
-                    "type": "command",
+                "input": "console",
+                "mapper": ["input", "shell", {
+                    "type": "shell_custom",
                     "value": {
-                        "command": ["gsettings", "get", "org.gnome.shell", "taskbar-pins"],
-                        "output_regex": ".*org.gnome.Terminal.*"
+                        "command": "gsettings get org.gnome.shell taskbar-pins"
                     }
-                },
-                "success": "Sweet, looks like I'll be sticking around!",
-                "fail": "I'm not there :( The Terminal's App ID is 'org.gnome.Terminal', so we should add the 'org.gnome.Terminal.desktop' entry to that list in taskbar-pins"
+                }, {
+                    "type": "regex",
+                    "value": ".*org.gnome.Terminal.*"
+                }],
+                "effects": {
+                    "success": {
+                        "reply": "Sweet, looks like I'll be sticking around!",
+                        "completes_lesson": true
+                    },
+                    "failure": {
+                        "reply": "I'm not there :( The Terminal's App ID is 'org.gnome.Terminal', so we should add the 'org.gnome.Terminal.desktop' entry to that list in taskbar-pins"
+                    }
+                }
             }
         }
     },
@@ -388,18 +458,25 @@
         "name": "playsong",
         "available_to": ["console"],
         "desc": "Play some music",
-        "practice": [
-            {
+        "entry": "playsong",
+        "practice": {
+            "playsong": {
                 "task": "Lets play some music. GStreamer is a framework that can be used to play all sorts of media files on your computer. Rythmbox and VideoNet both use it. To play a music file, just use `gst-launch-1.0`",
-                "expected": {
+                "input": "console",
+                "mapper": ["shell", {
                     "type": "regex",
                     "value": ".*"
-                },
-                "success": "I love this song! Now you'll probably notice that we're stuck here. To get out of any command line application, you can use Control-C",
-                "fail": "We need this song to get things into the right mood. Can you play it?"
+                }],
+                "effects": {
+                    "success": {
+                        "reply": "I love this song! Now you'll probably notice that we're stuck here. To get out of any command line application, you can use Control-C",
+                        "completes_lesson": true
+                    },
+                    "failure": {
+                        "reply": "We need this song to get things into the right mood. Can you play it?"
+                    }
+                }
             }
-        ],
-        "done": "You can find some more music in ....",
-        "unlocks": []
+        }
     }
 ]
