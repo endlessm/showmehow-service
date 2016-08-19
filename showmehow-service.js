@@ -180,7 +180,7 @@ function shell_custom_executor_output(shellcode, settings) {
                         "must be a string. settings is " +
                         JSON.stringify(settings, null, 2));
     }
-    return shell_executor(settings.command, settings);
+    return shell_executor_output(settings.command, settings);
 }
 
 function input_executor_output(input, environment) {
