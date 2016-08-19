@@ -431,7 +431,7 @@
             "add_terminal_pinned_help": {
                 "task": "Oh I know, we should add the Terminal to your pinned apps! To do that, we can add it to the list inside of the taskbar-pins setting. But first lets see what the taskbar-pins setting looks like.",
                 "input": "console",
-                "mapper": ["input", {
+                "mapper": ["shell", {
                     "type": "regex",
                     "value": ".+"
                 }],
@@ -448,7 +448,7 @@
             "add_terminal_pinned": {
                 "task": "Okay, lets pin the Terminal. The Terminal's App ID is 'org.gnome.Terminal', so we should add the 'org.gnome.Terminal.desktop' entry to that list in taskbar-pins",
                 "input": "console",
-                "mapper": ["input", "shell", {
+                "mapper": ["shell", {
                     "type": "shell_custom",
                     "value": {
                         "command": "gsettings get org.gnome.shell taskbar-pins"
