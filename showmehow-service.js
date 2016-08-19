@@ -656,7 +656,7 @@ const ShowmehowServiceApplication = new Lang.Class({
         this._skeleton.export(conn, object_path);
         return true;
     },
-    vfunc_dbus_unregister: function(conn, object_path) {
+    vfunc_dbus_unregister: function() {
         if (this._skeleton) {
             this._skeleton.unexport();
         }
