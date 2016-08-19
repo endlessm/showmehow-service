@@ -363,9 +363,9 @@ const ShowmehowService = new Lang.Class({
                 return lessonDescriptorMatching(l, this._descriptors);
             }).filter(d => {
                 return d && d.available_to.indexOf(client) !== -1;
-            }).map(d => [d.name, d.desc, d.practice.length, d.done]);
+            }).map(d => [d.name, d.desc, d.entry]);
 
-            iface.complete_get_unlocked_lessons(method, GLib.Variant.new("a(ssis)", unlocked));
+            iface.complete_get_unlocked_lessons(method, GLib.Variant.new("a(sss)", unlocked));
         }));
         this.connect("handle-get-known-spells", Lang.bind(this, function(iface, method, client) {
             /* Get all the lesson details for the "known" spells, eg, the ones the
