@@ -375,8 +375,8 @@ const ShowmehowService = new Lang.Class({
                 return lessonDescriptorMatching(l, this._descriptors);
             }).filter(d => {
                 return d && d.available_to.indexOf(client) !== -1;
-            }).map(d => [d.name, d.desc, d.practice.length, d.done]);
-            iface.complete_get_known_spells(method, GLib.Variant.new("a(ssis)", ret));
+            }).map(d => [d.name, d.desc, d.entry]);
+            iface.complete_get_known_spells(method, GLib.Variant.new("a(sss)", ret));
         }));
         this.connect("handle-get-task-description", Lang.bind(this, function(iface, method, lesson, task) {
             /* Return the descriptions for this task */
