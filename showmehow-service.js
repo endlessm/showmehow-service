@@ -379,13 +379,37 @@ const ShowmehowService = new Lang.Class({
             iface.complete_get_known_spells(method, GLib.Variant.new("a(sss)", ret));
         }));
         this.connect("handle-get-task-description", Lang.bind(this, function(iface, method, lesson, task) {
-            /* Return the descriptions for this task */
+            /* Return the descriptions for this task
+             *
+             * Note that in the specification file we allow a shorthand
+             * to just specify that we want textual input, since it is
+             * a very common case. Detect that here and turn it into
+             * a JSON object representation that consumers can understand.
+             */
             this._validateAndFetchTask(lesson, task, method, function(task_detail) {
+                let input_spec;
+                if (typeof task_detail.input === "string") {
+                    input_spec = {
+                        type: task_detail.input,
+                        settings: {
+                        }
+                    };
+                } else if (typeof task_detail.input === "object") {
+                    input_spec = task_detail.input;
+                } else {
+                    method.return_error_literal(ShowmehowErrorDomain,
+                                                ShowmehowErrors.INVALID_TASK_SPEC,
+                                                "Can't have an input spec which " +
+                                                "isn't either an object or a " +
+                                                "string (error in processing " +
+                                                JSON.stringify(task_detail.input) +
+                                                ")");
+                }
+
                 iface.complete_get_task_description(method,
-                                                    GLib.Variant.new("(sss)",
+                                                    GLib.Variant.new("(ss)",
                                                                      [task_detail.task,
-                                                                      task_detail.success,
-                                                                      task_detail.fail]));
+                                                                      JSON.stringify(input_spec)]));
             });
         }));
         this.connect("handle-attempt-lesson-remote", Lang.bind(this, function(iface,
