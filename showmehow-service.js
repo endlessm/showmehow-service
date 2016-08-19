@@ -143,15 +143,23 @@ const WAIT_MESSAGES = [
     "Fluxing liquid input"
 ]
 
-function regex_validator(result, regex) {
+function regex_validator(input, regex) {
     /* Case insensitive and multi-line */
-    return result.match(new RegExp(regex, "mi")) !== null;
-}
+    const extras = [
+        {
+            type: "response",
+            content: {
+                "type": "wrapped",
+                "value": input
+            }
+        }
+    ];
 
-function other_command_regex_validator(result, spec) {
-    const execution_result = execute_command_for_output(spec.command);
-    return regex_validator(execution_result.stdout + "\n" + execution_result.stderr,
-                           spec.output_regex);
+    if (input.match(new RegExp(regex, "mi")) !== null) {
+        return ["success", extras];
+    }
+
+    return ["failure", extras];
 }
 
 /* Executing raw shellcode. What could possibly go wrong? */
@@ -162,10 +170,7 @@ function shell_executor(shellcode, environment) {
 
 function shell_executor_output(shellcode, environment) {
     const result = shell_executor(shellcode, environment);
-    return {
-        validatable_output: result.stdout + "\n" + result.stderr,
-        printable_output: result.stdout + "\n" + result.stderr
-    };
+    return [result.stdout + "\n" + result.stderr, []];
 }
 
 function input_executor_output(input, environment) {
@@ -174,12 +179,6 @@ function input_executor_output(input, environment) {
         printable_output: ""
     };
 }
-
-
-const KNOWN_VALIDATORS = {
-    "regex": regex_validator,
-    "command": other_command_regex_validator
-};
 
 const KNOWN_EXECUTORS = {
     "shell": shell_executor_output,
@@ -326,6 +325,27 @@ const KNOWN_CLUE_TYPES = [
     "image-path"
 ];
 
+const _PIPELINE_FUNCS = {
+    regex: regex_validator,
+    shell: shell_executor_output,
+    input: function(input) { return [input, []]; }
+};
+
+
+function _run_pipeline_step(pipeline, index, input, extras, done) {
+    if (index === pipeline.length) {
+        return done(input, extras);
+    }
+
+    const pipelineFunc = _PIPELINE_FUNCS[pipeline[index].type];
+    const [output, funcExtras] = pipelineFunc(input, pipeline[index].value);
+    return _run_pipeline_step(pipeline, index + 1, output, extras.concat(funcExtras), done);
+}
+
+function run_pipeline(pipeline, input, done) {
+    return _run_pipeline_step(pipeline, 0, input, [], done);
+}
+
 const ShowmehowErrorDomain = GLib.quark_from_string("showmehow-error");
 const ShowmehowErrors = {
     INVALID_TASK: 0,
@@ -418,25 +438,95 @@ const ShowmehowService = new Lang.Class({
                                                                               task,
                                                                               input_code) {
             this._validateAndFetchTask(lesson, task, method, Lang.bind(this, function(task_detail) {
-                this._attemptLesson(task_detail.expected.executor || "shell",
-                                    task_detail.expected.type,
-                                    method,
-                                    "Couldn't run task " + task + " on lesson " + lesson,
-                                    Lang.bind(this, function(executor, validator) {
-                    const result = executor(input_code, task_detail.environment);
-                    const success = validator(result.validatable_output,
-                                              task_detail.expected.value);
-                    const wait_message = select_random_from(WAIT_MESSAGES);
+                this._validateAndCreatePipeline(task_detail.mapper,
+                                                method,
+                                                "Couldn't run task " + task + " on lesson " + lesson,
+                                                Lang.bind(this, function(pipeline) {
+                    /* Run each step in the pipeline over the input and
+                     * get a result code at the end. Each step should
+                     * pass a string to the next function. */
+                    run_pipeline(pipeline, input_code, Lang.bind(this, function(result, extras) {
+                        /* Start to build up the response based on what is in extras */
+                        let responses = [
+                            {
+                                type: "scroll_wait",
+                                value: select_random_from(WAIT_MESSAGES)
+                            }
+                        ].concat(extras.filter(function(extra) {
+                            return extra.type === "response";
+                        }).map(function(extra) {
+                            return extra.content;
+                        }));
 
-                    if (success) {
-                        this._onPracticeCompleted(lesson, task);
-                    }
+                        /* Take the result and run it through "effects" to
+                         * determine what to do next.
+                         */
+                        if (Object.keys(task_detail.effects).indexOf(result) === -1) {
+                            method.return_error_literal(ShowmehowErrorDomain,
+                                                        ShowmehowErrors.INVALID_TASK_SPEC,
+                                                        "Don't know how to handle response " +
+                                                        result + " with effects " +
+                                                        JSON.stringify(task_detail.effects, null, 2));
+                        } else {
+                            const effect = task_detail.effects[result];
+                            if (effect.reply) {
+                                if (typeof effect.reply === "string") {
+                                    responses.push({
+                                        type: "scrolled",
+                                        value: effect.reply
+                                    });
+                                } else if (typeof effect.reply === "object") {
+                                    responses.push(effect.reply);
+                                } else {
+                                    method.return_error_literal(ShowmehowErrorDomain,
+                                                                ShowmehowErrors.INVALID_TASK_SPEC,
+                                                                "Can't have an output spec which " +
+                                                                "isn't either an object or a " +
+                                                                "string (error in processing " +
+                                                                JSON.stringify(effect.reply) +
+                                                                ")");
+                                }
+                            }
 
-                    iface.complete_attempt_lesson_remote(method,
-                                                         GLib.Variant.new("(ssb)",
-                                                                          [wait_message,
-                                                                           result.printable_output,
-                                                                           success]));
+                            if (effect.side_effects) {
+                                effect.side_effects.map(Lang.bind(this, function(side_effect) {
+                                    switch (side_effect.type) {
+                                    case "shell":
+                                        shell_executor(side_effect.value);
+                                        break;
+                                    case "unlock":
+                                        {
+                                            /* Get all unlocked tasks and this task's unlocks value and
+                                             * combine the two together into a single set */
+                                            let unlocked = this._settings.get_strv("unlocked-lessons");
+                                            this._settings.set_strv("unlocked-lessons", addArrayUnique(unlocked, side_effect.value));
+                                        }
+                                        break;
+                                    default:
+                                        method.return_error_literal(ShowmehowErrorDomain,
+                                                                    ShowmehowErrors.INVALID_TASK_SPEC,
+                                                                    "Don't know how to handle side effect type " +
+                                                                    side_effect.type + " in parsing (" +
+                                                                    JSON.stringify(side_effect) + ")");
+                                        break;
+                                    }
+                                }));
+                            }
+
+                            if (effect.completes_lesson) {
+                                /* Add this lesson to the known-spells key */
+                                let known = this._settings.get_strv("known-spells");
+                                this._settings.set_strv("known-spells",
+                                                        addArrayUnique(known, [lesson]));
+                            }
+
+                            const move_to = effect.move_to || (effect.completes_lesson ? "" : task);
+                            iface.complete_attempt_lesson_remote(method,
+                                                                 new GLib.Variant("(ss)",
+                                                                                  [JSON.stringify(responses),
+                                                                                   move_to]));
+                        }
+                    }));
                 }));
             }));
         }));
@@ -461,61 +551,70 @@ const ShowmehowService = new Lang.Class({
          * when a reload has happened. To do that, connect to the "changed" signal
          * and emit the "content-refreshed" signal when a change happens. Clients
          * should reset their internal state when this happens. */
-        this._monitor.connect('changed', Lang.bind(this, function(monitor, file, other, type) {
-            if (type === Gio.FileMonitorEvent.CHANGED) {
-                log("Refreshing file " + file.get_parse_name());
-                let [descriptors, warnings, success] = loadLessonDescriptorsFromFile(file);
+        if (this._monitor) {
+            this._monitor.connect('changed', Lang.bind(this, function(monitor, file, other, type) {
+                if (type === Gio.FileMonitorEvent.CHANGED) {
+                    log("Refreshing file " + file.get_parse_name());
+                    let [descriptors, warnings, success] = loadLessonDescriptorsFromFile(file);
 
-                if (success) {
-                    this._descriptors = descriptors;
-                    this._descriptors.warnings = warnings;
+                    if (success) {
+                        this._descriptors = descriptors;
+                        this._descriptors.warnings = warnings;
 
-                    this.emit_lessons_changed();
+                        this.emit_lessons_changed();
+                    }
                 }
-            }
-        }));
+            }));
+        }
     },
     _validateAndFetchTask: function(lesson, task, method, success) {
         try {
-            let task_detail = this._descriptors.filter(d => d.name === lesson)[0].practice[task];
+            const lesson_detail = this._descriptors.filter(d => {
+                return d.name === lesson;
+            })[0];
+            const task_detail_key = Object.keys(lesson_detail.practice).filter(k => {
+                return k === task;
+            })[0];
+            const task_detail = lesson_detail.practice[task_detail_key];
             return success(task_detail);
         } catch(e) {
             return method.return_error_literal(ShowmehowErrorDomain,
                                                ShowmehowErrors.INVALID_TASK,
                                                "Either the lesson " + lesson +
-                                               " or task number " + task +
-                                               " was invalid\n" + e);
+                                               " or task id " + task +
+                                               " was invalid\n" + e + " " + e.stack);
         }
     },
-    _attemptLesson: function(executor_spec, validator_spec, method, err_prefix, callback) {
+    _validateAndCreatePipeline: function(mappers, method, err_prefix, callback) {
         /* This function finds the executor and validator specified
          * and runs callback. If it can't find them, for instance, they
          * are invalid, it returns an error. */
-        let executor, validator;
+        const pipeline = mappers.map(function(mapper) {
+            if (typeof mapper === "string") {
+                return {
+                    type: mapper,
+                    value: null
+                };
+            } else if (typeof mapper === "object") {
+                return mapper;
+            }
 
-        try {
-            executor = KNOWN_EXECUTORS[executor_spec];
-        } catch (e) {
+            return null;
+        });
+
+        const any_invalid = pipeline.some(function(mapper) {
+            return !mapper || Object.keys(mapper).length !== 2 || mapper.type === undefined || mapper.value === undefined;
+        });
+
+        if (any_invalid) {
             method.return_error_literal(ShowmehowErrorDomain,
                                         ShowmehowErrors.INVALID_TASK_SPEC,
-                                        err_prefix +
-                                        ": Attempting to use executor " +
-                                        executor_spec +
-                                        " but no such executor exists");
+                                        err_prefix + ": " +
+                                        "Invalid mapper definition (" +
+                                        JSON.stringify(pipeline, null, 2) + ")");
+        } else {
+            callback(pipeline);
         }
-
-        try {
-            validator = KNOWN_VALIDATORS[validator_spec];
-        } catch (e) {
-            method.return_error_literal(ShowmehowErrorDomain,
-                                        ShowmehowErrors.INVALID_TASK_SPEC,
-                                        err_prefix +
-                                        ": Attempting to use validator " +
-                                        validator_spec +
-                                        " but no such validator exists");
-        }
-
-        return callback(executor, validator);
     },
     _onPracticeCompleted: function(lesson, task, method) {
         let lesson_detail = this._descriptors.filter(d => d.name === lesson)[0];
