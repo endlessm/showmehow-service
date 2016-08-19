@@ -168,8 +168,9 @@ function shell_executor(shellcode, environment) {
                                       environment);
 }
 
-function shell_executor_output(shellcode, environment) {
-    const result = shell_executor(shellcode, environment);
+function shell_executor_output(shellcode, settings) {
+    const result = shell_executor(shellcode,
+                                  settings ? settings.environment : null);
     return [result.stdout + "\n" + result.stderr, []];
 }
 
