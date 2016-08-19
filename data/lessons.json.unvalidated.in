@@ -173,7 +173,12 @@
                 "effects": {
                     "success": {
                         "reply": "Great! Now that we're done with that, maybe you can run 'showmehow' again to find out what other things you can do in this mysterious place....",
-                        "unlock": ["joke", "readfile"],
+                        "side_effects": [
+                            {
+                                "type": "unlock",
+                                "value": ["joke", "readfile"]
+                            }
+                        ],
                         "completes_lesson": true
 
                     },
@@ -260,7 +265,12 @@
                     "success": {
                         "reply": "Moo! You can read any file that is plain text using `cat`. Try it with files like /etc/resolv.conf",
                         "completes_lesson": true,
-                        "unlock": ["breakit"]
+                        "side_effects": [
+                            {
+                                "type": "unlock",
+                                "value": ["breakit"]
+                            }
+                        ]
                     },
                     "failure": {
                         "reply": "Did you get a cow to say what's in /etc/os-release? Try again"
@@ -286,7 +296,12 @@
                     "success": {
                         "reply": "See? Harmless. Don't be afraid to try new things!",
                         "completes_lesson": true,
-                        "unlock": ["changesetting"]
+                        "side_effects": [
+                            {
+                                "type": "unlock",
+                                "value": ["changesetting", "playsong"]
+                            }
+                        ]
                     },
                     "failure": {
                         "reply": "Oops, you actually ended up running something!"
