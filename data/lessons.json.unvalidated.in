@@ -241,7 +241,7 @@
                 }],
                 "effects": {
                     "success":{
-                        "reply": "Endless OS, as epxected. Meow!",
+                        "reply": "Endless OS, as expected. Meow!",
                         "move_to": "cat_cowsay"
                     },
                     "failure": {
