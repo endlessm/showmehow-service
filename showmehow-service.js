@@ -53,6 +53,13 @@ function execute_command_for_output(argv, user_environment={}) {
                                                          environment_object_to_envp(environment),
                                                          0,
                                                          null);
+
+    if (!ok) {
+        GLib.spawn_check_exit_status(status);
+        throw new Error("Failed to execute: " + argv.join(" ") + ", no error " +
+                        "message was set");
+    }
+
     return {
         status: status,
         stdout: String(stdout),
