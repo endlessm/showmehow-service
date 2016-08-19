@@ -246,18 +246,17 @@ function lessonDescriptorMatching(lesson, descriptors) {
  */
 function loadLessonDescriptorsFromFile(file) {
     let warnings = [];
-    let descriptors = [];
+    let descriptors = null;
     let success = false;
 
     try {
         const [ok, contents, etag] = file.load_contents(null);
         [descriptors, warnings] = Validation.validateDescriptors(JSON.parse(contents));
-        success = true;
     } catch (e) {
         warnings.push("Unable to load " + file.get_parse_name() + ": " + String(e));
     }
 
-    return [success ? descriptors : null, warnings, success]
+    return [success ? descriptors : null, warnings]
 }
 
 /**
@@ -298,7 +297,7 @@ function loadLessonDescriptors(cmdlineFilename) {
         let file = Gio.File.new_for_path(filenamesToTry[i]);
         let loadWarnings, success;
 
-        [descriptors, loadWarnings, success] = loadLessonDescriptorsFromFile(file);
+        [descriptors, loadWarnings] = loadLessonDescriptorsFromFile(file);
 
         /* Concat the warnings anyway even if we weren't successful, since
          * the developer might still be interested in them. */
@@ -309,7 +308,7 @@ function loadLessonDescriptors(cmdlineFilename) {
          *
          * Note that success is defined as "we were able to partially load
          * a file." */
-        if (success) {
+        if (descriptors) {
             monitor = file.monitor(Gio.FileMonitorFlags.NONE, null);
             break;
         }
