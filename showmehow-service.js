@@ -174,6 +174,15 @@ function shell_executor_output(shellcode, settings) {
     return [result.stdout + "\n" + result.stderr, []];
 }
 
+function shell_custom_executor_output(shellcode, settings) {
+    if (typeof settings.command !== "string") {
+        throw new Error("shell_custom_executor_output: settings.command " +
+                        "must be a string. settings is " +
+                        JSON.stringify(settings, null, 2));
+    }
+    return shell_executor(settings.command, settings);
+}
+
 function input_executor_output(input, environment) {
     return {
         validatable_output: input,
@@ -329,6 +338,7 @@ const KNOWN_CLUE_TYPES = [
 const _PIPELINE_FUNCS = {
     regex: regex_validator,
     shell: shell_executor_output,
+    shell_custom: shell_custom_executor_output,
     input: function(input) { return [input, []]; }
 };
 
