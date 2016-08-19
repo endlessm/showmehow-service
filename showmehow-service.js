@@ -21,7 +21,7 @@ const Lang = imports.lang;
 /* Put ourself in the search path. Note that we have the least priority.
  * This will allow us to run locally against non-packed files that
  * are already on disk if the user sets GJS_PATH appropriately. */
-imports.searchPath.push('resource:///com/endlessm/showmehow')
+imports.searchPath.push('resource:///com/endlessm/showmehow');
 
 const Validation = imports.lib.validation;
 
