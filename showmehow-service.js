@@ -74,7 +74,7 @@ const WAIT_MESSAGES = [
     "Fetching arbitrary refs",
     "Resolving mathematical contradictions",
     "Fluxing liquid input"
-]
+];
 
 function regex_validator(input, regex) {
     /* Case insensitive and multi-line */
