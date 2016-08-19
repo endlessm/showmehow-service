@@ -378,7 +378,7 @@ const ShowmehowService = new Lang.Class({
         this._descriptors.warnings.forEach(w => log(w));
         this.connect("handle-get-warnings", Lang.bind(this, function(iface, method) {
             iface.complete_get_warnings(method, GLib.Variant.new("a(s)",
-                                                                 this._descriptors.warnings.map(function(w, i) {
+                                                                 this._descriptors.warnings.map(function(w) {
                 return [w];
             })));
         }));
