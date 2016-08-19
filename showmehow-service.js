@@ -190,7 +190,7 @@ function loadLessonDescriptorsFromFile(file) {
     let success = false;
 
     try {
-        const [ok, contents, etag] = file.load_contents(null);
+        const contents = file.load_contents(null)[1];
         [descriptors, warnings] = Validation.validateDescriptors(JSON.parse(contents));
     } catch (e) {
         warnings.push("Unable to load " + file.get_parse_name() + ": " + String(e));
