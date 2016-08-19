@@ -44,7 +44,7 @@ gsettings_SCHEMAS = com.endlessm.showmehow.gschema.xml
 @GSETTINGS_RULES@
 
 # Validation of lessons (produces data.lessons)
-data/lessons.json: $(abs_top_srcdir)/data/lessons.json.unvalidated.in
+data/lessons.json: $(abs_top_srcdir)/data/lessons.json.unvalidated.in $(all_js_files)
 	gjs --include-path=$(abs_top_srcdir) \
 	    $(abs_top_srcdir)/showmehow-validator.js \
 	    $(abs_top_srcdir)/data/lessons.json.unvalidated.in
