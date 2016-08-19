@@ -149,7 +149,7 @@
                         "move_to": "showmehow_argument"
                     },
                     "failure": {
-                        "reply": "Nope, that wasn't what I thought would happen! Try typing just 'showmehow' and hit 'enter'. No more, no less (though surrounding spaces are okay).",
+                        "reply": "Nope, that wasn't what I thought would happen! Try typing just 'showmehow' and hit 'enter'. No more, no less (though surrounding spaces are okay)."
                     }
                 }
             },
@@ -180,7 +180,7 @@
                     "failure": {
                         "reply": "Hmmm. I want to know what happens when you ask how to use 'showmehow'"
                     }
-                },
+                }
             }
         }
     },
