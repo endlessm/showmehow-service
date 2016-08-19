@@ -189,7 +189,7 @@ function loadLessonDescriptorsFromFile(file) {
         warnings.push("Unable to load " + file.get_parse_name() + ": " + String(e));
     }
 
-    return [success ? descriptors : null, warnings]
+    return [success ? descriptors : null, warnings];
 }
 
 /**
