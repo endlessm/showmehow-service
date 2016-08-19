@@ -287,7 +287,9 @@ function loadLessonDescriptors(cmdlineFilename) {
      * warnings if a filename didn't exist */
     for (let i = 0; i < filenamesToTry.length; ++i) {
         let file = Gio.File.new_for_path(filenamesToTry[i]);
-        let [descriptors, loadWarnings, success] = loadLessonDescriptorsFromFile(file);
+        let loadWarnings, success;
+
+        [descriptors, loadWarnings, success] = loadLessonDescriptorsFromFile(file);
 
         /* Concat the warnings anyway even if we weren't successful, since
          * the developer might still be interested in them. */
