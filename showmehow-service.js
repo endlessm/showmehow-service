@@ -51,7 +51,7 @@ function environment_as_object() {
 function execute_command_for_output(argv, user_environment={}) {
     let environment = environment_as_object();
     Object.keys(user_environment).forEach(key => {
-        environment[key] = user_environment[key]
+        environment[key] = user_environment[key];
     });
 
     const [ok, stdout, stderr, status] = GLib.spawn_sync(null,
@@ -63,7 +63,7 @@ function execute_command_for_output(argv, user_environment={}) {
         status: status,
         stdout: String(stdout),
         stderr: String(stderr)
-    }
+    };
 }
 
 function launch_and_watch_pid(argv, on_exit_callback) {
