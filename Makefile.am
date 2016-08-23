@@ -1,3 +1,16 @@
+# Resource javascript modules
+resource_js_files = \
+	lib/validation.js \
+	$(NULL)
+
+# All javascript modules
+all_js_files = \
+	showmehow-validator.js \
+	showmehow-service.js \
+	$(resource_js_files)
+	$(NULL)
+
+
 AM_CONFIG_MACRO_DIR =
 AM_DISTCHECK_CONFIGURE_FLAGS = --enable-introspection
 EXTRA_DIST = com.endlessm.Showmehow.Service.xml \
@@ -5,12 +18,16 @@ EXTRA_DIST = com.endlessm.Showmehow.Service.xml \
 	     com.endlessm.Showmehow.Service.service.in \
 	     com.endlessm.showmehow.gschema.xml \
 	     com.endlessm.showmehow.gresource.xml \
-	     data/lessons.json \
-	     showmehow-service.js
+	     data/lessons.json.unvalidated.in \
+	     $(all_js_files)
 CLEANFILES =
 
 # Rename the showmehow-service script
 showmehow-service: $(abs_top_srcdir)/showmehow-service.js
+	cp $< $@
+
+# Rename the showmehow-validator script
+showmehow-validator: $(abs_top_srcdir)/showmehow-validator.js
 	cp $< $@
 
 # GDBus-Codegen for Showmehow
@@ -26,9 +43,20 @@ gsettings_SCHEMAS = com.endlessm.showmehow.gschema.xml
 
 @GSETTINGS_RULES@
 
+# Validation of lessons (produces data.lessons)
+data/lessons.json: $(abs_top_srcdir)/data/lessons.json.unvalidated.in
+	gjs --include-path=$(abs_top_srcdir) \
+	    $(abs_top_srcdir)/showmehow-validator.js \
+	    $(abs_top_srcdir)/data/lessons.json.unvalidated.in
+	mkdir -p data
+	cp $< $@
+
 # GResources
 
-resource_files = $(shell glib-compile-resources --sourcedir=$(srcdir) --generate-dependencies $(srcdir)/com.endlessm.showmehow.gresource.xml)
+resource_files = $(resource_js_files) \
+	data/lessons.json \
+	$(NULL)
+
 showmehow-resources.h: $(abs_top_srcdir)/com.endlessm.showmehow.gresource.xml $(resource_files)
 	$(AM_V_GEN) glib-compile-resources --target=$@ --sourcedir=$(srcdir) --sourcedir=$(builddir) --generate --c-name showmehow $<
 showmehow-resources.c: $(abs_top_srcdir)/com.endlessm.showmehow.gresource.xml $(resource_files)
@@ -48,7 +76,8 @@ libshowmehow_1_0_la_LIBADD = @SHOWMEHOW_LIBS@
 lib_LTLIBRARIES = libshowmehow-1.0.la
 
 # Scripts to install
-bin_SCRIPTS = showmehow-service
+bin_SCRIPTS = showmehow-service \
+	      showmehow-validator
 
 # Header files to install
 showmehowincludedir = $(includedir)/showmehow-service
@@ -96,4 +125,5 @@ CLEANFILES += $(bin_SCRIPTS) \
 	      $(service_DATA) \
 	      $(resources_built_sources) \
 	      $(gdbus_codegen_built_sources) \
+	      data/lessons.json \
 	      $(NULL)

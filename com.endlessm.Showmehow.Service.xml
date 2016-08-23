@@ -1,5 +1,8 @@
 <node>
   <interface name="com.endlessm.Showmehow.Service">
+    <method name="GetWarnings">
+      <arg name="warnings" direction="out" type="a(s)"/>
+    </method>
     <method name="GetUnlockedLessons">
       <arg name="client" direction="in" type="s"/>
       <arg name="lessons" direction="out" type="a(ssis)"/>
@@ -19,5 +22,6 @@
       <arg name="input" direction="in" type="s"/>
       <arg name="result" direction="out" type="(ssb)"/>
     </method>
+    <signal name="LessonsChanged"/>
   </interface>
 <node>
