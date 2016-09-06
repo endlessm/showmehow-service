@@ -14,7 +14,7 @@ const Gio = imports.gi.Gio;
 const Showmehow = imports.gi.Showmehow;
 
 /* This is a hack to cause Showmehow js resources to get loaded */
-const ShowmehowResource = imports.gi.Showmehow.get_resource();
+const ShowmehowResource = imports.gi.Showmehow.get_resource();  // eslint-disable-line no-unused-vars
 
 const Lang = imports.lang;
 
