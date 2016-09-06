@@ -23,7 +23,7 @@ const Validation = imports.lib.validation;
  */
 function validateFile(filename) {
     const contents = Gio.File.new_for_path(filename).load_contents(null)[1];
-    const [valid, errors] = Validation.validateDescriptors(JSON.parse(contents));
+    const errors = Validation.validateDescriptors(JSON.parse(contents))[1];
     errors.forEach(e => log("lesson validation error: " + e));
     return errors.length;
 }
