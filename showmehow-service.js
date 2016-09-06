@@ -374,10 +374,9 @@ const ShowmehowService = new Lang.Class({
                                                                               task,
                                                                               input_code) {
             this._validateAndFetchTask(lesson, task, method, Lang.bind(this, function(task_detail) {
-                this._validateAndCreatePipeline(task_detail.mapper,
-                                                method,
-                                                "Couldn't run task " + task + " on lesson " + lesson,
-                                                Lang.bind(this, function(pipeline) {
+                const valErr = "Couldn't run task " + task + " on lesson " + lesson;
+                const mapper = task_detail.mapper;
+                this._withPipeline(mapper, method, valErr, Lang.bind(this, function(pipeline) {
                     /* Run each step in the pipeline over the input and
                      * get a result code at the end. Each step should
                      * pass a string to the next function. */
@@ -521,7 +520,7 @@ const ShowmehowService = new Lang.Class({
                                                " was invalid\n" + e + " " + e.stack);
         }
     },
-    _validateAndCreatePipeline: function(mappers, method, err_prefix, callback) {
+    _withPipeline: function(mappers, method, err_prefix, callback) {
         /* This function finds the executor and validator specified
          * and runs callback. If it can't find them, for instance, they
          * are invalid, it returns an error. */
