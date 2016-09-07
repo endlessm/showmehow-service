@@ -85,21 +85,11 @@ const WAIT_MESSAGES = [
 
 function regex_validator(input, regex) {
     /* Case insensitive and multi-line */
-    const extras = [
-        {
-            type: "response",
-            content: {
-                "type": "wrapped",
-                "value": input
-            }
-        }
-    ];
-
     if (input.match(new RegExp(regex, "mi")) !== null) {
-        return ["success", extras];
+        return ["success", []];
     }
 
-    return ["failure", extras];
+    return ["failure", []];
 }
 
 /* Executing raw shellcode. What could possibly go wrong? */
