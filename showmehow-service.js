@@ -123,6 +123,30 @@ function shell_custom_executor_output(shellcode, settings) {
     return shell_executor_output(settings.command, settings);
 }
 
+function add_wrapped_output(input) {
+    return [input, [
+        {
+            type: "response",
+            content: {
+                "type": "wrapped",
+                "value": input
+            }
+        }
+    ]];
+}
+
+function add_wait_message(input) {
+    return [input, [
+        {
+            type: "response",
+            content: {
+                "type": "scroll_wait",
+                value: select_random_from(WAIT_MESSAGES)
+            }
+        }
+    ]];
+}
+
 
 /**
  * addArrayUnique:
@@ -266,7 +290,9 @@ const _PIPELINE_FUNCS = {
     regex: regex_validator,
     shell: shell_executor_output,
     shell_custom: shell_custom_executor_output,
-    input: function(input) { return [input, []]; }
+    input: function(input) { return [input, []]; },
+    wait_message: add_wait_message,
+    wrapped_output: add_wrapped_output
 };
 
 

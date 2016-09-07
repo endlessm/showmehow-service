@@ -165,6 +165,8 @@
                             }
                         }
                     },
+                    "wait_message",
+                    "wrapped_output",
                     {
                         "type": "regex",
                         "value": "'showmehow' is a command.*"
@@ -198,7 +200,7 @@
             "fortune": {
                 "task": "'fortune' is a command that can tell you a joke",
                 "input": "console",
-                "mapper": ["shell", {
+                "mapper": ["shell",  "wait_message", "wrapped_output", {
                     "type": "regex",
                     "value": ".+"
                 }],
@@ -215,7 +217,7 @@
             "fortune_cowsay": {
                 "task": "In the shell, you can pipe (|) the output of commands around into other processes. One of these processes is 'cowsay'. See what happens when you try:\n    $ fortune | cowsay",
                 "input": "console",
-                "mapper": ["shell", {
+                "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
                     "value": "^.*_.*$"
                 }],
