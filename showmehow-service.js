@@ -194,6 +194,7 @@ function loadLessonDescriptorsFromFile(file) {
     try {
         const contents = file.load_contents(null)[1];
         [descriptors, warnings] = Validation.validateDescriptors(JSON.parse(contents));
+        success = true;
     } catch (e) {
         warnings.push("Unable to load " + file.get_parse_name() + ": " + String(e));
     }
@@ -291,14 +292,169 @@ function _run_pipeline_step(pipeline, index, input, extras, done) {
         return done(input, extras);
     }
 
-    const pipelineFunc = _PIPELINE_FUNCS[pipeline[index].type];
-    const [output, funcExtras] = pipelineFunc(input, pipeline[index].value);
-    return _run_pipeline_step(pipeline, index + 1, output, extras.concat(funcExtras), done);
+    const [output, funcExtras] = pipeline[index](input);
+    return _run_pipeline_step(pipeline,
+                              index + 1,
+                              output,
+                              extras.concat(funcExtras),
+                              done);
 }
 
 function run_pipeline(pipeline, input, done) {
     return _run_pipeline_step(pipeline, 0, input, [], done);
 }
+
+function satisfied_external_event_output_with_largest_subset(satisfiedOutputs,
+                                                             lessonSatisfiedStatus) {
+    /* From here, if there is more than one event, we need
+     * to figure out which one best covers the case we're after. This
+     * means that it must subsume every other event.
+     *
+     * It should not be possible to have a situation where two events
+     * are matched and there is not a single event which subsumes
+     * them both. If this situation occurrs it is an error */
+    satisfiedOutputs = satisfiedOutputs.filter(function(satisfiedOutputKey) {
+        const satisfiedOutput = lessonSatisfiedStatus.outputs[satisfiedOutputKey];
+
+        /* Check if all the other satisfied outputs are subsets of this
+         * one. In the event that the subset of satisfied outputs is
+         * empty after returning this one, then the result will still
+         * be true, as [].every(w => false) is true. */
+        return satisfiedOutputs.filter(key => key != satisfiedOutputKey).every(function(key) {
+            return satisfiedOutput.subsumes.indexOf(key) !== -1;
+        });
+    });
+
+    if (satisfiedOutputs.length === 1) {
+        return {
+            name: satisfiedOutputs[0],
+            status: lessonSatisfiedStatus.outputs[satisfiedOutputs[0]]
+        };
+    }
+
+    /* Error cases - no outputs satisfied or more than one output
+     * satisfied. */
+    const satisfiedEvents = Array.prototype.concat.apply([], satisfiedOutputs.map(function(output) {
+        return lessonSatisfiedStatus.outputs[output].events;
+    })).join(", ");
+
+    if (satisfiedOutputs.length === 0) {
+        throw new Error("No outputs were satisfied by events: " +
+                        satisfiedEvents + ". At any given point an " +
+                        "output must be satisfiable even if no " +
+                        "events occurr.");
+    }
+
+    throw new Error("More than one output (" +
+                    satisfiedOutputs.join(", ") + ") was matched when " +
+                    "following events were satisfied: " + satisfiedEvents +
+                    ". Only one output should be satisfiable. " +
+                    "Ensure that all outputs are expressed such that each event " +
+                    "is the perfect subset of another set of events in the subsumes " +
+                    "field.");
+}
+
+const _CUSTOM_PIPELINE_CONSTRUCTORS = {
+    check_external_events: function(service, lesson, task) {
+        let lessonSatisfiedStatus = service._pendingLessonEvents[lesson][task];
+        return function() {
+            if (lessonSatisfiedStatus.timeout) {
+                return ["timeout", []];
+            }
+
+            /* We need to figure out which output to map to here. It should
+             * not be possible for a given set of inputs to match two outputs,
+             * - one should always be a subset of another */
+            let satisfiedOutputs = Object.keys(lessonSatisfiedStatus.outputs).filter(function(key) {
+                /* Return true if every event was satisfied */
+                const spec = lessonSatisfiedStatus.outputs[key];
+                return Object.keys(spec.events).every(function(key) {
+                    spec.events[key] = spec.events[key];
+                    return spec.events[key];
+                });
+            });
+
+            const event = satisfied_external_event_output_with_largest_subset(satisfiedOutputs,
+                                                                              lessonSatisfiedStatus);
+            return [event.name, []];
+        };
+    }
+};
+
+function mapper_to_pipeline_step(mapper, service, lesson, task) {
+    const invalid = (!mapper ||
+                     Object.keys(mapper).length !== 2 ||
+                     mapper.type === undefined ||
+                     mapper.value === undefined);
+
+    if (invalid) {
+        throw new Error("Invalid mapper definition (" +
+                        JSON.stringify(mapper, null, 2) + ")");
+    }
+
+    if (_CUSTOM_PIPELINE_CONSTRUCTORS[mapper.type]) {
+        return _CUSTOM_PIPELINE_CONSTRUCTORS[mapper.type](service, lesson, task);
+    }
+
+    return function(input) {
+        return _PIPELINE_FUNCS[mapper.type](input, mapper.value);
+    };
+}
+
+const _INPUT_SIDE_EFFECTS = {
+    external_events: function(settings, service, lesson, task) {
+        /* If we're already listening for events on this lesson and
+         * task, clear the exsting structure and start over. */
+        if ((service._pendingLessonEvents[lesson] || {})[task]) {
+            delete service._pendingLessonEvents[lesson][task];
+        }
+
+        /* Mutate settings to get something close to what we want.
+         * We abuse JSON.stringify here to get a deep copy. */
+        let lessonSatisfiedStatus = {
+            timeout: false,
+            timeout_id: -1,
+            outputs: JSON.parse(JSON.stringify(settings))
+        };
+        let interestedInEvents = [];
+
+        Object.keys(lessonSatisfiedStatus.outputs).forEach(function(key) {
+            let outputSatisfied = lessonSatisfiedStatus.outputs[key];
+            let outputSatisfiedEventStatus = {};
+
+            /* Start tracking all these events */
+            outputSatisfied.events.forEach(function(event) {
+                return outputSatisfiedEventStatus[event] = false;
+            });
+
+            addArrayUnique(interestedInEvents, outputSatisfied.events);
+
+            outputSatisfied.events = outputSatisfiedEventStatus;
+        });
+
+        lessonSatisfiedStatus.timeout = false;
+        lessonSatisfiedStatus.timeout_id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 10000, function() {
+            /* We timed out. Set the timeout member to true and return false */
+            lessonSatisfiedStatus.timeout = true;
+            lessonSatisfiedStatus.timeout_id = 0;
+
+            /* Notify the user that something was satisfied so that they
+             * call in and get the timed out message */
+            service.emit_lesson_events_satisfied(lesson, task);
+            return false;
+        });
+
+        /* Use the settings to populate service._pendingLessonEvents
+         * then emit a signal to other applications that we are listening
+         * for certain events */
+        service._pendingLessonEvents[lesson] = service._pendingLessonEvents[lesson] || {};
+        service._pendingLessonEvents[lesson][task] = lessonSatisfiedStatus;
+
+        /* Emit that we're interested in them */
+        service.emit_listening_for_lesson_events(new GLib.Variant("a(s)",
+                                                                  interestedInEvents));
+    }
+};
 
 const ShowmehowErrorDomain = GLib.quark_from_string("showmehow-error");
 const ShowmehowErrors = {
@@ -314,6 +470,7 @@ const ShowmehowService = new Lang.Class({
         this._settings = new Gio.Settings({ schema_id: SHOWMEHOW_SCHEMA });
         this._descriptors = descriptors;
         this._monitor = monitor;
+        this._pendingLessonEvents = {};
 
         /* Log the warnings, and also make them available to clients who are interested.
          *
@@ -357,8 +514,12 @@ const ShowmehowService = new Lang.Class({
              * to just specify that we want textual input, since it is
              * a very common case. Detect that here and turn it into
              * a JSON object representation that consumers can understand.
+             *
+             * Also note that this function is not necessarily stateless. Getting
+             * a task description might have side effects like starting the
+             * process to listen for certain OS-level events.
              */
-            this._validateAndFetchTask(lesson, task, method, function(task_detail) {
+            this._validateAndFetchTask(lesson, task, method, Lang.bind(this, function(task_detail) {
                 let input_spec;
                 if (typeof task_detail.input === "string") {
                     input_spec = {
@@ -378,11 +539,18 @@ const ShowmehowService = new Lang.Class({
                                                 ")");
                 }
 
+                if (_INPUT_SIDE_EFFECTS[input_spec.type]) {
+                    _INPUT_SIDE_EFFECTS[input_spec.type](input_spec.settings,
+                                                         this,
+                                                         lesson,
+                                                         task);
+                }
+
                 iface.complete_get_task_description(method,
                                                     GLib.Variant.new("(ss)",
                                                                      [task_detail.task,
                                                                       JSON.stringify(input_spec)]));
-            });
+            }));
         }));
         this.connect("handle-attempt-lesson-remote", Lang.bind(this, function(iface,
                                                                               method,
@@ -390,24 +558,18 @@ const ShowmehowService = new Lang.Class({
                                                                               task,
                                                                               input_code) {
             this._validateAndFetchTask(lesson, task, method, Lang.bind(this, function(task_detail) {
-                const valErr = "Couldn't run task " + task + " on lesson " + lesson;
                 const mapper = task_detail.mapper;
-                this._withPipeline(mapper, method, valErr, Lang.bind(this, function(pipeline) {
+                this._withPipeline(mapper, lesson, task, method, Lang.bind(this, function(pipeline) {
                     /* Run each step in the pipeline over the input and
                      * get a result code at the end. Each step should
                      * pass a string to the next function. */
                     run_pipeline(pipeline, input_code, Lang.bind(this, function(result, extras) {
                         /* Start to build up the response based on what is in extras */
-                        let responses = [
-                            {
-                                type: "scroll_wait",
-                                value: select_random_from(WAIT_MESSAGES)
-                            }
-                        ].concat(extras.filter(function(extra) {
+                        let responses = extras.filter(function(extra) {
                             return extra.type === "response";
                         }).map(function(extra) {
                             return extra.content;
-                        }));
+                        });
 
                         /* Take the result and run it through "effects" to
                          * determine what to do next.
@@ -472,12 +634,51 @@ const ShowmehowService = new Lang.Class({
                             }
 
                             const move_to = effect.move_to || (effect.completes_lesson ? "" : task);
+
+                            /* If we are going to move to a different task to this one, clear any
+                             * pending events for this lesson */
+                            if (move_to !== task &&
+                                (this._pendingLessonEvents[lesson] || {})[task]) {
+                                delete this._pendingLessonEvents[lesson][task];
+                            }
+
                             iface.complete_attempt_lesson_remote(method,
                                                                  new GLib.Variant("(ss)",
                                                                                   [JSON.stringify(responses),
                                                                                    move_to]));
                         }
                     }));
+                }));
+            }));
+        }));
+        this.connect("handle-lesson-event", Lang.bind(this, function(iface, method, name) {
+            Object.keys(this._pendingLessonEvents).forEach(Lang.bind(this, function(lesson) {
+                Object.keys(this._pendingLessonEvents[lesson]).forEach(Lang.bind(this, function(task) {
+                    let lessonSatisfiedStatus = this._pendingLessonEvents[lesson][task];
+                    let satisfiedOutputs = Object.keys(lessonSatisfiedStatus.outputs).filter(function(key) {
+                        /* Return true if every event was satisfied
+                         *
+                         * Note that unlike above, we are
+                         * modifying spec.events inside of the filter
+                         * function, such that the filter will pass
+                         * if the event occurred. This means that in
+                         * some cases, there will be multiple signals
+                         * emitted if an output was satisfied and
+                         * not acted upon yet */
+                        const spec = lessonSatisfiedStatus.outputs[key];
+                        return Object.keys(spec.events).every(function(key) {
+                            spec.events[key] = (spec.events[key] || key == name);
+                            return spec.events[key];
+                        });
+
+                        return false;
+                    });
+
+                    let satisfiedOutput = satisfied_external_event_output_with_largest_subset(satisfiedOutputs,
+                                                                                              lessonSatisfiedStatus);
+                    if (satisfiedOutput.status.notify) {
+                        this.emit_lesson_events_satisfied(lesson, task);
+                    }
                 }));
             }));
         }));
@@ -505,10 +706,9 @@ const ShowmehowService = new Lang.Class({
         if (this._monitor) {
             this._monitor.connect('changed', Lang.bind(this, function(monitor, file, other, type) {
                 if (type === Gio.FileMonitorEvent.CHANGED) {
-                    log("Refreshing file " + file.get_parse_name());
-                    let [descriptors, warnings, success] = loadLessonDescriptorsFromFile(file);
+                    let [descriptors, warnings] = loadLessonDescriptorsFromFile(file);
 
-                    if (success) {
+                    if (descriptors) {
                         this._descriptors = descriptors;
                         this._descriptors.warnings = warnings;
 
@@ -536,36 +736,36 @@ const ShowmehowService = new Lang.Class({
                                                " was invalid\n" + e + " " + e.stack);
         }
     },
-    _withPipeline: function(mappers, method, err_prefix, callback) {
+    _withPipeline: function(mappers, lesson, task, method, callback) {
         /* This function finds the executor and validator specified
          * and runs callback. If it can't find them, for instance, they
          * are invalid, it returns an error. */
-        const pipeline = mappers.map(function(mapper) {
-            if (typeof mapper === "string") {
-                return {
-                    type: mapper,
-                    value: null
-                };
-            } else if (typeof mapper === "object") {
-                return mapper;
-            }
+        let pipeline = null;
+        try {
+            pipeline = mappers.map(Lang.bind(this, function(mapper) {
+                if (typeof mapper === "string") {
+                    return mapper_to_pipeline_step({
+                        type: mapper,
+                        value: null
+                    }, this, lesson, task);
+                } else if (typeof mapper === "object") {
+                    return mapper_to_pipeline_step(mapper, this, lesson, task);
+                }
 
-            return null;
-        });
-
-        const any_invalid = pipeline.some(function(mapper) {
-            return !mapper || Object.keys(mapper).length !== 2 || mapper.type === undefined || mapper.value === undefined;
-        });
-
-        if (any_invalid) {
+                throw new Error("mapper must be a either a string or " +
+                                "or an object, got " + JSON.stringify(mapper));
+            }));
+        } catch (e) {
             method.return_error_literal(ShowmehowErrorDomain,
                                         ShowmehowErrors.INVALID_TASK_SPEC,
-                                        err_prefix + ": " +
-                                        "Invalid mapper definition (" +
-                                        JSON.stringify(pipeline, null, 2) + ")");
-        } else {
-            callback(pipeline);
+                                        "Couldn't run task " + task +
+                                        " on lesson " + lesson + ": " +
+                                        "Couldn't create pipeline: " +
+                                        String(e) + e.stack);
+            return;
         }
+
+        callback(pipeline);
     },
     _registerClue: function(type, content) {
         if (KNOWN_CLUE_TYPES.indexOf(type) === -1) {
