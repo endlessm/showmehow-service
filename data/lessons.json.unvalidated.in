@@ -57,13 +57,22 @@
                 "input": {
                     "type": "external_events",
                     "settings": {
-                        "satisfied": [
-                            "window-moved",
-                            "open-chatbox"
-                        ],
-                        "unsatisfied": [
-                            "open-chatbox"
-                        ]
+                        "satisfied": {
+                            "events": [
+                                "window-moved"
+                            ],
+                            "notify": true,
+                            "subsumes": [
+                                "unsatisfied"
+                            ]
+                        },
+                        "unsatisfied": {
+                            "events": [
+                            ],
+                            "notify": false,
+                            "subsumes": [
+                            ]
+                        }
                     }
                 },
                 "mapper": ["input"],
