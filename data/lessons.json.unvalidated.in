@@ -75,7 +75,7 @@
                         }
                     }
                 },
-                "mapper": ["input"],
+                "mapper": ["check_external_events"],
                 "effects": {
                     "satisfied": {
                         "reply": "Things are not as they seem around here.",
