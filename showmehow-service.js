@@ -739,6 +739,8 @@ const ShowmehowService = new Lang.Class({
     },
 
     _validateAndFetchTask: function(lesson, task, method, success) {
+        let task_detail;
+
         try {
             let lesson_detail = this._descriptors.filter(d => {
                 return d.name === lesson;
@@ -746,8 +748,7 @@ const ShowmehowService = new Lang.Class({
             let task_detail_key = Object.keys(lesson_detail.practice).filter(k => {
                 return k === task;
             })[0];
-            let task_detail = lesson_detail.practice[task_detail_key];
-            return success(task_detail);
+            task_detail = lesson_detail.practice[task_detail_key];
         } catch(e) {
             return method.return_error_literal(ShowmehowErrorDomain,
                                                ShowmehowErrors.INVALID_TASK,
@@ -755,6 +756,8 @@ const ShowmehowService = new Lang.Class({
                                                ' or task id ' + task +
                                                ' was invalid\n' + e + " " + e.stack);
         }
+
+        return success(task_detail);
     },
 
     _withPipeline: function(mappers, lesson, task, method, callback) {
@@ -777,16 +780,15 @@ const ShowmehowService = new Lang.Class({
                                 'or an object, got ' + JSON.stringify(mapper));
             }));
         } catch (e) {
-            method.return_error_literal(ShowmehowErrorDomain,
-                                        ShowmehowErrors.INVALID_TASK_SPEC,
-                                        'Couldn\'t run task ' + task +
-                                        ' on lesson ' + lesson + ': ' +
-                                        'Couldn\'t create pipeline: ' +
-                                        String(e) + e.stack);
-            return;
+            return method.return_error_literal(ShowmehowErrorDomain,
+                                               ShowmehowErrors.INVALID_TASK_SPEC,
+                                               'Couldn\'t run task ' + task +
+                                               ' on lesson ' + lesson + ': ' +
+                                               'Couldn\'t create pipeline: ' +
+                                               String(e) + e.stack);
         }
 
-        callback(pipeline);
+        return callback(pipeline);
     },
 
     _registerClue: function(type, content) {
