@@ -21,8 +21,8 @@ const Validation = imports.lib.validation;
  * Open the provided json file and report any errors.
  */
 function validateFile(filename) {
-    const contents = Gio.File.new_for_path(filename).load_contents(null)[1];
-    const errors = Validation.validateDescriptors(JSON.parse(contents))[1];
+    let contents = Gio.File.new_for_path(filename).load_contents(null)[1];
+    let errors = Validation.validateDescriptors(JSON.parse(contents))[1];
     errors.forEach(e => log("lesson validation error: " + e));
     return errors.length;
 }
