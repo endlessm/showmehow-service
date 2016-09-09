@@ -9,9 +9,8 @@
  * the number of errors encountered.
  */
 
-const System = imports.system;
-
 const Gio = imports.gi.Gio;
+const System = imports.system;
 
 const Validation = imports.lib.validation;
 
