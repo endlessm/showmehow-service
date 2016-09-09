@@ -447,6 +447,7 @@ const ShowmehowErrors = {
 const ShowmehowService = new Lang.Class({
     Name: 'ShowmehowService',
     Extends: Showmehow.ServiceSkeleton,
+
     _init: function(props, descriptors, monitor) {
         this.parent(props);
         this._settings = new Gio.Settings({ schema_id: SHOWMEHOW_SCHEMA });
@@ -698,6 +699,7 @@ const ShowmehowService = new Lang.Class({
             }));
         }
     },
+
     _validateAndFetchTask: function(lesson, task, method, success) {
         try {
             let lesson_detail = this._descriptors.filter(d => {
@@ -716,6 +718,7 @@ const ShowmehowService = new Lang.Class({
                                                ' was invalid\n' + e + " " + e.stack);
         }
     },
+
     _withPipeline: function(mappers, lesson, task, method, callback) {
         /* This function finds the executor and validator specified
          * and runs callback. If it can't find them, for instance, they
@@ -747,6 +750,7 @@ const ShowmehowService = new Lang.Class({
 
         callback(pipeline);
     },
+
     _registerClue: function(type, content) {
         if (KNOWN_CLUE_TYPES.indexOf(type) === -1) {
             throw new Error('Tried to register clue of type ' + type + " but " +
@@ -818,15 +822,18 @@ function parseArguments(argv) {
 const ShowmehowServiceApplication = new Lang.Class({
     Name: 'ShowmehowServiceApplication',
     Extends: Gio.Application,
+
     _init: function(params) {
         this.parent(params);
         this._skeleton = null;
         this._commandLineFilename = null;
     },
+
     vfunc_startup: function() {
         this.parent();
         this.hold();
     },
+
     vfunc_handle_local_options: function(options) {
         this.parent(options);
 
@@ -843,6 +850,7 @@ const ShowmehowServiceApplication = new Lang.Class({
          * we will exit with a code */
         return -1;
     },
+
     vfunc_dbus_register: function(conn, object_path) {
         this.parent(conn, object_path);
         let [descriptors, monitor] = loadLessonDescriptors(this._commandLineFilename);
@@ -851,6 +859,7 @@ const ShowmehowServiceApplication = new Lang.Class({
         this._skeleton.export(conn, object_path);
         return true;
     },
+
     vfunc_dbus_unregister: function() {
         if (this._skeleton) {
             this._skeleton.unexport();
