@@ -854,8 +854,7 @@ const ShowmehowServiceApplication = new Lang.Class({
     vfunc_dbus_register: function(conn, object_path) {
         this.parent(conn, object_path);
         let [descriptors, monitor] = loadLessonDescriptors(this._commandLineFilename);
-        this._skeleton = new ShowmehowService({
-        }, descriptors, monitor);
+        this._skeleton = new ShowmehowService({}, descriptors, monitor);
         this._skeleton.export(conn, object_path);
         return true;
     },
