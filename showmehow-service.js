@@ -859,10 +859,12 @@ const ShowmehowServiceApplication = new Lang.Class({
         return true;
     },
 
-    vfunc_dbus_unregister: function() {
+    vfunc_dbus_unregister: function(conn, object_path) {
         if (this._skeleton) {
             this._skeleton.unexport();
         }
+
+        this.parent(conn, object_path);
     }
 });
 
