@@ -48,11 +48,11 @@ function execute_command_for_output(argv, user_environment={}) {
         environment[key] = user_environment[key];
     });
 
-    const [ok, stdout, stderr, status] = GLib.spawn_sync(null,
-                                                         argv,
-                                                         environment_object_to_envp(environment),
-                                                         0,
-                                                         null);
+    let [ok, stdout, stderr, status] = GLib.spawn_sync(null,
+                                                       argv,
+                                                       environment_object_to_envp(environment),
+                                                       0,
+                                                       null);
 
     if (!ok) {
         GLib.spawn_check_exit_status(status);
@@ -99,8 +99,8 @@ function shell_executor(shellcode, environment) {
 }
 
 function shell_executor_output(shellcode, settings) {
-    const result = shell_executor(shellcode,
-                                  settings ? settings.environment : {});
+    let result = shell_executor(shellcode,
+                                settings ? settings.environment : {});
     return [result.stdout + "\n" + result.stderr, []];
 }
 
@@ -150,7 +150,7 @@ function add_wait_message(input) {
  * is being added.
  */
 function addArrayUnique(lhs, rhs, arraySearchArg) {
-    const arraySearch = arraySearchArg || ((c, p) => p.indexOf(c) === -1);
+    let arraySearch = arraySearchArg || ((c, p) => p.indexOf(c) === -1);
     return lhs.concat(rhs).reduce((p, c) => {
         if (arraySearch(c, p)) {
             p.push(c);
@@ -169,7 +169,7 @@ function lessonDescriptorMatching(lesson, descriptors) {
     /* An immediately invoked function expression to extract the relevant
      * useful information from a lesson descriptor without extracting
      * everything all at once. */
-    const matches = descriptors.filter(d => d.name === lesson);
+    let matches = descriptors.filter(d => d.name === lesson);
 
     if (matches.length !== 1) {
         log("Expected only a single match from " + lesson +
@@ -192,7 +192,7 @@ function loadLessonDescriptorsFromFile(file) {
     let success = false;
 
     try {
-        const contents = file.load_contents(null)[1];
+        let contents = file.load_contents(null)[1];
         [descriptors, warnings] = Validation.validateDescriptors(JSON.parse(contents));
         success = true;
     } catch (e) {
@@ -225,7 +225,7 @@ function loadLessonDescriptorsFromFile(file) {
  * be kept in scope to watch for changes to files.
  */
 function loadLessonDescriptors(cmdlineFilename) {
-    const filenamesToTry = [
+    let filenamesToTry = [
         cmdlineFilename,
         GLib.build_pathv("/", [GLib.get_user_config_dir(), "showmehow", "lessons.json"])
     ].filter(f => !!f);
@@ -292,7 +292,7 @@ function _run_pipeline_step(pipeline, index, input, extras, done) {
         return done(input, extras);
     }
 
-    const [output, funcExtras] = pipeline[index](input);
+    let [output, funcExtras] = pipeline[index](input);
     return _run_pipeline_step(pipeline,
                               index + 1,
                               output,
@@ -314,7 +314,7 @@ function satisfied_external_event_output_with_largest_subset(satisfiedOutputs,
      * are matched and there is not a single event which subsumes
      * them both. If this situation occurrs it is an error */
     satisfiedOutputs = satisfiedOutputs.filter(function(satisfiedOutputKey) {
-        const satisfiedOutput = lessonSatisfiedStatus.outputs[satisfiedOutputKey];
+        let satisfiedOutput = lessonSatisfiedStatus.outputs[satisfiedOutputKey];
 
         /* Check if all the other satisfied outputs are subsets of this
          * one. In the event that the subset of satisfied outputs is
@@ -334,7 +334,7 @@ function satisfied_external_event_output_with_largest_subset(satisfiedOutputs,
 
     /* Error cases - no outputs satisfied or more than one output
      * satisfied. */
-    const satisfiedEvents = Array.prototype.concat.apply([], satisfiedOutputs.map(function(output) {
+    let satisfiedEvents = Array.prototype.concat.apply([], satisfiedOutputs.map(function(output) {
         return lessonSatisfiedStatus.outputs[output].events;
     })).join(", ");
 
@@ -363,14 +363,14 @@ const _CUSTOM_PIPELINE_CONSTRUCTORS = {
              * - one should always be a subset of another */
             let satisfiedOutputs = Object.keys(lessonSatisfiedStatus.outputs).filter(function(key) {
                 /* Return true if every event was satisfied */
-                const spec = lessonSatisfiedStatus.outputs[key];
+                let spec = lessonSatisfiedStatus.outputs[key];
                 return Object.keys(spec.events).every(function(key) {
                     spec.events[key] = spec.events[key];
                     return spec.events[key];
                 });
             });
 
-            const event = satisfied_external_event_output_with_largest_subset(satisfiedOutputs,
+            let event = satisfied_external_event_output_with_largest_subset(satisfiedOutputs,
                                                                               lessonSatisfiedStatus);
             return [event.name, []];
         };
@@ -378,10 +378,10 @@ const _CUSTOM_PIPELINE_CONSTRUCTORS = {
 };
 
 function mapper_to_pipeline_step(mapper, service, lesson, task) {
-    const invalid = (!mapper ||
-                     Object.keys(mapper).length !== 2 ||
-                     mapper.type === undefined ||
-                     mapper.value === undefined);
+    let invalid = (!mapper ||
+                   Object.keys(mapper).length !== 2 ||
+                   mapper.type === undefined ||
+                   mapper.value === undefined);
 
     if (invalid) {
         throw new Error("Invalid mapper definition (" +
@@ -540,7 +540,7 @@ const ShowmehowService = new Lang.Class({
                                                                               task,
                                                                               input_code) {
             this._validateAndFetchTask(lesson, task, method, Lang.bind(this, function(task_detail) {
-                const mapper = task_detail.mapper;
+                let mapper = task_detail.mapper;
                 this._withPipeline(mapper, lesson, task, method, Lang.bind(this, function(pipeline) {
                     /* Run each step in the pipeline over the input and
                      * get a result code at the end. Each step should
@@ -563,7 +563,7 @@ const ShowmehowService = new Lang.Class({
                                                         result + " with effects " +
                                                         JSON.stringify(task_detail.effects, null, 2));
                         } else {
-                            const effect = task_detail.effects[result];
+                            let effect = task_detail.effects[result];
                             if (effect.reply) {
                                 if (typeof effect.reply === "string") {
                                     responses.push({
@@ -615,7 +615,7 @@ const ShowmehowService = new Lang.Class({
                                                         addArrayUnique(known, [lesson]));
                             }
 
-                            const move_to = effect.move_to || (effect.completes_lesson ? "" : task);
+                            let move_to = effect.move_to || (effect.completes_lesson ? "" : task);
 
                             /* If we are going to move to a different task to this one, clear any
                              * pending events for this lesson */
@@ -647,7 +647,7 @@ const ShowmehowService = new Lang.Class({
                          * some cases, there will be multiple signals
                          * emitted if an output was satisfied and
                          * not acted upon yet */
-                        const spec = lessonSatisfiedStatus.outputs[key];
+                        let spec = lessonSatisfiedStatus.outputs[key];
                         return Object.keys(spec.events).every(function(key) {
                             spec.events[key] = (spec.events[key] || key == name);
                             return spec.events[key];
@@ -700,13 +700,13 @@ const ShowmehowService = new Lang.Class({
     },
     _validateAndFetchTask: function(lesson, task, method, success) {
         try {
-            const lesson_detail = this._descriptors.filter(d => {
+            let lesson_detail = this._descriptors.filter(d => {
                 return d.name === lesson;
             })[0];
-            const task_detail_key = Object.keys(lesson_detail.practice).filter(k => {
+            let task_detail_key = Object.keys(lesson_detail.practice).filter(k => {
                 return k === task;
             })[0];
-            const task_detail = lesson_detail.practice[task_detail_key];
+            let task_detail = lesson_detail.practice[task_detail_key];
             return success(task_detail);
         } catch(e) {
             return method.return_error_literal(ShowmehowErrorDomain,
@@ -786,12 +786,12 @@ function parseArguments(argv) {
     var options = {};
 
     argv.forEach(function(arg, i) {
-        const isDoubleDash = arg.startsWith("--");
+        let isDoubleDash = arg.startsWith("--");
         if (isDoubleDash) {
             parsing = arg.slice(2);
         }
 
-        const key = parsing || arg;
+        let key = parsing || arg;
         options[key] = options[key] || [];
 
         /* Whether we push arg to the options
@@ -832,7 +832,7 @@ const ShowmehowServiceApplication = new Lang.Class({
 
         /* For some rather daft reasons, we have to parse ARGV
          * directly to find out some interesting things. */
-        const parsed = parseArguments(ARGV);
+        let parsed = parseArguments(ARGV);
         try {
             this._commandLineFilename = parsed["lessons-file"][0];
         } catch (e) {
@@ -845,7 +845,7 @@ const ShowmehowServiceApplication = new Lang.Class({
     },
     vfunc_dbus_register: function(conn, object_path) {
         this.parent(conn, object_path);
-        const [descriptors, monitor] = loadLessonDescriptors(this._commandLineFilename);
+        let [descriptors, monitor] = loadLessonDescriptors(this._commandLineFilename);
         this._skeleton = new ShowmehowService({
         }, descriptors, monitor);
         this._skeleton.export(conn, object_path);
