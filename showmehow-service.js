@@ -410,9 +410,7 @@ const _INPUT_SIDE_EFFECTS = {
         let lessonSatisfiedStatus = {
             outputs: JSON.parse(JSON.stringify(settings))
         };
-        let interestedInEvents = [];
-
-        Object.keys(lessonSatisfiedStatus.outputs).forEach(function(key) {
+        let interestedInEvents = Object.keys(lessonSatisfiedStatus.outputs).map(function(key) {
             let outputSatisfied = lessonSatisfiedStatus.outputs[key];
             let outputSatisfiedEventStatus = {};
 
@@ -421,10 +419,12 @@ const _INPUT_SIDE_EFFECTS = {
                 return outputSatisfiedEventStatus[event] = false;
             });
 
-            addArrayUnique(interestedInEvents, outputSatisfied.events);
-
+            let interestingEvents = outputSatisfied.events;
             outputSatisfied.events = outputSatisfiedEventStatus;
-        });
+            return interestingEvents;
+        }).reduce(function(interestedInEvents, interestingEvents) {
+            return addArrayUnique(interestedInEvents, interestingEvents);
+        }, []);
 
         /* Use the settings to populate service._pendingLessonEvents
          * then emit a signal to other applications that we are listening
@@ -434,7 +434,7 @@ const _INPUT_SIDE_EFFECTS = {
 
         /* Emit that we're interested in them */
         service.emit_listening_for_lesson_events(new GLib.Variant("a(s)",
-                                                                  interestedInEvents));
+                                                                  interestedInEvents.map((w) => [w])));
     }
 };
 
