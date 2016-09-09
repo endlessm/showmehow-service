@@ -491,6 +491,8 @@ const ShowmehowService = new Lang.Class({
                                         ShowmehowErrors.INTERNAL_ERROR,
                                         String(e));
         }
+
+        return true;
     },
 
     vfunc_handle_get_unlocked_lessons: function(method, client) {
@@ -514,6 +516,7 @@ const ShowmehowService = new Lang.Class({
                                         String(e));
         }
 
+        return true;
     },
 
     vfunc_handle_get_known_spells: function(method, client) {
@@ -532,6 +535,8 @@ const ShowmehowService = new Lang.Class({
                                         ShowmehowErrors.INTERNAL_ERROR,
                                         String(e));
         }
+
+        return true;
     },
 
     vfunc_handle_get_task_description: function(method, lesson, task) {
@@ -584,6 +589,8 @@ const ShowmehowService = new Lang.Class({
                                         ShowmehowErrors.INTERNAL_ERROR,
                                         String(e));
         }
+
+        return true;
     },
 
     vfunc_handle_attempt_lesson_remote: function(method, lesson, task, input_code) {
@@ -686,6 +693,8 @@ const ShowmehowService = new Lang.Class({
                                         ShowmehowErrors.INTERNAL_ERROR,
                                         String(e));
         }
+
+        return true;
     },
 
     vfunc_handle_lesson_event: function(method, name) {
@@ -729,6 +738,8 @@ const ShowmehowService = new Lang.Class({
             log(String(e));
             log(String(e.stack));
         }
+
+        return true;
     },
 
     vfunc_handle_get_clues: function(method) {
@@ -739,6 +750,8 @@ const ShowmehowService = new Lang.Class({
                                         ShowmehowErrors.INTERNAL_ERROR,
                                         String(e));
         }
+
+        return true;
     },
 
     _validateAndFetchTask: function(lesson, task, method, success) {
