@@ -90,10 +90,6 @@
                     "unsatisfied": {
                         "reply": "Move a window before coming back here!",
                         "move_to": "open_move_window"
-                    },
-                    "timeout": {
-                        "reply": "You haven't moved a window yet. Move a window and come back!",
-                        "move_to": "open_move_window"
                     }
                 }
             },

@@ -358,10 +358,6 @@ const _CUSTOM_PIPELINE_CONSTRUCTORS = {
     check_external_events: function(service, lesson, task) {
         let lessonSatisfiedStatus = service._pendingLessonEvents[lesson][task];
         return function() {
-            if (lessonSatisfiedStatus.timeout) {
-                return ["timeout", []];
-            }
-
             /* We need to figure out which output to map to here. It should
              * not be possible for a given set of inputs to match two outputs,
              * - one should always be a subset of another */
@@ -412,8 +408,6 @@ const _INPUT_SIDE_EFFECTS = {
         /* Mutate settings to get something close to what we want.
          * We abuse JSON.stringify here to get a deep copy. */
         let lessonSatisfiedStatus = {
-            timeout: false,
-            timeout_id: -1,
             outputs: JSON.parse(JSON.stringify(settings))
         };
         let interestedInEvents = [];
@@ -430,18 +424,6 @@ const _INPUT_SIDE_EFFECTS = {
             addArrayUnique(interestedInEvents, outputSatisfied.events);
 
             outputSatisfied.events = outputSatisfiedEventStatus;
-        });
-
-        lessonSatisfiedStatus.timeout = false;
-        lessonSatisfiedStatus.timeout_id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 10000, function() {
-            /* We timed out. Set the timeout member to true and return false */
-            lessonSatisfiedStatus.timeout = true;
-            lessonSatisfiedStatus.timeout_id = 0;
-
-            /* Notify the user that something was satisfied so that they
-             * call in and get the timed out message */
-            service.emit_lesson_events_satisfied(lesson, task);
-            return false;
         });
 
         /* Use the settings to populate service._pendingLessonEvents
@@ -670,8 +652,6 @@ const ShowmehowService = new Lang.Class({
                             spec.events[key] = (spec.events[key] || key == name);
                             return spec.events[key];
                         });
-
-                        return false;
                     });
 
                     let satisfiedOutput = satisfied_external_event_output_with_largest_subset(satisfiedOutputs,
