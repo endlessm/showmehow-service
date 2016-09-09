@@ -25,10 +25,12 @@ CLEANFILES =
 # Rename the showmehow-service script
 showmehow-service: $(abs_top_srcdir)/showmehow-service.js
 	cp $< $@
+	chmod +x $@
 
 # Rename the showmehow-validator script
 showmehow-validator: $(abs_top_srcdir)/showmehow-validator.js
 	cp $< $@
+	chmod +x $@
 
 # GDBus-Codegen for Showmehow
 Showmehow.c: $(abs_top_srcdir)/com.endlessm.Showmehow.Service.xml
