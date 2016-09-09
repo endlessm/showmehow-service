@@ -4,7 +4,7 @@
  * Copyright (c) 2016 Endless Mobile Inc.
  * All Rights Reserved.
  *
- * The Showmehow service is the central place where all "lessons" about
+ * The Showmehow service is the central place where all 'lessons' about
  * the operating system are stored and progress is kept.
  */
 
@@ -30,7 +30,7 @@ const SHOWMEHOW_SCHEMA = 'com.endlessm.showmehow';
 function environment_object_to_envp(environment) {
     if (environment) {
         return Object.keys(environment)
-                     .map(key => key + "=" + environment[key]);
+                     .map(key => key + '=' + environment[key]);
     } else {
         return null;
     }
@@ -56,8 +56,8 @@ function execute_command_for_output(argv, user_environment={}) {
 
     if (!ok) {
         GLib.spawn_check_exit_status(status);
-        throw new Error("Failed to execute: " + argv.join(" ") + ", no error " +
-                        "message was set");
+        throw new Error('Failed to execute: ' + argv.join(" ") + ", no error " +
+                        'message was set');
     }
 
     return {
@@ -72,42 +72,42 @@ function select_random_from(array) {
 }
 
 const WAIT_MESSAGES = [
-    "Wait for it",
-    "Combubulating transistors",
-    "Adjusting for combinatorial flux",
-    "Hacking the matrix",
-    "Exchanging electrical bits",
-    "Refuelling source code",
-    "Fetching arbitrary refs",
-    "Resolving mathematical contradictions",
-    "Fluxing liquid input"
+    'Wait for it',
+    'Combubulating transistors',
+    'Adjusting for combinatorial flux',
+    'Hacking the matrix',
+    'Exchanging electrical bits',
+    'Refuelling source code',
+    'Fetching arbitrary refs',
+    'Resolving mathematical contradictions',
+    'Fluxing liquid input'
 ];
 
 function regex_validator(input, regex) {
     /* Case insensitive and multi-line */
-    if (input.match(new RegExp(regex, "mi")) !== null) {
-        return ["success", []];
+    if (input.match(new RegExp(regex, 'mi')) !== null) {
+        return ['success', []];
     }
 
-    return ["failure", []];
+    return ['failure', []];
 }
 
 /* Executing raw shellcode. What could possibly go wrong? */
 function shell_executor(shellcode, environment) {
-    return execute_command_for_output(["/bin/bash", "-c", shellcode + "; exit 0"],
+    return execute_command_for_output(['/bin/bash', "-c", shellcode + "; exit 0"],
                                       environment);
 }
 
 function shell_executor_output(shellcode, settings) {
     let result = shell_executor(shellcode,
                                 settings ? settings.environment : {});
-    return [result.stdout + "\n" + result.stderr, []];
+    return [result.stdout + '\n' + result.stderr, []];
 }
 
 function shell_custom_executor_output(shellcode, settings) {
-    if (typeof settings.command !== "string") {
-        throw new Error("shell_custom_executor_output: settings.command " +
-                        "must be a string. settings is " +
+    if (typeof settings.command !== 'string') {
+        throw new Error('shell_custom_executor_output: settings.command ' +
+                        'must be a string. settings is ' +
                         JSON.stringify(settings, null, 2));
     }
     return shell_executor_output(settings.command, settings);
@@ -116,10 +116,10 @@ function shell_custom_executor_output(shellcode, settings) {
 function add_wrapped_output(input) {
     return [input, [
         {
-            type: "response",
+            type: 'response',
             content: {
-                "type": "wrapped",
-                "value": input
+                'type': "wrapped",
+                'value': input
             }
         }
     ]];
@@ -128,9 +128,9 @@ function add_wrapped_output(input) {
 function add_wait_message(input) {
     return [input, [
         {
-            type: "response",
+            type: 'response',
             content: {
-                "type": "scroll_wait",
+                'type': "scroll_wait",
                 value: select_random_from(WAIT_MESSAGES)
             }
         }
@@ -144,7 +144,7 @@ function add_wait_message(input) {
  * Given some array, add another array and ensure
  * that all elements are unique.
  *
- * Provide the third "arraySearch" argument if you
+ * Provide the third 'arraySearch' argument if you
  * need to provide a custom function to search
  * the existing array for the value that
  * is being added.
@@ -172,8 +172,8 @@ function lessonDescriptorMatching(lesson, descriptors) {
     let matches = descriptors.filter(d => d.name === lesson);
 
     if (matches.length !== 1) {
-        log("Expected only a single match from " + lesson +
-            " but there were " + matches.length + " matches");
+        log('Expected only a single match from ' + lesson +
+            ' but there were ' + matches.length + " matches");
         return null;
     }
 
@@ -196,7 +196,7 @@ function loadLessonDescriptorsFromFile(file) {
         [descriptors, warnings] = Validation.validateDescriptors(JSON.parse(contents));
         success = true;
     } catch (e) {
-        warnings.push("Unable to load " + file.get_parse_name() + ": " + String(e));
+        warnings.push('Unable to load ' + file.get_parse_name() + ": " + String(e));
     }
 
     return [success ? descriptors : null, warnings];
@@ -210,12 +210,12 @@ function loadLessonDescriptorsFromFile(file) {
  * The default case is to load the descriptors from the internal resource
  * file that makes up Showmehow's binary. However, we first:
  *  1. Look at the command line to see if a file was provided there
- *  2. Look in $XDG_CONFIG_HOME for a file called "lessons.json"
- *  3. Use the internal resource named "data/lessons.json"
+ *  2. Look in $XDG_CONFIG_HOME for a file called 'lessons.json'
+ *  3. Use the internal resource named 'data/lessons.json'
  *
- * The first two are assumed to be "untrusted" - they will be validated
+ * The first two are assumed to be 'untrusted' - they will be validated
  * before being loaded in. If there are any errors, we try to use
- * what we can, but will add in an "errors" entry to signify that
+ * what we can, but will add in an 'errors' entry to signify that
  * there were some errors that should be dealt with. Client applications
  * may query for errors and display them appropriately. This is
  * to help the lesson authors quickly catch problems.
@@ -227,14 +227,14 @@ function loadLessonDescriptorsFromFile(file) {
 function loadLessonDescriptors(cmdlineFilename) {
     let filenamesToTry = [
         cmdlineFilename,
-        GLib.build_pathv("/", [GLib.get_user_config_dir(), "showmehow", "lessons.json"])
+        GLib.build_pathv('/', [GLib.get_user_config_dir(), "showmehow", "lessons.json"])
     ].filter(f => !!f);
 
     var warnings = [];
     var descriptors = null;
     let monitor = null;
 
-    /* Here we use a "dumb" for loop, since we need to update
+    /* Here we use a 'dumb' for loop, since we need to update
      * warnings if a filename didn't exist */
     for (let i = 0; i < filenamesToTry.length; ++i) {
         let file = Gio.File.new_for_path(filenamesToTry[i]);
@@ -249,8 +249,8 @@ function loadLessonDescriptors(cmdlineFilename) {
         /* If we were successful, then break here, otherwise try and load
          * the next file.
          *
-         * Note that success is defined as "we were able to partially load
-         * a file." */
+         * Note that success is defined as 'we were able to partially load
+         * a file.' */
         if (descriptors) {
             monitor = file.monitor(Gio.FileMonitorFlags.NONE, null);
             break;
@@ -263,18 +263,18 @@ function loadLessonDescriptors(cmdlineFilename) {
      * This isn't the preferable way of doing it, though it seems like resource
      * paths are not working, at least not locally */
     if (!descriptors) {
-        descriptors = JSON.parse(Gio.resources_lookup_data("/com/endlessm/showmehow/data/lessons.json",
+        descriptors = JSON.parse(Gio.resources_lookup_data('/com/endlessm/showmehow/data/lessons.json',
                                                            Gio.ResourceLookupFlags.NONE).get_data());
     }
 
-    /* Add a "warnings" key to descriptors. */
+    /* Add a 'warnings' key to descriptors. */
     descriptors.warnings = warnings;
     return [descriptors, monitor];
 }
 
 const KNOWN_CLUE_TYPES = [
-    "text",
-    "image-path"
+    'text',
+    'image-path'
 ];
 
 const _PIPELINE_FUNCS = {
@@ -336,22 +336,22 @@ function satisfied_external_event_output_with_largest_subset(satisfiedOutputs,
      * satisfied. */
     let satisfiedEvents = Array.prototype.concat.apply([], satisfiedOutputs.map(function(output) {
         return lessonSatisfiedStatus.outputs[output].events;
-    })).join(", ");
+    })).join(', ');
 
     if (satisfiedOutputs.length === 0) {
-        throw new Error("No outputs were satisfied by events: " +
-                        satisfiedEvents + ". At any given point an " +
-                        "output must be satisfiable even if no " +
-                        "events occurr.");
+        throw new Error('No outputs were satisfied by events: ' +
+                        satisfiedEvents + '. At any given point an ' +
+                        'output must be satisfiable even if no ' +
+                        'events occurr.');
     }
 
-    throw new Error("More than one output (" +
-                    satisfiedOutputs.join(", ") + ") was matched when " +
-                    "following events were satisfied: " + satisfiedEvents +
-                    ". Only one output should be satisfiable. " +
-                    "Ensure that all outputs are expressed such that each event " +
-                    "is the perfect subset of another set of events in the subsumes " +
-                    "field.");
+    throw new Error('More than one output (' +
+                    satisfiedOutputs.join(', ') + ") was matched when " +
+                    'following events were satisfied: ' + satisfiedEvents +
+                    '. Only one output should be satisfiable. ' +
+                    'Ensure that all outputs are expressed such that each event ' +
+                    'is the perfect subset of another set of events in the subsumes ' +
+                    'field.');
 }
 
 const _CUSTOM_PIPELINE_CONSTRUCTORS = {
@@ -384,8 +384,8 @@ function mapper_to_pipeline_step(mapper, service, lesson, task) {
                    mapper.value === undefined);
 
     if (invalid) {
-        throw new Error("Invalid mapper definition (" +
-                        JSON.stringify(mapper, null, 2) + ")");
+        throw new Error('Invalid mapper definition (' +
+                        JSON.stringify(mapper, null, 2) + ')');
     }
 
     if (_CUSTOM_PIPELINE_CONSTRUCTORS[mapper.type]) {
@@ -433,19 +433,19 @@ const _INPUT_SIDE_EFFECTS = {
         service._pendingLessonEvents[lesson][task] = lessonSatisfiedStatus;
 
         /* Emit that we're interested in them */
-        service.emit_listening_for_lesson_events(new GLib.Variant("a(s)",
+        service.emit_listening_for_lesson_events(new GLib.Variant('a(s)',
                                                                   interestedInEvents.map((w) => [w])));
     }
 };
 
-const ShowmehowErrorDomain = GLib.quark_from_string("showmehow-error");
+const ShowmehowErrorDomain = GLib.quark_from_string('showmehow-error');
 const ShowmehowErrors = {
     INVALID_TASK: 0,
     INVALID_TASK_SPEC: 1,
     INVALID_CLUE_TYPE: 2
 };
 const ShowmehowService = new Lang.Class({
-    Name: "ShowmehowService",
+    Name: 'ShowmehowService',
     Extends: Showmehow.ServiceSkeleton,
     _init: function(props, descriptors, monitor) {
         this.parent(props);
@@ -456,40 +456,40 @@ const ShowmehowService = new Lang.Class({
 
         /* Log the warnings, and also make them available to clients who are interested.
          *
-         * XXX: For some odd reason, I'm not able to return "as" here and need to
+         * XXX: For some odd reason, I'm not able to return 'as" here and need to
          * return an array of structures in order to get this to work. */
         this._descriptors.warnings.forEach(w => log(w));
-        this.connect("handle-get-warnings", Lang.bind(this, function(iface, method) {
-            iface.complete_get_warnings(method, GLib.Variant.new("a(s)",
+        this.connect('handle-get-warnings', Lang.bind(this, function(iface, method) {
+            iface.complete_get_warnings(method, GLib.Variant.new('a(s)',
                                                                  this._descriptors.warnings.map((w) => [w])));
         }));
-        this.connect("handle-get-unlocked-lessons", Lang.bind(this, function(iface, method, client) {
+        this.connect('handle-get-unlocked-lessons', Lang.bind(this, function(iface, method, client) {
             /* We call addArrayUnique here to ensure that showmehow is always in the
              * list, even if the gsettings key messes up and gets reset to an
              * empty list. */
-            let unlocked = addArrayUnique(this._settings.get_strv("unlocked-lessons"), [
-                "showmehow",
-                "intro"
+            let unlocked = addArrayUnique(this._settings.get_strv('unlocked-lessons'), [
+                'showmehow',
+                'intro'
             ]).map(l => {
                 return lessonDescriptorMatching(l, this._descriptors);
             }).filter(d => {
                 return d && d.available_to.indexOf(client) !== -1;
             }).map(d => [d.name, d.desc, d.entry]);
 
-            iface.complete_get_unlocked_lessons(method, GLib.Variant.new("a(sss)", unlocked));
+            iface.complete_get_unlocked_lessons(method, GLib.Variant.new('a(sss)', unlocked));
         }));
-        this.connect("handle-get-known-spells", Lang.bind(this, function(iface, method, client) {
-            /* Get all the lesson details for the "known" spells, eg, the ones the
+        this.connect('handle-get-known-spells', Lang.bind(this, function(iface, method, client) {
+            /* Get all the lesson details for the 'known' spells, eg, the ones the
              * user has already completed.
              */
-            let ret = this._settings.get_strv("known-spells").map(l => {
+            let ret = this._settings.get_strv('known-spells').map(l => {
                 return lessonDescriptorMatching(l, this._descriptors);
             }).filter(d => {
                 return d && d.available_to.indexOf(client) !== -1;
             }).map(d => [d.name, d.desc, d.entry]);
-            iface.complete_get_known_spells(method, GLib.Variant.new("a(sss)", ret));
+            iface.complete_get_known_spells(method, GLib.Variant.new('a(sss)', ret));
         }));
-        this.connect("handle-get-task-description", Lang.bind(this, function(iface, method, lesson, task) {
+        this.connect('handle-get-task-description', Lang.bind(this, function(iface, method, lesson, task) {
             /* Return the descriptions for this task
              *
              * Note that in the specification file we allow a shorthand
@@ -503,22 +503,22 @@ const ShowmehowService = new Lang.Class({
              */
             this._validateAndFetchTask(lesson, task, method, Lang.bind(this, function(task_detail) {
                 let input_spec;
-                if (typeof task_detail.input === "string") {
+                if (typeof task_detail.input === 'string') {
                     input_spec = {
                         type: task_detail.input,
                         settings: {
                         }
                     };
-                } else if (typeof task_detail.input === "object") {
+                } else if (typeof task_detail.input === 'object') {
                     input_spec = task_detail.input;
                 } else {
                     method.return_error_literal(ShowmehowErrorDomain,
                                                 ShowmehowErrors.INVALID_TASK_SPEC,
-                                                "Can't have an input spec which " +
-                                                "isn't either an object or a " +
-                                                "string (error in processing " +
+                                                'Can\'t have an input spec which ' +
+                                                'isn\'t either an object or a ' +
+                                                'string (error in processing ' +
                                                 JSON.stringify(task_detail.input) +
-                                                ")");
+                                                ')');
                 }
 
                 if (_INPUT_SIDE_EFFECTS[input_spec.type]) {
@@ -529,12 +529,12 @@ const ShowmehowService = new Lang.Class({
                 }
 
                 iface.complete_get_task_description(method,
-                                                    GLib.Variant.new("(ss)",
+                                                    GLib.Variant.new('(ss)',
                                                                      [task_detail.task,
                                                                       JSON.stringify(input_spec)]));
             }));
         }));
-        this.connect("handle-attempt-lesson-remote", Lang.bind(this, function(iface,
+        this.connect('handle-attempt-lesson-remote', Lang.bind(this, function(iface,
                                                                               method,
                                                                               lesson,
                                                                               task,
@@ -548,61 +548,61 @@ const ShowmehowService = new Lang.Class({
                     run_pipeline(pipeline, input_code, Lang.bind(this, function(result, extras) {
                         /* Start to build up the response based on what is in extras */
                         let responses = extras.filter(function(extra) {
-                            return extra.type === "response";
+                            return extra.type === 'response';
                         }).map(function(extra) {
                             return extra.content;
                         });
 
-                        /* Take the result and run it through "effects" to
+                        /* Take the result and run it through 'effects' to
                          * determine what to do next.
                          */
                         if (Object.keys(task_detail.effects).indexOf(result) === -1) {
                             method.return_error_literal(ShowmehowErrorDomain,
                                                         ShowmehowErrors.INVALID_TASK_SPEC,
-                                                        "Don't know how to handle response " +
-                                                        result + " with effects " +
+                                                        'Don\'t know how to handle response ' +
+                                                        result + ' with effects ' +
                                                         JSON.stringify(task_detail.effects, null, 2));
                         } else {
                             let effect = task_detail.effects[result];
                             if (effect.reply) {
-                                if (typeof effect.reply === "string") {
+                                if (typeof effect.reply === 'string') {
                                     responses.push({
-                                        type: "scrolled",
+                                        type: 'scrolled',
                                         value: effect.reply
                                     });
-                                } else if (typeof effect.reply === "object") {
+                                } else if (typeof effect.reply === 'object') {
                                     responses.push(effect.reply);
                                 } else {
                                     method.return_error_literal(ShowmehowErrorDomain,
                                                                 ShowmehowErrors.INVALID_TASK_SPEC,
-                                                                "Can't have an output spec which " +
-                                                                "isn't either an object or a " +
-                                                                "string (error in processing " +
+                                                                'Can\'t have an output spec which ' +
+                                                                'isn\'t either an object or a ' +
+                                                                'string (error in processing ' +
                                                                 JSON.stringify(effect.reply) +
-                                                                ")");
+                                                                ')');
                                 }
                             }
 
                             if (effect.side_effects) {
                                 effect.side_effects.map(Lang.bind(this, function(side_effect) {
                                     switch (side_effect.type) {
-                                    case "shell":
+                                    case 'shell':
                                         shell_executor(side_effect.value);
                                         break;
-                                    case "unlock":
+                                    case 'unlock':
                                         {
                                             /* Get all unlocked tasks and this task's unlocks value and
                                              * combine the two together into a single set */
-                                            let unlocked = this._settings.get_strv("unlocked-lessons");
-                                            this._settings.set_strv("unlocked-lessons", addArrayUnique(unlocked, side_effect.value));
+                                            let unlocked = this._settings.get_strv('unlocked-lessons');
+                                            this._settings.set_strv('unlocked-lessons', addArrayUnique(unlocked, side_effect.value));
                                         }
                                         break;
                                     default:
                                         method.return_error_literal(ShowmehowErrorDomain,
                                                                     ShowmehowErrors.INVALID_TASK_SPEC,
-                                                                    "Don't know how to handle side effect type " +
-                                                                    side_effect.type + " in parsing (" +
-                                                                    JSON.stringify(side_effect) + ")");
+                                                                    'Don\'t know how to handle side effect type ' +
+                                                                    side_effect.type + ' in parsing (' +
+                                                                    JSON.stringify(side_effect) + ')');
                                         break;
                                     }
                                 }));
@@ -610,12 +610,12 @@ const ShowmehowService = new Lang.Class({
 
                             if (effect.completes_lesson) {
                                 /* Add this lesson to the known-spells key */
-                                let known = this._settings.get_strv("known-spells");
-                                this._settings.set_strv("known-spells",
+                                let known = this._settings.get_strv('known-spells');
+                                this._settings.set_strv('known-spells',
                                                         addArrayUnique(known, [lesson]));
                             }
 
-                            let move_to = effect.move_to || (effect.completes_lesson ? "" : task);
+                            let move_to = effect.move_to || (effect.completes_lesson ? '' : task);
 
                             /* If we are going to move to a different task to this one, clear any
                              * pending events for this lesson */
@@ -625,7 +625,7 @@ const ShowmehowService = new Lang.Class({
                             }
 
                             iface.complete_attempt_lesson_remote(method,
-                                                                 new GLib.Variant("(ss)",
+                                                                 new GLib.Variant('(ss)',
                                                                                   [JSON.stringify(responses),
                                                                                    move_to]));
                         }
@@ -633,7 +633,7 @@ const ShowmehowService = new Lang.Class({
                 }));
             }));
         }));
-        this.connect("handle-lesson-event", Lang.bind(this, function(iface, method, name) {
+        this.connect('handle-lesson-event', Lang.bind(this, function(iface, method, name) {
             Object.keys(this._pendingLessonEvents).forEach(Lang.bind(this, function(lesson) {
                 Object.keys(this._pendingLessonEvents[lesson]).forEach(Lang.bind(this, function(task) {
                     let lessonSatisfiedStatus = this._pendingLessonEvents[lesson][task];
@@ -663,7 +663,7 @@ const ShowmehowService = new Lang.Class({
             }));
         }));
 
-        this.connect("handle-register-clue", Lang.bind(this, function(iface, method, type, clue) {
+        this.connect('handle-register-clue', Lang.bind(this, function(iface, method, type, clue) {
             try {
                 this._registerClue(type, clue);
                 iface.complete_register_clue(method);
@@ -676,12 +676,12 @@ const ShowmehowService = new Lang.Class({
             }
         }));
 
-        this.connect("handle-get-clues", Lang.bind(this, function(iface, method) {
-            iface.complete_get_clues(method, this._settings.get_value("clues"));
+        this.connect('handle-get-clues', Lang.bind(this, function(iface, method) {
+            iface.complete_get_clues(method, this._settings.get_value('clues'));
         }));
         /* If we did have a monitor on the file, it means that we can notify clients
-         * when a reload has happened. To do that, connect to the "changed" signal
-         * and emit the "content-refreshed" signal when a change happens. Clients
+         * when a reload has happened. To do that, connect to the 'changed' signal
+         * and emit the 'content-refreshed' signal when a change happens. Clients
          * should reset their internal state when this happens. */
         if (this._monitor) {
             this._monitor.connect('changed', Lang.bind(this, function(monitor, file, other, type) {
@@ -711,9 +711,9 @@ const ShowmehowService = new Lang.Class({
         } catch(e) {
             return method.return_error_literal(ShowmehowErrorDomain,
                                                ShowmehowErrors.INVALID_TASK,
-                                               "Either the lesson " + lesson +
-                                               " or task id " + task +
-                                               " was invalid\n" + e + " " + e.stack);
+                                               'Either the lesson ' + lesson +
+                                               ' or task id ' + task +
+                                               ' was invalid\n' + e + " " + e.stack);
         }
     },
     _withPipeline: function(mappers, lesson, task, method, callback) {
@@ -723,24 +723,24 @@ const ShowmehowService = new Lang.Class({
         let pipeline = null;
         try {
             pipeline = mappers.map(Lang.bind(this, function(mapper) {
-                if (typeof mapper === "string") {
+                if (typeof mapper === 'string') {
                     return mapper_to_pipeline_step({
                         type: mapper,
                         value: null
                     }, this, lesson, task);
-                } else if (typeof mapper === "object") {
+                } else if (typeof mapper === 'object') {
                     return mapper_to_pipeline_step(mapper, this, lesson, task);
                 }
 
-                throw new Error("mapper must be a either a string or " +
-                                "or an object, got " + JSON.stringify(mapper));
+                throw new Error('mapper must be a either a string or ' +
+                                'or an object, got ' + JSON.stringify(mapper));
             }));
         } catch (e) {
             method.return_error_literal(ShowmehowErrorDomain,
                                         ShowmehowErrors.INVALID_TASK_SPEC,
-                                        "Couldn't run task " + task +
-                                        " on lesson " + lesson + ": " +
-                                        "Couldn't create pipeline: " +
+                                        'Couldn\'t run task ' + task +
+                                        ' on lesson ' + lesson + ': ' +
+                                        'Couldn\'t create pipeline: ' +
                                         String(e) + e.stack);
             return;
         }
@@ -749,19 +749,19 @@ const ShowmehowService = new Lang.Class({
     },
     _registerClue: function(type, content) {
         if (KNOWN_CLUE_TYPES.indexOf(type) === -1) {
-            throw new Error("Tried to register clue of type " + type + " but " +
-                            "the service does not know how to handle that type. " +
-                            "Known clue types are " + KNOWN_CLUE_TYPES.join(" "));
+            throw new Error('Tried to register clue of type ' + type + " but " +
+                            'the service does not know how to handle that type. ' +
+                            'Known clue types are ' + KNOWN_CLUE_TYPES.join(" "));
         }
 
-        let clues = this._settings.get_value("clues").deep_unpack();
+        let clues = this._settings.get_value('clues').deep_unpack();
         clues = addArrayUnique(clues, [[content, type]], function(v, array) {
             return array.filter(function(existingClue) {
                 return existingClue[0] == v[0] &&
                        existingClue[1] == v[1];
             }).length === 0;
         });
-        this._settings.set_value("clues", GLib.Variant.new("a(ss)", clues));
+        this._settings.set_value('clues', GLib.Variant.new("a(ss)", clues));
     }
 });
 
@@ -771,7 +771,7 @@ const ShowmehowService = new Lang.Class({
  * Sadly, GOptionEntry is not supported by Gjs, so this is a poor-man's
  * option parser.
  *
- * This option parser is a simple "state machine" option parser. It just
+ * This option parser is a simple 'state machine' option parser. It just
  * has a state as to whether it is parsing a double-dash option, or
  * if it is parsing something else. There is no type checking or
  * validation.
@@ -786,7 +786,7 @@ function parseArguments(argv) {
     var options = {};
 
     argv.forEach(function(arg, i) {
-        let isDoubleDash = arg.startsWith("--");
+        let isDoubleDash = arg.startsWith('--');
         if (isDoubleDash) {
             parsing = arg.slice(2);
         }
@@ -807,7 +807,7 @@ function parseArguments(argv) {
          */
         if (!isDoubleDash ||
             i === argv.length - 1 ||
-            argv[i + 1].startsWith("--")) {
+            argv[i + 1].startsWith('--')) {
             options[key].push(isDoubleDash ? !!arg : arg);
         }
     });
@@ -834,7 +834,7 @@ const ShowmehowServiceApplication = new Lang.Class({
          * directly to find out some interesting things. */
         let parsed = parseArguments(ARGV);
         try {
-            this._commandLineFilename = parsed["lessons-file"][0];
+            this._commandLineFilename = parsed['lessons-file'][0];
         } catch (e) {
             this._commandLineFilename = null;
         }
@@ -859,8 +859,8 @@ const ShowmehowServiceApplication = new Lang.Class({
 });
 
 let application = new ShowmehowServiceApplication({
-    "application-id": "com.endlessm.Showmehow.Service",
-    "flags": Gio.ApplicationFlags.IS_SERVICE |
+    'application-id': 'com.endlessm.Showmehow.Service',
+    'flags': Gio.ApplicationFlags.IS_SERVICE |
              Gio.ApplicationFlags.HANDLES_COMMAND_LINE
 });
 application.run(ARGV);
