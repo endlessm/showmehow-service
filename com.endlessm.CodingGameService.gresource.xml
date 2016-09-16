@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
   <gresource prefix="/com/endlessm/coding-game-service">
-    <file>data/lessons.json</file>
+    <file>data/timeline.json</file>
     <file>lib/validation.js</file>
   </gresource>
 </gresources>

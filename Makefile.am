@@ -18,7 +18,7 @@ EXTRA_DIST = com.endlessm.CodingGameService.xml \
 	     com.endlessm.CodingGameService.service.in \
 	     com.endlessm.CodingGameService.gschema.xml \
 	     com.endlessm.CodingGameService.gresource.xml \
-	     data/lessons.json.unvalidated.in \
+	     data/timeline.json.unvalidated.in \
 	     $(all_js_files)
 CLEANFILES =
 
@@ -45,18 +45,15 @@ gsettings_SCHEMAS = com.endlessm.CodingGameService.gschema.xml
 
 @GSETTINGS_RULES@
 
-# Validation of lessons (produces data.lessons)
-data/lessons.json: $(abs_top_srcdir)/data/lessons.json.unvalidated.in $(all_js_files)
-	gjs --include-path=$(abs_top_srcdir) \
-	    $(abs_top_srcdir)/coding-game-validator.js \
-	    $(abs_top_srcdir)/data/lessons.json.unvalidated.in
+# Validation of timeline (produces data.timeline)
+data/timeline.json: $(abs_top_srcdir)/data/timeline.json.unvalidated.in $(all_js_files)
 	mkdir -p data
 	cp $< $@
 
 # GResources
 
 resource_files = $(resource_js_files) \
-	data/lessons.json \
+	data/timeline.json \
 	$(NULL)
 
 coding-game-service-resources.h: $(abs_top_srcdir)/com.endlessm.CodingGameService.gresource.xml $(resource_files)

@@ -1,0 +1,211 @@
+{
+    "stages": [
+        {
+            "name": "intro",
+            "artifacts": [
+                {
+                    "name": "chat::meme::intro::hook",
+                    "points": 52
+                },
+                {
+                    "name": "chat::meme::intro::choice-see-cool",
+                    "points": 52
+                },
+                {
+                    "name": "event::intro::wobble-window",
+                    "points": 52
+                },
+                {
+                    "name": "chat::meme::intro::install-programming",
+                    "points": 52
+                }
+            ]
+        }
+    ],
+    "start": {
+        "conversations": [
+            "meme"
+        ],
+        "messages": {
+            "meme": [
+                "chat::meme::intro::hook::challenge"
+            ]
+        }
+    },
+    "events": [
+        {
+            "name": "chat::meme::intro::hook::challenge",
+            "type": "chat-actor",
+            "data": {
+                "actor": "meme",
+                "message": "intro::hook::challenge",
+                "responses": {
+                    "satisfied": [
+                        {
+                            "type": "register",
+                            "name": "chat::meme::intro::hook"
+                        },
+                        {
+                            "type": "event",
+                            "name": "chat::meme::intro::choice-see-cool::challenge"
+                        }
+                    ],
+                    "unsatisfied": [
+                        {
+                            "type": "event",
+                            "name": "chat::meme::intro::hook::again"
+                        },
+                        {
+                            "type": "event",
+                            "name": "chat::meme::intro::hook::challenge"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "chat::meme::intro::hook::again",
+            "type": "chat-actor",
+            "data": {
+                "actor": "meme",
+                "message": "intro::hook::again"
+            }
+        },
+        {
+            "name": "chat::meme::intro::choice-see-cool::challenge",
+            "type": "chat-actor",
+            "data": {
+                "actor": "meme",
+                "message": "intro::choice-see-cool::challenge",
+                "responses": {
+                    "satisfied": [
+                        {
+                            "type": "register",
+                            "name": "chat::meme::intro::choice-see-cool"
+                        },
+                        {
+                            "type": "event",
+                            "name": "listen::intro::wobble-window"
+                        }
+                    ],
+                    "unsatisfied": [
+                        {
+                            "type": "event",
+                            "name": "chat::meme::intro::choice-see-cool::again"
+                        },
+                        {
+                            "type": "event",
+                            "name": "chat::meme::intro::choice-see-cool::challenge"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "chat::meme::intro::choice-see-cool::again",
+            "type": "chat-actor",
+            "data": {
+                "actor": "meme",
+                "message": "intro::choice-see-cool::again"
+            }
+        },
+        {
+            "name": "event::intro::enable-wobbly-windows",
+            "type": "change-setting",
+            "data": {
+                "schema": "org.gnome.shell",
+                "key": "wobbly-effect",
+                "value": true
+            }
+        },
+        {
+            "name": "event::intro::disable-wobbly-windows",
+            "type": "change-setting",
+            "data": {
+                "schema": "org.gnome.shell",
+                "key": "wobbly-effect",
+                "value": false
+            }
+        },
+        {
+            "name": "listen::intro::wobble-window",
+            "type": "listen-event",
+            "data": {
+                "name": "move-window",
+                "received": [
+                    {
+                        "type": "register",
+                        "name": "event::intro::wobble-window"
+                    },
+                    {
+                        "type": "event",
+                        "name": "listen::intro::stop-wobble-window"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "listen::intro::stop-wobble-window",
+            "type": "listen-event",
+            "data": {
+                "name": "stop-moving-windows",
+                "received": [
+                    {
+                        "type": "event",
+                        "name": "chat::meme::intro::wobble-windows-comment"
+                    },
+                    {
+                        "type": "event",
+                        "name": "chat::meme::intro::install-programming::challenge"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "chat::meme::intro::wobble-windows-comment",
+            "type": "chat-actor",
+            "data": {
+                "actor": "meme",
+                "message": "intro::wobble-windows-comment"
+            }
+        },
+        {
+            "name": "chat::meme::intro::install-programming::challenge",
+            "type": "chat-actor",
+            "data": {
+                "actor": "meme",
+                "message": "intro::install-programming::challenge",
+                "responses": {
+                    "satisfied": [
+                        {
+                            "type": "register",
+                            "name": "chat::meme::intro::install-programming"
+                        },
+                        {
+                            "type": "event",
+                            "name": "chat::meme::intro::intro-complete"
+                        }
+                    ],
+                    "unsatisfied": [
+                        {
+                            "type": "event",
+                            "name": "chat::meme::intro::install-programming::again"
+                        },
+                        {
+                            "type": "event",
+                            "name": "chat::meme::intro::install-programming::challenge"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "chat::meme::intro::install-programming::again",
+            "type": "chat-actor",
+            "data": {
+                "actor": "meme",
+                "message": "intro::install-programming::again"
+            }
+        }
+    ]
+}

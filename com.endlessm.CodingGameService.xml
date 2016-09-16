@@ -1,45 +1,22 @@
 <node>
   <interface name="com.endlessm.CodingGameService">
-    <method name="GetWarnings">
-      <arg name="warnings" direction="out" type="a(s)"/>
+    <method name="ChatHistory">
+      <arg name="actor" direction="in" type="s"/>
+      <arg name="messages" direction="out" type="a(s)"/>
     </method>
-    <method name="GetUnlockedLessons">
-      <arg name="client" direction="in" type="s"/>
-      <arg name="lessons" direction="out" type="a(sss)"/>
+    <method name="ChatResponse">
+      <arg name="id" direction="in" type="s"/>
+      <arg name="content" direction="in" type="s"/>
+      <arg name="result" direction="in" type="s"/>
     </method>
-    <method name="GetKnownSpells">
-      <arg name="client" direction="in" type="s"/>
-      <arg name="lessons" direction="out" type="a(sss)"/>
-    </method>
-    <method name="GetTaskDescription">
-      <arg name="lesson" direction="in" type="s"/>
-      <arg name="task" direction="in" type="s"/>
-      <arg name="description" direction="out" type="(ss)"/>
-    </method>
-    <method name="AttemptLessonRemote">
-      <arg name="lesson" direction="in" type="s"/>
-      <arg name="task" direction="in" type="s"/>
-      <arg name="input" direction="in" type="s"/>
-      <arg name="result" direction="out" type="(ss)"/>
-    </method>
-    <method name="RegisterClue">
-      <arg name="type" direction="in" type="s"/>
-      <arg name="clue" direction="in" type="s"/>
-    </method>
-    <method name="LessonEvent">
-        <arg name="name" direction="in" type="s"/>
-    </method>
-    <method name="GetClues">
-      <arg name="client" direction="in" type="s"/>
-      <arg name="clues" direction="out" type="a(ss)"/>
-    </method>
-    <signal name="LessonsChanged"/>
-    <signal name="ListeningForLessonEvents">
-      <arg name="events" type="a(s)"/>
+    <method name="ExternalEvent">
+      <arg name="id" direction="in" type="s"/>
+    </method> 
+    <signal name="ListenForEvent">
+      <arg name="id" type="s"/>
     </signal>
-    <signal name="LessonEventsSatisfied">
-      <arg name="lesson" type="s"/>
-      <arg name="task" type="s"/>
+    <signal name="StopListeningFor">
+      <arg name="id" type="s"/>
     </signal>
   </interface>
 <node>
