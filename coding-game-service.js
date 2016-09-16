@@ -1,31 +1,37 @@
 #!/usr/bin/env gjs
-/* showmehow-service.js
+/* coding-game-service.js
  *
  * Copyright (c) 2016 Endless Mobile Inc.
  * All Rights Reserved.
  *
- * The Showmehow service is the central place where all 'lessons' about
- * the operating system are stored and progress is kept.
+ * The Coding Game Service is the central place where timelines about game state
+ * progression are kept. This service essentially administers a large JSON file
+ * with a history of all events and can reconstruct chatbox conversations from that.
+ *
+ * It reads another JSON file which is a predefined "script" for what should
+ * happen on particular actions, for instance, showing another chatbox
+ * message, or waiting for a particular event. It is designed to be stateful, unlike
+ * showmehow-service, which is stateless.
  */
 
 
 const GLib = imports.gi.GLib;
 const Gio = imports.gi.Gio;
-const Showmehow = imports.gi.Showmehow;
+const CodingGameService = imports.gi.CodingGameService;
 
-/* This is a hack to cause Showmehow js resources to get loaded */
-const ShowmehowResource = imports.gi.Showmehow.get_resource();  // eslint-disable-line no-unused-vars
+/* This is a hack to cause CodingGameService js resources to get loaded */
+const CodingGameServiceResource = imports.gi.CodingGameService.get_resource();  // eslint-disable-line no-unused-vars
 
 const Lang = imports.lang;
 
 /* Put ourself in the search path. Note that we have the least priority.
  * This will allow us to run locally against non-packed files that
  * are already on disk if the user sets GJS_PATH appropriately. */
-imports.searchPath.push('resource:///com/endlessm/showmehow');
+imports.searchPath.push('resource:///com/endlessm/coding-game-service');
 
 const Validation = imports.lib.validation;
 
-const SHOWMEHOW_SCHEMA = 'com.endlessm.showmehow';
+const CODING_GAME_SERVICE_SCHEMA = 'com.endlessm.coding-game-service';
 
 function environment_object_to_envp(environment) {
     if (environment) {
@@ -208,7 +214,7 @@ function loadLessonDescriptorsFromFile(file) {
  * Attempts to load lesson descriptors from a file.
  *
  * The default case is to load the descriptors from the internal resource
- * file that makes up Showmehow's binary. However, we first:
+ * file that makes up CodingGameService's binary. However, we first:
  *  1. Look at the command line to see if a file was provided there
  *  2. Look in $XDG_CONFIG_HOME for a file called 'lessons.json'
  *  3. Use the internal resource named 'data/lessons.json'
@@ -227,7 +233,7 @@ function loadLessonDescriptorsFromFile(file) {
 function loadLessonDescriptors(cmdlineFilename) {
     let filenamesToTry = [
         cmdlineFilename,
-        GLib.build_pathv('/', [GLib.get_user_config_dir(), "showmehow", "lessons.json"])
+        GLib.build_pathv('/', [GLib.get_user_config_dir(), "coding-game-service", "lessons.json"])
     ].filter(f => !!f);
 
     var warnings = [];
@@ -263,7 +269,7 @@ function loadLessonDescriptors(cmdlineFilename) {
      * This isn't the preferable way of doing it, though it seems like resource
      * paths are not working, at least not locally */
     if (!descriptors) {
-        descriptors = JSON.parse(Gio.resources_lookup_data('/com/endlessm/showmehow/data/lessons.json',
+        descriptors = JSON.parse(Gio.resources_lookup_data('/com/endlessm/coding-game-service/data/lessons.json',
                                                            Gio.ResourceLookupFlags.NONE).get_data());
     }
 
@@ -438,20 +444,20 @@ const _INPUT_SIDE_EFFECTS = {
     }
 };
 
-const ShowmehowErrorDomain = GLib.quark_from_string('showmehow-error');
-const ShowmehowErrors = {
+const CodingGameServiceErrorDomain = GLib.quark_from_string('coding-game-service-error');
+const CodingGameServiceErrors = {
     INVALID_TASK: 0,
     INVALID_TASK_SPEC: 1,
     INVALID_CLUE_TYPE: 2,
     INTERNAL_ERROR: 3
 };
-const ShowmehowService = new Lang.Class({
-    Name: 'ShowmehowService',
-    Extends: Showmehow.ServiceSkeleton,
+const CodingGameServiceService = new Lang.Class({
+    Name: 'CodingGameServiceService',
+    Extends: CodingGameService.ServiceSkeleton,
 
     _init: function(props, descriptors, monitor) {
         this.parent(props);
-        this._settings = new Gio.Settings({ schema_id: SHOWMEHOW_SCHEMA });
+        this._settings = new Gio.Settings({ schema_id: CODING_GAME_SERVICE_SCHEMA });
         this._descriptors = descriptors;
         this._monitor = monitor;
         this._pendingLessonEvents = {};
@@ -487,8 +493,8 @@ const ShowmehowService = new Lang.Class({
             this.complete_get_warnings(method, GLib.Variant.new('a(s)',
                                                                 this._descriptors.warnings.map((w) => [w])));
         } catch(e) {
-            method.return_error_literal(ShowmehowErrorDomain,
-                                        ShowmehowErrors.INTERNAL_ERROR,
+            method.return_error_literal(CodingGameServiceErrorDomain,
+                                        CodingGameServiceErrors.INTERNAL_ERROR,
                                         String(e));
         }
 
@@ -497,11 +503,11 @@ const ShowmehowService = new Lang.Class({
 
     vfunc_handle_get_unlocked_lessons: function(method, client) {
         try {
-            /* We call addArrayUnique here to ensure that showmehow is always in the
+            /* We call addArrayUnique here to ensure that coding-game-service is always in the
              * list, even if the gsettings key messes up and gets reset to an
              * empty list. */
             let unlocked = addArrayUnique(this._settings.get_strv('unlocked-lessons'), [
-                'showmehow',
+                'coding-game-service',
                 'intro'
             ]).map(l => {
                 return lessonDescriptorMatching(l, this._descriptors);
@@ -511,8 +517,8 @@ const ShowmehowService = new Lang.Class({
 
             this.complete_get_unlocked_lessons(method, GLib.Variant.new('a(sss)', unlocked));
         } catch (e) {
-            method.return_error_literal(ShowmehowErrorDomain,
-                                        ShowmehowErrors.INTERNAL_ERROR,
+            method.return_error_literal(CodingGameServiceErrorDomain,
+                                        CodingGameServiceErrors.INTERNAL_ERROR,
                                         String(e));
         }
 
@@ -531,8 +537,8 @@ const ShowmehowService = new Lang.Class({
             }).map(d => [d.name, d.desc, d.entry]);
             this.complete_get_known_spells(method, GLib.Variant.new('a(sss)', ret));
         } catch (e) {
-            method.return_error_literal(ShowmehowErrorDomain,
-                                        ShowmehowErrors.INTERNAL_ERROR,
+            method.return_error_literal(CodingGameServiceErrorDomain,
+                                        CodingGameServiceErrors.INTERNAL_ERROR,
                                         String(e));
         }
 
@@ -563,8 +569,8 @@ const ShowmehowService = new Lang.Class({
                 } else if (typeof task_detail.input === 'object') {
                     input_spec = task_detail.input;
                 } else {
-                    method.return_error_literal(ShowmehowErrorDomain,
-                                                ShowmehowErrors.INVALID_TASK_SPEC,
+                    method.return_error_literal(CodingGameServiceErrorDomain,
+                                                CodingGameServiceErrors.INVALID_TASK_SPEC,
                                                 'Can\'t have an input spec which ' +
                                                 'isn\'t either an object or a ' +
                                                 'string (error in processing ' +
@@ -585,8 +591,8 @@ const ShowmehowService = new Lang.Class({
                                                                      JSON.stringify(input_spec)]));
             }));
         } catch (e) {
-            method.return_error_literal(ShowmehowErrorDomain,
-                                        ShowmehowErrors.INTERNAL_ERROR,
+            method.return_error_literal(CodingGameServiceErrorDomain,
+                                        CodingGameServiceErrors.INTERNAL_ERROR,
                                         String(e));
         }
 
@@ -613,8 +619,8 @@ const ShowmehowService = new Lang.Class({
                          * determine what to do next.
                          */
                         if (Object.keys(task_detail.effects).indexOf(result) === -1) {
-                            method.return_error_literal(ShowmehowErrorDomain,
-                                                        ShowmehowErrors.INVALID_TASK_SPEC,
+                            method.return_error_literal(CodingGameServiceErrorDomain,
+                                                        CodingGameServiceErrors.INVALID_TASK_SPEC,
                                                         'Don\'t know how to handle response ' +
                                                         result + ' with effects ' +
                                                         JSON.stringify(task_detail.effects, null, 2));
@@ -629,8 +635,8 @@ const ShowmehowService = new Lang.Class({
                                 } else if (typeof effect.reply === 'object') {
                                     responses.push(effect.reply);
                                 } else {
-                                    method.return_error_literal(ShowmehowErrorDomain,
-                                                                ShowmehowErrors.INVALID_TASK_SPEC,
+                                    method.return_error_literal(CodingGameServiceErrorDomain,
+                                                                CodingGameServiceErrors.INVALID_TASK_SPEC,
                                                                 'Can\'t have an output spec which ' +
                                                                 'isn\'t either an object or a ' +
                                                                 'string (error in processing ' +
@@ -654,8 +660,8 @@ const ShowmehowService = new Lang.Class({
                                         }
                                         break;
                                     default:
-                                        method.return_error_literal(ShowmehowErrorDomain,
-                                                                    ShowmehowErrors.INVALID_TASK_SPEC,
+                                        method.return_error_literal(CodingGameServiceErrorDomain,
+                                                                    CodingGameServiceErrors.INVALID_TASK_SPEC,
                                                                     'Don\'t know how to handle side effect type ' +
                                                                     side_effect.type + ' in parsing (' +
                                                                     JSON.stringify(side_effect) + ')');
@@ -689,8 +695,8 @@ const ShowmehowService = new Lang.Class({
                 }));
             }));
         } catch (e) {
-            method.return_error_literal(ShowmehowErrorDomain,
-                                        ShowmehowErrors.INTERNAL_ERROR,
+            method.return_error_literal(CodingGameServiceErrorDomain,
+                                        CodingGameServiceErrors.INTERNAL_ERROR,
                                         String(e));
         }
 
@@ -732,8 +738,8 @@ const ShowmehowService = new Lang.Class({
             this._registerClue(type, clue);
             this.complete_register_clue(method);
         } catch (e) {
-            method.return_error_literal(ShowmehowErrorDomain,
-                                        ShowmehowErrors.INVALID_CLUE_TYPE,
+            method.return_error_literal(CodingGameServiceErrorDomain,
+                                        CodingGameServiceErrors.INVALID_CLUE_TYPE,
                                         String(e));
             log(String(e));
             log(String(e.stack));
@@ -746,8 +752,8 @@ const ShowmehowService = new Lang.Class({
         try {
             this.complete_get_clues(method, this._settings.get_value('clues'));
         } catch (e) {
-            method.return_error_literal(ShowmehowErrorDomain,
-                                        ShowmehowErrors.INTERNAL_ERROR,
+            method.return_error_literal(CodingGameServiceErrorDomain,
+                                        CodingGameServiceErrors.INTERNAL_ERROR,
                                         String(e));
         }
 
@@ -766,8 +772,8 @@ const ShowmehowService = new Lang.Class({
             })[0];
             task_detail = lesson_detail.practice[task_detail_key];
         } catch(e) {
-            return method.return_error_literal(ShowmehowErrorDomain,
-                                               ShowmehowErrors.INVALID_TASK,
+            return method.return_error_literal(CodingGameServiceErrorDomain,
+                                               CodingGameServiceErrors.INVALID_TASK,
                                                'Either the lesson ' + lesson +
                                                ' or task id ' + task +
                                                ' was invalid\n' + e + " " + e.stack);
@@ -796,8 +802,8 @@ const ShowmehowService = new Lang.Class({
                                 'or an object, got ' + JSON.stringify(mapper));
             }));
         } catch (e) {
-            return method.return_error_literal(ShowmehowErrorDomain,
-                                               ShowmehowErrors.INVALID_TASK_SPEC,
+            return method.return_error_literal(CodingGameServiceErrorDomain,
+                                               CodingGameServiceErrors.INVALID_TASK_SPEC,
                                                'Couldn\'t run task ' + task +
                                                ' on lesson ' + lesson + ': ' +
                                                'Couldn\'t create pipeline: ' +
@@ -875,8 +881,8 @@ function parseArguments(argv) {
     return options;
 }
 
-const ShowmehowServiceApplication = new Lang.Class({
-    Name: 'ShowmehowServiceApplication',
+const CodingGameServiceServiceApplication = new Lang.Class({
+    Name: 'CodingGameServiceServiceApplication',
     Extends: Gio.Application,
 
     _init: function(params) {
@@ -910,7 +916,7 @@ const ShowmehowServiceApplication = new Lang.Class({
     vfunc_dbus_register: function(conn, object_path) {
         this.parent(conn, object_path);
         let [descriptors, monitor] = loadLessonDescriptors(this._commandLineFilename);
-        this._skeleton = new ShowmehowService({}, descriptors, monitor);
+        this._skeleton = new CodingGameServiceService({}, descriptors, monitor);
         this._skeleton.export(conn, object_path);
         return true;
     },
@@ -924,8 +930,8 @@ const ShowmehowServiceApplication = new Lang.Class({
     }
 });
 
-let application = new ShowmehowServiceApplication({
-    'application-id': 'com.endlessm.Showmehow.Service',
+let application = new CodingGameServiceServiceApplication({
+    'application-id': 'com.endlessm.CodingGameService.Service',
     'flags': Gio.ApplicationFlags.IS_SERVICE |
              Gio.ApplicationFlags.HANDLES_COMMAND_LINE
 });

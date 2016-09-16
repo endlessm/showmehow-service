@@ -5,50 +5,50 @@ resource_js_files = \
 
 # All javascript modules
 all_js_files = \
-	showmehow-validator.js \
-	showmehow-service.js \
+	coding-game-validator.js \
+	coding-game-service.js \
 	$(resource_js_files)
 	$(NULL)
 
 
 AM_CONFIG_MACRO_DIR =
 AM_DISTCHECK_CONFIGURE_FLAGS = --enable-introspection
-EXTRA_DIST = com.endlessm.Showmehow.Service.xml \
-	     com.endlessm.Showmehow.Service.desktop \
-	     com.endlessm.Showmehow.Service.service.in \
-	     com.endlessm.showmehow.gschema.xml \
-	     com.endlessm.showmehow.gresource.xml \
+EXTRA_DIST = com.endlessm.CodingGameService.xml \
+	     com.endlessm.CodingGameService.desktop \
+	     com.endlessm.CodingGameService.service.in \
+	     com.endlessm.CodingGameService.gschema.xml \
+	     com.endlessm.CodingGameService.gresource.xml \
 	     data/lessons.json.unvalidated.in \
 	     $(all_js_files)
 CLEANFILES =
 
 # Rename the showmehow-service script
-showmehow-service: $(abs_top_srcdir)/showmehow-service.js
+coding-game-service: $(abs_top_srcdir)/coding-game-service.js
 	cp $< $@
 	chmod +x $@
 
 # Rename the showmehow-validator script
-showmehow-validator: $(abs_top_srcdir)/showmehow-validator.js
+coding-game-validator: $(abs_top_srcdir)/coding-game-validator.js
 	cp $< $@
 	chmod +x $@
 
-# GDBus-Codegen for Showmehow
-Showmehow.c: $(abs_top_srcdir)/com.endlessm.Showmehow.Service.xml
-	gdbus-codegen --generate-c-code Showmehow --c-namespace Showmehow --c-generate-object-manager --interface-prefix com.endlessm.Showmehow. $<
+# GDBus-Codegen for CodingGameService
+CodingGameService.c: $(abs_top_srcdir)/com.endlessm.CodingGameService.xml
+	gdbus-codegen --generate-c-code CodingGameService --c-namespace CodingGameService --c-generate-object-manager --interface-prefix com.endlessm. $<
 
-Showmehow.h: Showmehow.c
+CodingGameService.h: CodingGameService.c
 
-gdbus_codegen_built_sources = Showmehow.c Showmehow.h
+gdbus_codegen_built_sources = CodingGameService.c CodingGameService.h
 
 # GSettings schemas
-gsettings_SCHEMAS = com.endlessm.showmehow.gschema.xml
+gsettings_SCHEMAS = com.endlessm.CodingGameService.gschema.xml
 
 @GSETTINGS_RULES@
 
 # Validation of lessons (produces data.lessons)
 data/lessons.json: $(abs_top_srcdir)/data/lessons.json.unvalidated.in $(all_js_files)
 	gjs --include-path=$(abs_top_srcdir) \
-	    $(abs_top_srcdir)/showmehow-validator.js \
+	    $(abs_top_srcdir)/coding-game-validator.js \
 	    $(abs_top_srcdir)/data/lessons.json.unvalidated.in
 	mkdir -p data
 	cp $< $@
@@ -59,32 +59,32 @@ resource_files = $(resource_js_files) \
 	data/lessons.json \
 	$(NULL)
 
-showmehow-resources.h: $(abs_top_srcdir)/com.endlessm.showmehow.gresource.xml $(resource_files)
-	$(AM_V_GEN) glib-compile-resources --target=$@ --sourcedir=$(srcdir) --sourcedir=$(builddir) --generate --c-name showmehow $<
-showmehow-resources.c: $(abs_top_srcdir)/com.endlessm.showmehow.gresource.xml $(resource_files)
-	$(AM_V_GEN) glib-compile-resources --target=$@ --sourcedir=$(srcdir) --sourcedir=$(builddir) --generate --c-name showmehow $<
+coding-game-service-resources.h: $(abs_top_srcdir)/com.endlessm.CodingGameService.gresource.xml $(resource_files)
+	$(AM_V_GEN) glib-compile-resources --target=$@ --sourcedir=$(srcdir) --sourcedir=$(builddir) --generate --c-name coding_game_service $<
+coding-game-service-resources.c: $(abs_top_srcdir)/com.endlessm.CodingGameService.gresource.xml $(resource_files)
+	$(AM_V_GEN) glib-compile-resources --target=$@ --sourcedir=$(srcdir) --sourcedir=$(builddir) --generate --c-name coding_game_service $<
 
-resources_built_sources = showmehow-resources.c showmehow-resources.h
+resources_built_sources = coding-game-service-resources.c coding-game-service-resources.h
 
-# Generate the Showmehow GDBus Skeleton library
-libshowmehow_1_0_la_SOURCES = $(resources_built_sources) \
-			      $(gdbus_codegen_built_sources) \
-			      $(NULL)
-libshowmehow_1_0_la_CFLAGS = @SHOWMEHOW_CFLAGS@
-libshowmehow_1_0_la_LDFLAGS = @SHOWMEHOW_LDFLAGS@
-libshowmehow_1_0_la_LIBADD = @SHOWMEHOW_LIBS@
+# Generate the CodingGameService GDBus Skeleton library
+libcoding_game_service_1_0_la_SOURCES = $(resources_built_sources) \
+					$(gdbus_codegen_built_sources) \
+					$(NULL)
+libcoding_game_service_1_0_la_CFLAGS = @CODING_GAME_SERVICE_CFLAGS@
+libcoding_game_service_1_0_la_LDFLAGS = @CODING_GAME_SERVICE_LDFLAGS@
+libcoding_game_service_1_0_la_LIBADD = @CODING_GAME_SERVICE_LIBS@
 
 # All libraries
-lib_LTLIBRARIES = libshowmehow-1.0.la
+lib_LTLIBRARIES = libcoding_game_service-1.0.la
 
 # Scripts to install
-bin_SCRIPTS = showmehow-service \
-	      showmehow-validator
+bin_SCRIPTS = coding-game-service \
+	      coding-game-validator
 
 # Header files to install
-showmehowincludedir = $(includedir)/showmehow-service
-nobase_showmehowinclude_HEADERS = \
-	Showmehow.h
+coding_game_serviceincludedir = $(includedir)/coding-game-service
+nobase_coding_game_serviceinclude_HEADERS = \
+	CodingGameService.h
 
 # GObject-Introspection support
 include $(INTROSPECTION_MAKEFILE)
@@ -93,14 +93,14 @@ INTROSPECTION_SCANNER_ARGS = --add-include-path=$(srcdir) --warn-all
 INTROSPECTION_COMPILER_ARGS = --includedir=$(srcdir)
 
 if HAVE_INTROSPECTION
-introspection_sources = $(libshowmehow_1_0_la_SOURCES)
+introspection_sources = $(libcoding_game_service_1_0_la_SOURCES)
 
-Showmehow-1.0.gir: libshowmehow-1.0.la
-Showmehow_1_0_gir_INCLUDES = GObject-2.0 Gio-2.0
-Showmehow_1_0_gir_CFLAGS = $(INCLUDES)
-Showmehow_1_0_gir_LIBS = libshowmehow-1.0.la
-Showmehow_1_0_gir_FILES = $(introspection_sources)
-INTROSPECTION_GIRS += Showmehow-1.0.gir
+CodingGameService-1.0.gir: libcoding_game_service-1.0.la
+CodingGameService_1_0_gir_INCLUDES = GObject-2.0 Gio-2.0
+CodingGameService_1_0_gir_CFLAGS = $(INCLUDES)
+CodingGameService_1_0_gir_LIBS = libcoding_game_service-1.0.la
+CodingGameService_1_0_gir_FILES = $(introspection_sources)
+INTROSPECTION_GIRS += CodingGameService-1.0.gir
 
 girdir = $(datadir)/gir-1.0
 gir_DATA = $(INTROSPECTION_GIRS)
@@ -112,15 +112,15 @@ CLEANFILES += $(gir_DATA) $(typelib_DATA)
 endif
 
 servicedir = $(datadir)/dbus-1/services
-service_DATA = com.endlessm.Showmehow.Service.service
+service_DATA = com.endlessm.CodingGameService.service
 
 # DBus Service
-com.endlessm.Showmehow.Service.service: $(abs_top_srcdir)/com.endlessm.Showmehow.Service.service.in
+com.endlessm.CodingGameService.service: $(abs_top_srcdir)/com.endlessm.CodingGameService.service.in
 	$(AM_V_GEN) sed -e 's|@bindir[@]|${bindir}|g' $< > $@
 
 # XDG Autostart
 autostartdir = $(sysconfdir)/xdg/autostart
-dist_autostart_DATA = com.endlessm.Showmehow.Service.desktop
+dist_autostart_DATA = com.endlessm.CodingGameService.desktop
 
 # Things to get rid of later
 CLEANFILES += $(bin_SCRIPTS) \

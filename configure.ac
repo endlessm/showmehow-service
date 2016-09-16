@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([showmehow], [0.0.0], [http://www.endlessm.com])
+AC_INIT([coding-game-service], [0.0.0], [http://www.endlessm.com])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_SILENT_RULES([yes])
 
@@ -18,7 +18,7 @@ GLIB_GSETTINGS
 # Checks for programs.
 
 # Checks for libraries.
-PKG_CHECK_MODULES(SHOWMEHOW, [glib-2.0 gio-2.0 gobject-2.0 gio-unix-2.0])
+PKG_CHECK_MODULES(CODING_GAME_SERVICE, [glib-2.0 gio-2.0 gobject-2.0 gio-unix-2.0])
 
 # Checks for SystemD
 systemdsystemunitdir="$($PKG_CONFIG systemd --variable=systemdsystemunitdir)"
@@ -35,7 +35,7 @@ AC_SUBST([systemdsystemunitdir])
 
 # Checks for library functions.
 
-AC_SUBST([SHOWMEHOW_CFLAGS])
-AC_SUBST([SHOWMEHOW_LDFLAGS])
+AC_SUBST([CODING_GAME_SERVICE_CFLAGS])
+AC_SUBST([CODING_GAME_SERVICE_LDFLAGS])
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

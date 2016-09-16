@@ -1,18 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <schemalist>
-  <schema path="/com/endlessm/showmehow/" id="com.endlessm.showmehow">
+  <schema path="/com/endlessm/coding-game-service/" id="com.endlessm.CodingGameService">
     <key name='unlocked-lessons' type='as'>
       <default>[]</default>
       <summary>Unlocked lessons</summary>
       <description>
         Lessons which have been unlocked and are available to the user.
-      </description>
-    </key>
-    <key name='known-spells' type='as'>
-      <default>[]</default>
-      <summary>Known Spells</summary>
-      <description>
-        Spells which you already know.
       </description>
     </key>
     <key name='clues' type='a(ss)'>

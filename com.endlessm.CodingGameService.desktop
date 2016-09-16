@@ -1,6 +1,6 @@
 [Desktop Entry]
-Name=Showmehow Service
-Exec=showmehow-service
+Name=Coding Game Service
+Exec=coding-game-service
 Type=Application
 NoDisplay=true
 X-GNOME-Autostart-enabled=true

@@ -1,5 +1,5 @@
 <node>
-  <interface name="com.endlessm.Showmehow.Service">
+  <interface name="com.endlessm.CodingGameService">
     <method name="GetWarnings">
       <arg name="warnings" direction="out" type="a(s)"/>
     </method>
