@@ -78,7 +78,7 @@
                 "actor": "MEME",
                 "name": "intro::choice_see_cool::challenge",
                 "responses": {
-                    "satisfied": [
+                    "yes": [
                         {
                             "type": "register",
                             "name": "chat::meme::intro::choice_see_cool"
@@ -88,7 +88,7 @@
                             "name": "listen::intro::wobble-window"
                         }
                     ],
-                    "unsatisfied": [
+                    "no": [
                         {
                             "type": "event",
                             "name": "chat::meme::intro::choice_see_cool::again"
