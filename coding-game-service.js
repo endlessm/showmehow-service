@@ -250,7 +250,6 @@ const CodingGameService = new Lang.Class({
 
     _init: function(props, descriptors, monitor) {
         this.parent(props);
-        this._settings = new Gio.Settings({ schema_id: CODING_GAME_SERVICE_SCHEMA });
         this._descriptors = descriptors;
         this._monitor = monitor;
         this._contentProvider = Showmehow.ServiceProxy.new_for_bus_sync(Gio.BusType.SESSION,
