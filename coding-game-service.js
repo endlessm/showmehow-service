@@ -18,6 +18,7 @@
 const GLib = imports.gi.GLib;
 const Gio = imports.gi.Gio;
 const CodingGameServiceDBUS = imports.gi.CodingGameService;
+const Showmehow = imports.gi.Showmehow;
 
 /* This is a hack to cause CodingGameService js resources to get loaded */
 const CodingGameServiceResource = imports.gi.CodingGameService.get_resource();  // eslint-disable-line no-unused-vars
@@ -199,6 +200,11 @@ const CodingGameService = new Lang.Class({
         this._settings = new Gio.Settings({ schema_id: CODING_GAME_SERVICE_SCHEMA });
         this._descriptors = descriptors;
         this._monitor = monitor;
+        this._contentProvider = Showmehow.ServiceProxy.new_for_bus_sync(Gio.BusType.SESSION,
+                                                                        0,
+                                                                        'com.endlessm.Showmehow.Service',
+                                                                        '/com/endlessm/Showmehow/Service',
+                                                                        null);
         this._log = new CodingGameServiceLog(Gio.File.new_for_path("game-service.log"));
         this._chatController = new CodingGameServiceChatController();
         this._dispatchTable = {
@@ -305,21 +311,56 @@ const CodingGameService = new Lang.Class({
         return true;
     },
 
-    _dispatchChatEvent: function(event) {
-        let entry = this._log.handleEvent(event.type, event.data);
-
-        if (entry.type === 'chat-actor') {
+    _dispatchChatEvent: function(event, callback) {
+        let sendMessage = Lang.bind(this, function(event) {
+            /* Creates a log entry then sends the message to the client */
+            let entry = callback(event);
             this._chatController.sendChatMessage({
                 timestamp: entry.timestamp,
                 actor: entry.actor,
                 message: entry.data.message,
+                input: entry.data.input,
                 name: entry.data.name
             });
+        });
+
+        if (event.type === 'chat-actor') {
+            /* If we don't actually have message text yet, then
+             * we'll need to fetch it from showmehow-service */
+            if (!event.data.message) {
+                let [name, position] = event.data.name.split("::").slice(0, 2)
+                this._contentProvider.call_get_task_description(name, position, null,
+                                                                Lang.bind(this, function(source, result) {
+                    let success, returnValue;
+
+                    try {
+                        [success, returnValue] = this._contentProvider.call_get_task_description_finish(result);
+                    } catch (e) {
+                        logError(e, "Call to get_task_description failed, for " + event.data.name);
+                    }
+
+                    let [message, inputSpecString] = returnValue.deep_unpack();
+                    let inputSpec = JSON.parse(inputSpecString);
+
+                    event.data.message = {
+                        type: 'text',
+                        text: message
+                    };
+                    event.data.input = inputSpec;
+                    sendMessage(event);
+                }));
+            } else {
+                sendMessage(event);
+            }
+        } else {
+            sendMessage(event);
         }
     },          
 
     dispatch: function(event) {
-        return this._dispatchTable[event.type](event);
+        this._dispatchTable[event.type](event, Lang.bind(this, function(logEvent) {
+            return this._log.handleEvent(logEvent.type, logEvent.data);
+        }));
     }   
 });
 
