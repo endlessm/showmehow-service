@@ -369,7 +369,7 @@ const CodingGameService = new Lang.Class({
             let entry = callback(event);
             this._chatController.sendChatMessage({
                 timestamp: entry.timestamp,
-                actor: entry.actor,
+                actor: entry.data.actor,
                 message: entry.data.message,
                 input: entry.data.input,
                 name: entry.data.name
@@ -394,10 +394,7 @@ const CodingGameService = new Lang.Class({
                     let [message, inputSpecString] = returnValue.deep_unpack();
                     let inputSpec = JSON.parse(inputSpecString);
 
-                    event.data.message = {
-                        type: 'text',
-                        text: message
-                    };
+                    event.data.message = message;
                     event.data.input = inputSpec;
                     sendMessage(event);
                 }));
