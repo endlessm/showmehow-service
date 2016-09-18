@@ -231,6 +231,7 @@ const CodingGameServiceLog = new Lang.Class({
                 actor: e.data.actor,
                 message: e.data.message,
                 name: e.data.name,
+                input: e.data.input,
                 type: e.type
             };
         });
