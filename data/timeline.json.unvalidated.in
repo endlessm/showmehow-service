@@ -37,7 +37,7 @@
             "name": "chat::meme::intro::hook::challenge",
             "type": "chat-actor",
             "data": {
-                "actor": "meme",
+                "actor": "MEME",
                 "name": "intro::hook::challenge",
                 "responses": {
                     "satisfied": [
@@ -67,7 +67,7 @@
             "name": "chat::meme::intro::hook::again",
             "type": "chat-actor",
             "data": {
-                "actor": "meme",
+                "actor": "MEME",
                 "name": "intro::hook::again"
             }
         },
@@ -75,7 +75,7 @@
             "name": "chat::meme::intro::choice_see_cool::challenge",
             "type": "chat-actor",
             "data": {
-                "actor": "meme",
+                "actor": "MEME",
                 "name": "intro::choice_see_cool::challenge",
                 "responses": {
                     "satisfied": [
@@ -105,7 +105,7 @@
             "name": "chat::meme::intro::choice_see_cool::again",
             "type": "chat-actor",
             "data": {
-                "actor": "meme",
+                "actor": "MEME",
                 "name": "intro::choice_see_cool::again"
             }
         },
@@ -165,7 +165,7 @@
             "name": "chat::meme::intro::wobble-windows-comment",
             "type": "chat-actor",
             "data": {
-                "actor": "meme",
+                "actor": "MEME",
                 "name": "intro::wobble-windows-comment"
             }
         },
@@ -173,7 +173,7 @@
             "name": "chat::meme::intro::install_programming::challenge",
             "type": "chat-actor",
             "data": {
-                "actor": "meme",
+                "actor": "MEME",
                 "name": "intro::install_programming::challenge",
                 "responses": {
                     "satisfied": [
@@ -203,7 +203,7 @@
             "name": "chat::meme::intro::install_programming::again",
             "type": "chat-actor",
             "data": {
-                "actor": "meme",
+                "actor": "MEME",
                 "name": "intro::install_programming::again"
             }
         }
