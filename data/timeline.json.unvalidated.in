@@ -8,7 +8,7 @@
                     "points": 52
                 },
                 {
-                    "name": "chat::meme::intro::choice-see-cool",
+                    "name": "chat::meme::intro::choice_see_cool",
                     "points": 52
                 },
                 {
@@ -16,7 +16,7 @@
                     "points": 52
                 },
                 {
-                    "name": "chat::meme::intro::install-programming",
+                    "name": "chat::meme::intro::install_programming",
                     "points": 52
                 }
             ]
@@ -38,7 +38,7 @@
             "type": "chat-actor",
             "data": {
                 "actor": "meme",
-                "message": "intro::hook::challenge",
+                "name": "intro::hook::challenge",
                 "responses": {
                     "satisfied": [
                         {
@@ -47,7 +47,7 @@
                         },
                         {
                             "type": "event",
-                            "name": "chat::meme::intro::choice-see-cool::challenge"
+                            "name": "chat::meme::intro::choice_see_cool::challenge"
                         }
                     ],
                     "unsatisfied": [
@@ -68,20 +68,20 @@
             "type": "chat-actor",
             "data": {
                 "actor": "meme",
-                "message": "intro::hook::again"
+                "name": "intro::hook::again"
             }
         },
         {
-            "name": "chat::meme::intro::choice-see-cool::challenge",
+            "name": "chat::meme::intro::choice_see_cool::challenge",
             "type": "chat-actor",
             "data": {
                 "actor": "meme",
-                "message": "intro::choice-see-cool::challenge",
+                "name": "intro::choice_see_cool::challenge",
                 "responses": {
                     "satisfied": [
                         {
                             "type": "register",
-                            "name": "chat::meme::intro::choice-see-cool"
+                            "name": "chat::meme::intro::choice_see_cool"
                         },
                         {
                             "type": "event",
@@ -91,22 +91,22 @@
                     "unsatisfied": [
                         {
                             "type": "event",
-                            "name": "chat::meme::intro::choice-see-cool::again"
+                            "name": "chat::meme::intro::choice_see_cool::again"
                         },
                         {
                             "type": "event",
-                            "name": "chat::meme::intro::choice-see-cool::challenge"
+                            "name": "chat::meme::intro::choice_see_cool::challenge"
                         }
                     ]
                 }
             }
         },
         {
-            "name": "chat::meme::intro::choice-see-cool::again",
+            "name": "chat::meme::intro::choice_see_cool::again",
             "type": "chat-actor",
             "data": {
                 "actor": "meme",
-                "message": "intro::choice-see-cool::again"
+                "name": "intro::choice_see_cool::again"
             }
         },
         {
@@ -156,7 +156,7 @@
                     },
                     {
                         "type": "event",
-                        "name": "chat::meme::intro::install-programming::challenge"
+                        "name": "chat::meme::intro::install_programming::challenge"
                     }
                 ]
             }
@@ -166,20 +166,20 @@
             "type": "chat-actor",
             "data": {
                 "actor": "meme",
-                "message": "intro::wobble-windows-comment"
+                "name": "intro::wobble-windows-comment"
             }
         },
         {
-            "name": "chat::meme::intro::install-programming::challenge",
+            "name": "chat::meme::intro::install_programming::challenge",
             "type": "chat-actor",
             "data": {
                 "actor": "meme",
-                "message": "intro::install-programming::challenge",
+                "name": "intro::install_programming::challenge",
                 "responses": {
                     "satisfied": [
                         {
                             "type": "register",
-                            "name": "chat::meme::intro::install-programming"
+                            "name": "chat::meme::intro::install_programming"
                         },
                         {
                             "type": "event",
@@ -189,22 +189,22 @@
                     "unsatisfied": [
                         {
                             "type": "event",
-                            "name": "chat::meme::intro::install-programming::again"
+                            "name": "chat::meme::intro::install_programming::again"
                         },
                         {
                             "type": "event",
-                            "name": "chat::meme::intro::install-programming::challenge"
+                            "name": "chat::meme::intro::install_programming::challenge"
                         }
                     ]
                 }
             }
         },
         {
-            "name": "chat::meme::intro::install-programming::again",
+            "name": "chat::meme::intro::install_programming::again",
             "type": "chat-actor",
             "data": {
                 "actor": "meme",
-                "message": "intro::install-programming::again"
+                "name": "intro::install_programming::again"
             }
         }
     ]
