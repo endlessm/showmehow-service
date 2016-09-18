@@ -146,8 +146,9 @@ const CodingGameServiceChatController = new Lang.Class({
 const CodingGameServiceLog = new Lang.Class({
     Name: 'CodingGameServiceLog',
 
-    _init: function() {
-        this._eventLog = [];
+    _init: function(logFile) {
+        this._logFile = logFile;
+        this._eventLog = JSON.parse(this._logFile.load_contents(null)[1]);
     },
 
     handleEvent: function(eventType, eventData) {
@@ -159,6 +160,11 @@ const CodingGameServiceLog = new Lang.Class({
         };
 
         this._eventLog.push(entry);
+        this._logFile.replace_contents(JSON.stringify(this._eventLog, null, 2),
+                                       null,
+                                       false,
+                                       Gio.FileCreateFlags.NONE,
+                                       null);
         return entry;
     },
 
@@ -193,7 +199,7 @@ const CodingGameService = new Lang.Class({
         this._settings = new Gio.Settings({ schema_id: CODING_GAME_SERVICE_SCHEMA });
         this._descriptors = descriptors;
         this._monitor = monitor;
-        this._log = new CodingGameServiceLog();
+        this._log = new CodingGameServiceLog(Gio.File.new_for_path("game-service.log"));
         this._chatController = new CodingGameServiceChatController();
         this._dispatchTable = {
             'chat-actor': Lang.bind(this, this._dispatchChatEvent),
