@@ -486,7 +486,7 @@ const CodingGameService = new Lang.Class({
             return total + a.points;
         }, 0);
 
-        this.current_misison_name = missionSpec.short_desc;
+        this.current_mission_name = missionSpec.short_desc;
         this.current_mission_desc = missionSpec.long_desc;
         this.current_mission_points = totalAccruedPoints;
         this.current_mission_available_points = totalAvailablePoints;
