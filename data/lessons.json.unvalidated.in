@@ -93,6 +93,9 @@
                     }
                 }
             },
+            "wobble-windows-comment" : {
+                "task": "Things are not as they seem around here"
+            },
             "change_background_pic": {
                 "task": "Are you ready for a change?",
                 "input": "text",
@@ -166,6 +169,9 @@
                         "reply": "'install-programming' EXACTLY. I haven't got all day!"
                     }
                 }
+            },
+            "intro-complete" : {
+                "task": "Buckle up Dorothy, because Kansas is going bye-bye!\nSee you in the 'Coding Fun' app on your desktop!"
             }
         }
     },
