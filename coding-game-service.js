@@ -489,6 +489,10 @@ const CodingGameService = new Lang.Class({
         this.current_mission = missionSpec.name;
         this.current_mission_name = missionSpec.short_desc;
         this.current_mission_desc = missionSpec.long_desc;
+        this.current_mission_num_tasks_available = Object.keys(completedEvents).length;
+        this.current_mission_num_tasks = Object.keys(completedEvents).filter(function(k) {
+            return completedEvents[k] !== null;
+        }).length;
         this.current_mission_points = totalAccruedPoints;
         this.current_mission_available_points = totalAvailablePoints;
 
@@ -511,6 +515,30 @@ const CodingGameService = new Lang.Class({
         this._dispatchTable[event.type](event, Lang.bind(this, function(logEvent) {
             return this._log.handleEvent(logEvent.type, logEvent.data);
         }));
+
+        /* If we have a current mission, update the number of points
+         * based on the fact that we ran a new event. Note that the points
+         * accrue as soon as an event is run, which is meant to be
+         * representative of the fact that it was triggered from other
+         * events.
+         *
+         * This simplifies the design somewhat, since it allows us to
+         * keep the notion of events and artifacts separate and does not
+         * require us to encode the idea of "passing" or "failing" an
+         * event (instead we merely move from one event to another) */
+        if (this.current_mission) {
+            let missionSpec = findInArray(this._descriptors.missions, Lang.bind(this, function(m) {
+                return m.name == this.current_mission;
+            }));
+            let achievedArtifact = findInArray(missionSpec.artifacts, function(a) {
+                return a.name === event.data.name;
+            });
+
+            if (achievedArtifact) {
+                this.current_mission_points += achievedArtifact.points;
+                this.current_mission_num_tasks++;
+            }
+        }
     }   
 });
 
