@@ -560,7 +560,7 @@ const ShowmehowService = new Lang.Class({
              * process to listen for certain OS-level events.
              */
             this._validateAndFetchTask(lesson, task, method, Lang.bind(this, function(task_detail) {
-                let input_spec;
+                let input_spec = null;
                 if (typeof task_detail.input === 'string') {
                     input_spec = {
                         type: task_detail.input,
@@ -569,7 +569,7 @@ const ShowmehowService = new Lang.Class({
                     };
                 } else if (typeof task_detail.input === 'object') {
                     input_spec = task_detail.input;
-                } else {
+                } else if (task_detail.input) {
                     method.return_error_literal(ShowmehowErrorDomain,
                                                 ShowmehowErrors.INVALID_TASK_SPEC,
                                                 'Can\'t have an input spec which ' +
@@ -579,7 +579,7 @@ const ShowmehowService = new Lang.Class({
                                                 ')');
                 }
 
-                if (_INPUT_SIDE_EFFECTS[input_spec.type]) {
+                if (input_spec && _INPUT_SIDE_EFFECTS[input_spec.type]) {
                     _INPUT_SIDE_EFFECTS[input_spec.type](input_spec.settings,
                                                          this,
                                                          lesson,
