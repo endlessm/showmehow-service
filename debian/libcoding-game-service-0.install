@@ -1,4 +1,4 @@
-debian/tmp/usr/lib/libshowmehow-1.0*.so*
+debian/tmp/usr/lib/libcoding_game_service-1.0*.so*
 debian/tmp/usr/share/glib-2.0/*
 debian/tmp/usr/share/dbus-1/services/*
 debian/tmp/etc/xdg/autostart/*

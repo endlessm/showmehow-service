@@ -1,4 +1,4 @@
-Source: showmehow-service
+Source: coding-game-service
 Priority: standard
 Maintainer: Sam Spilsbury <sam@endlessm.com>
 Build-Depends: autotools-dev,
@@ -17,41 +17,42 @@ Standards-Version: 3.9.4
 Section: non-free/libs
 Homepage: http://www.endlessm.com
 
-Package: libshowmehow-service-0
+Package: libcoding-game-service-0
 Section: non-free/libs
 Architecture: any
 Depends: gir1.2-glib-2.0,
          ${misc:Depends}
-Description: Showmehow Service
- A service for code and systems administration lessons in Mission, library files.
+Description: Coding Game Service
+ A service to manage the Endless Coding game state, library.
 
-Package: gir1.2-showmehow-service-0
+Package: gir1.2-coding-game-service-0
 Section: non-free/libs
 Architecture: any
 Depends: gir1.2-glib-2.0,
-         libshowmehow-service-0 (= ${binary:Version}),
+         libcoding-game-service-0 (= ${binary:Version}),
          ${misc:Depends}
-Description: Showmehow Service
- A service for code and systems administration lessons in Mission, GObject Introspection files.
+Description: Coding Game Service
+ A service to manage the Endless Coding game state, GObject Introspection files.
 
-Package: libshowmehow-service-0-dev
+Package: libcoding-game-service-0-dev
 Section: non-free/libs
 Architecture: any
 Depends: gir1.2-glib-2.0,
-         gir1.2-showmehow-service-0 (= ${binary:Version}),
-         libshowmehow-service-0 (= ${binary:Version}),
+         gir1.2-coding-game-service-0 (= ${binary:Version}),
+         libcoding-game-service-0 (= ${binary:Version}),
          gjs,
          ${misc:Depends}
-Description: Showmehow Service
- A service for code and systems administration lessons in Mission, library files.
+Description: Coding Game Service
+ A service to manage the Endless Coding game state, library files.
 
-Package: showmehow-service
+Package: coding-game-service
 Section: non-free/libs
 Architecture: any
 Depends: gir1.2-glib-2.0,
-         gir1.2-showmehow-service-0 (= ${binary:Version}),
-         libshowmehow-service-0 (= ${binary:Version}),
+         gir1.2-coding-game-service-0 (= ${binary:Version}),
+         gir-1.2-coding-game-service-0,
+         libcoding-game-service-0 (= ${binary:Version}),
          gjs,
          ${misc:Depends}
-Description: Showmehow Service
- A service for code and systems administration lessons in Mission.
+Description: Coding Game Service
+ A service to manage the Endless Coding game state.

@@ -1,5 +1,5 @@
-showmehow-service (0.0.0) eos; urgency=low
+coding-game-service (0.0.0) eos; urgency=low
 
   * Initial release
 
- -- Sam Spilsbury <sam@endlessm.com>  Thu, 4 Apr 2016 08:40:11 +0800
+ -- Sam Spilsbury <sam@endlessm.com>  Thu, 19 Sep 2016 08:40:11 +0800

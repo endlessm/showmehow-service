@@ -1,0 +1,3 @@
+debian/tmp/usr/include/coding-game-service/*
+debian/tmp/usr/lib/libcoding_game_service*.a
+debian/tmp/usr/bin/coding-game-validator
