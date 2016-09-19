@@ -492,7 +492,7 @@ const CodingGameService = new Lang.Class({
         this.current_mission_available_points = totalAvailablePoints;
 
         /* Now, if our starting event has not yet occured, trigger it */
-        if (!completedEvents[missionSpec.artifacts[0]]) {
+        if (!completedEvents[missionSpec.artifacts[0].name]) {
             let event = findInArray(this._descriptors.events, function(e) {
                 return e.name === missionSpec.artifacts[0].name;
             });
