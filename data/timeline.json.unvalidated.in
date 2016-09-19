@@ -40,7 +40,7 @@
                 "actor": "MEME",
                 "name": "intro::hook::challenge",
                 "responses": {
-                    "satisfied": [
+                    "success": [
                         {
                             "type": "register",
                             "name": "chat::meme::intro::hook"
@@ -48,16 +48,6 @@
                         {
                             "type": "event",
                             "name": "chat::meme::intro::choice_see_cool::challenge"
-                        }
-                    ],
-                    "unsatisfied": [
-                        {
-                            "type": "event",
-                            "name": "chat::meme::intro::hook::again"
-                        },
-                        {
-                            "type": "event",
-                            "name": "chat::meme::intro::hook::challenge"
                         }
                     ]
                 }
