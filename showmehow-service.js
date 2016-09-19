@@ -627,71 +627,10 @@ const ShowmehowService = new Lang.Class({
                                                         result + ' with effects ' +
                                                         JSON.stringify(task_detail.effects, null, 2));
                         } else {
-                            let effect = task_detail.effects[result];
-                            if (effect.reply) {
-                                if (typeof effect.reply === 'string') {
-                                    responses.push({
-                                        type: 'scrolled',
-                                        value: effect.reply
-                                    });
-                                } else if (typeof effect.reply === 'object') {
-                                    responses.push(effect.reply);
-                                } else {
-                                    method.return_error_literal(ShowmehowErrorDomain,
-                                                                ShowmehowErrors.INVALID_TASK_SPEC,
-                                                                'Can\'t have an output spec which ' +
-                                                                'isn\'t either an object or a ' +
-                                                                'string (error in processing ' +
-                                                                JSON.stringify(effect.reply) +
-                                                                ')');
-                                }
-                            }
-
-                            if (effect.side_effects) {
-                                effect.side_effects.map(Lang.bind(this, function(side_effect) {
-                                    switch (side_effect.type) {
-                                    case 'shell':
-                                        shell_executor(side_effect.value);
-                                        break;
-                                    case 'unlock':
-                                        {
-                                            /* Get all unlocked tasks and this task's unlocks value and
-                                             * combine the two together into a single set */
-                                            let unlocked = this._settings.get_strv('unlocked-lessons');
-                                            this._settings.set_strv('unlocked-lessons', addArrayUnique(unlocked, side_effect.value));
-                                        }
-                                        break;
-                                    default:
-                                        method.return_error_literal(ShowmehowErrorDomain,
-                                                                    ShowmehowErrors.INVALID_TASK_SPEC,
-                                                                    'Don\'t know how to handle side effect type ' +
-                                                                    side_effect.type + ' in parsing (' +
-                                                                    JSON.stringify(side_effect) + ')');
-                                        break;
-                                    }
-                                }));
-                            }
-
-                            if (effect.completes_lesson) {
-                                /* Add this lesson to the known-spells key */
-                                let known = this._settings.get_strv('known-spells');
-                                this._settings.set_strv('known-spells',
-                                                        addArrayUnique(known, [lesson]));
-                            }
-
-                            let move_to = effect.move_to || (effect.completes_lesson ? '' : task);
-
-                            /* If we are going to move to a different task to this one, clear any
-                             * pending events for this lesson */
-                            if (move_to !== task &&
-                                (this._pendingLessonEvents[lesson] || {})[task]) {
-                                delete this._pendingLessonEvents[lesson][task];
-                            }
-
                             this.complete_attempt_lesson_remote(method,
                                                                 new GLib.Variant('(ss)',
-                                                                                 [JSON.stringify(responses),
-                                                                                  move_to]));
+                                                                                 [result, '']));
+                            return;
                         }
                     }));
                 }));
