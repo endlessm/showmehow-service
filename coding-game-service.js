@@ -235,7 +235,38 @@ const CodingGameServiceLog = new Lang.Class({
                 type: e.type
             };
         });
-    }
+    },
+
+    entriesForEventNames: function(eventNames) {
+        let eventsToEntries = {};
+
+        eventNames.forEach(function(e) {
+            eventsToEntries[e] = null;
+        });
+
+        this._eventLog.filter(function(e) {
+            return eventNames.indexOf(e.data.name) !== -1;
+        }).forEach(function(e) {
+            /* Unconditionally overwrite eventsToEntries so that each key
+             * in the object corresponds to the latest occurrence of the
+             * event */
+            eventsToEntries[e.data.name] = e;
+        });
+
+        return eventsToEntries;
+    },
+
+    activeMission: function() {
+        let missions = this._eventLog.filter(function(e) {
+            return e.type === 'start-mission';
+        });
+
+        if (!missions.length) {
+            return null;
+        }
+
+        return missions[missions.length - 1].data.name;
+    },
 });
         
 
@@ -262,7 +293,8 @@ const CodingGameService = new Lang.Class({
         this._chatController = new CodingGameServiceChatController(ChatboxService.CodingChatboxProxy);
         this._dispatchTable = {
             'chat-actor': Lang.bind(this, this._dispatchChatEvent),
-            'chat-user': Lang.bind(this, this._dispatchChatEvent)
+            'chat-user': Lang.bind(this, this._dispatchChatEvent),
+            'start-mission': Lang.bind(this, this._startMissionEvent)
         };
 
         /* Log the warnings, and also make them available to clients who are interested.
@@ -288,6 +320,20 @@ const CodingGameService = new Lang.Class({
                     }
                 }
             }));
+        }
+
+        /* If we started for the first time, dispatch the very first mission */
+        let activeMission = this._log.activeMission();
+
+        if (activeMission) {
+            this._startMission(activeMission);
+        } else {
+            this.dispatch({
+                type: 'start-mission',
+                data: {
+                    name: this._descriptors.start.initial_mission
+                }
+            });
         }
     },
 
@@ -403,9 +449,62 @@ const CodingGameService = new Lang.Class({
                 sendMessage(event);
             }
         } else {
-            sendMessage(event);
+            /* No sense sending the chat message, just create a log entry */
+            callback(event);
         }
-    },          
+    },
+
+    _startMission: function(name) {
+        /* When a mission is started, we look at the very first event in this mission
+         * and dispatch that if it has not already been dispatched in the log. We also
+         * set the active mission name and the points counter */
+        let missionSpec = findInArray(this._descriptors.missions, function(m) {
+            return m.name === name;
+        });
+
+        if (!missionSpec) {
+            throw new Error("No such mission named " + name);
+        }
+
+        let totalAvailablePoints = missionSpec.artifacts.map(function(a) {
+            return a.points;
+        }).reduce(function(total, p) {
+            return total + p;
+        }, 0);
+
+        let completedEvents = this._log.entriesForEventNames(missionSpec.artifacts.map(function(a) {
+            return a.name;
+        }));
+
+        let totalAccruedPoints = Object.keys(completedEvents).filter(function(k) {
+            return completedEvents[k] !== null;
+        }).map(function(k) {
+            return findInArray(missionSpec.artifacts, function(a) {
+                return a.name === k;
+            });
+        }).reduce(function(total, a) {
+            return total + a.points;
+        }, 0);
+
+        this.current_misison_name = missionSpec.short_desc;
+        this.current_mission_desc = missionSpec.long_desc;
+        this.current_mission_points = totalAccruedPoints;
+        this.current_mission_available_points = totalAvailablePoints;
+
+        /* Now, if our starting event has not yet occured, trigger it */
+        if (!completedEvents[missionSpec.artifacts[0]]) {
+            let event = findInArray(this._descriptors.events, function(e) {
+                return e.name === missionSpec.artifacts[0].name;
+            });
+
+            this.dispatch(event);
+        }
+    },
+
+    _startMissionEvent: function(event, callback) {
+        this._startMission(event.data.name);
+        callback(event);
+    },
 
     dispatch: function(event) {
         this._dispatchTable[event.type](event, Lang.bind(this, function(logEvent) {

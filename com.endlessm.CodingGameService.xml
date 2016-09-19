@@ -18,5 +18,8 @@
     <signal name="StopListeningFor">
       <arg name="id" type="s"/>
     </signal>
+    <property name="CurrentMissionName" type="s" access="read"/>
+    <property name="CurrentMissionPoints" type="i" access="read"/>
+    <property name="CurrentMissionPointsAvailable" type="i" access="read"/>
   </interface>
 <node>

@@ -1,36 +1,31 @@
 {
-    "stages": [
+    "missions": [
         {
             "name": "intro",
+            "short_desc": "Down the rabbit hole",
+            "long_desc": "Why don't you answer the questions and see where the rabbit hole leads",
             "artifacts": [
                 {
-                    "name": "chat::meme::intro::hook",
+                    "name": "chat::meme::intro::hook::challenge",
                     "points": 52
                 },
                 {
-                    "name": "chat::meme::intro::choice_see_cool",
+                    "name": "chat::meme::intro::choice_see_cool::challenge",
                     "points": 52
                 },
                 {
-                    "name": "event::intro::wobble-window",
+                    "name": "listen::intro::wobble-window",
                     "points": 52
                 },
                 {
-                    "name": "chat::meme::intro::install_programming",
+                    "name": "chat::meme::intro::install_programming::challenge",
                     "points": 52
                 }
             ]
         }
     ],
     "start": {
-        "conversations": [
-            "meme"
-        ],
-        "messages": {
-            "meme": [
-                "chat::meme::intro::hook::challenge"
-            ]
-        }
+        "initial_mission": "intro"
     },
     "events": [
         {
