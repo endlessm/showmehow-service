@@ -592,6 +592,7 @@ const ShowmehowService = new Lang.Class({
                                                                      JSON.stringify(input_spec)]));
             }));
         } catch (e) {
+            logError(e, 'Internal error in getting task description for ' + task);
             method.return_error_literal(ShowmehowErrorDomain,
                                         ShowmehowErrors.INTERNAL_ERROR,
                                         String(e));
@@ -696,6 +697,7 @@ const ShowmehowService = new Lang.Class({
                 }));
             }));
         } catch (e) {
+            logError(e, 'Internal error in handle_lesson_response');
             method.return_error_literal(ShowmehowErrorDomain,
                                         ShowmehowErrors.INTERNAL_ERROR,
                                         String(e));
