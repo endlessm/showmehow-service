@@ -544,5 +544,76 @@
                 }
             }
         }
+    },
+    {
+        "name": "navigation",
+        "available_to": ["console"],
+        "desc": "Learn to navigate the filesystem",
+        "entry": "list",
+        "practice": {
+            "list": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": ".*boot.*"
+                }]
+            },
+            "list": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": ".*boot.*"
+                }]
+            },
+            "list_child": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": ".*smspillaz.*"
+                }]
+            },
+            "pwd": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": "\/"
+                }]
+            },
+            "cd_and_cmd": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": ".*smspillaz.*"
+                }]
+            },
+            "cd_home_and_cmd": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": ".*Pictures.*"
+                }]
+            },
+            "mkdir": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": ".*"
+                }]
+            },
+            "touch": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": ".*"
+                }]
+            },
+            "write_to_secret": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": ".*"
+                }]
+            }
+        }
     }
 ]
