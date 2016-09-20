@@ -6,7 +6,6 @@
         "entry": "hook",
         "practice": {
             "hook": {
-                "task": "Hey you",
                 "input": "text",
                 "mapper": ["input",
                     {
@@ -16,12 +15,11 @@
                 ],
                 "effects": {
                     "success": {
-                        "reply": "Yes, I'm talking to you",
+                        "reply": "Yes, I'm talking to you"
                     }
                 }
             },
             "choice_see_cool": {
-                "task": "Wanna see something cool?",
                 "input": {
                     "type": "choice",
                     "settings": {
@@ -50,7 +48,6 @@
                 }
             },
             "open_move_window": {
-                "task": "Open a window and move it around",
                 "input": {
                     "type": "external_events",
                     "settings": {
@@ -88,11 +85,7 @@
                     }
                 }
             },
-            "wobble-windows-comment" : {
-                "task": "Things are not as they seem around here"
-            },
             "change_background_pic": {
-                "task": "Are you ready for a change?",
                 "input": "text",
                 "mapper": ["input",
                   {
@@ -136,7 +129,6 @@
                 }
             },
             "install_programming_hook": {
-                "task": "You think I can teach you something cool? Try this: install-programming",
                 "input": "console",
                 "mapper": [
                     "input",
@@ -176,7 +168,6 @@
         "entry": "showmehow",
         "practice": {
             "showmehow": {
-                "task": "'showmehow' is a command that you can type, just like any other command. Try typing it and see what happens.",
                 "input": "console",
                 "mapper": [
                     {
@@ -208,7 +199,6 @@
                 }
             },
             "showmehow_argument": {
-                "task": "Lets try giving an argument to 'showmehow'. Arguments are words that come after the main command",
                 "input": "console",
                 "mapper": [
                     {
@@ -251,7 +241,6 @@
         "entry": "fortune",
         "practice": {
             "fortune": {
-                "task": "'fortune' is a command that can tell you a joke",
                 "input": "console",
                 "mapper": ["shell",  "wait_message", "wrapped_output", {
                     "type": "regex",
@@ -267,7 +256,6 @@
                 }
             },
             "fortune_cowsay": {
-                "task": "In the shell, you can pipe (|) the output of commands around into other processes. One of these processes is 'cowsay'. See what happens when you try:\n    $ fortune | cowsay",
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
@@ -291,7 +279,6 @@
         "entry": "cat",
         "practice": {
             "cat": {
-                "task": "'cat' can be used to read files on your computer. Meow! Lets read the file on your computer which says what operating system we're running. That file is found at /etc/os-release",
                 "input": "console",
                 "mapper": ["shell", {
                     "type": "regex",
@@ -307,7 +294,6 @@
                 }
             },
             "cat_cowsay": {
-                "task": "And for good measure, lets get a cow to say it too.",
                 "input": "console",
                 "mapper": ["shell", {
                     "type": "regex",
@@ -337,7 +323,6 @@
         "entry": "breakit",
         "practice": {
             "breakit": {
-                "task": "Its pretty difficult to break things on the command line. Try typing gibberish.",
                 "input": "console",
                 "mapper": ["shell", {
                     "type": "regex",
@@ -367,7 +352,6 @@
         "entry": "gsettings",
         "practice": {
             "gsettings": {
-                "task": "Settings for your computer can be controlled with the `gsettings` tool. Lets find out what you can do with `gsettings`.",
                 "input": "console",
                 "mapper": ["shell", {
                     "type": "regex",
@@ -383,7 +367,6 @@
                 }
             },
             "list_schemas": {
-                "task": "Lets try listing all the categories, called `schemas` on your system.",
                 "input": "console",
                 "mapper": ["shell", {
                     "type": "regex",
@@ -399,7 +382,6 @@
                 }
             },
             "list_keys_help": {
-                "task": "Lets see how to use the `list-keys` subcommand. You can use the `help` command followed by a sub-command you want help for to see how to use it",
                 "input": "console",
                 "mapper": ["shell", {
                     "type": "regex",
@@ -415,7 +397,6 @@
                 }
             },
             "list_settings": {
-                "task": "Now that we know how to use list-keys, lets list all the settings available on the org.gnome.shell category, or 'schema', as it is called. Pipe it to `sort` to get them in alphabetical order",
                 "input": "console",
                 "mapper": ["shell", {
                     "type": "regex",
@@ -431,7 +412,6 @@
                 }
             },
             "disable_social_bar": {
-                "task": "Lets disable the social bar! The social bar's setting is enable-social-bar and it is a `boolean` setting, meaning it is either 'true' or 'false'. I checked `gsettings help set` for you and it said you can use the `set` command to change a setting with gsettings [--schemadir SCHEMADIR] set SCHEMA[:PATH] KEY VALUE",
                 "input": "console",
                 "mapper": ["shell", {
                     "type": "shell_custom",
@@ -452,7 +432,6 @@
                 }
             },
             "enable_social_bar": {
-                "task": "Now lets change it back to true",
                 "input": "console",
                 "mapper": ["shell", {
                     "type": "shell_custom",
@@ -473,7 +452,6 @@
                 }
             },
             "add_terminal_pinned_help": {
-                "task": "Oh I know, we should add the Terminal to your pinned apps! To do that, we can add it to the list inside of the taskbar-pins setting. But first lets see what the taskbar-pins setting looks like.",
                 "input": "console",
                 "mapper": ["shell", {
                     "type": "regex",
@@ -489,7 +467,6 @@
                 }
             },
             "add_terminal_pinned": {
-                "task": "Okay, lets pin the Terminal. The Terminal's App ID is 'org.gnome.Terminal', so we should add the 'org.gnome.Terminal.desktop' entry to that list in taskbar-pins",
                 "input": "console",
                 "mapper": ["shell", {
                     "type": "shell_custom",
@@ -518,7 +495,6 @@
         "entry": "playsong",
         "practice": {
             "playsong": {
-                "task": "Lets play some music. GStreamer is a framework that can be used to play all sorts of media files on your computer. Rythmbox and VideoNet both use it. To play a music file, just use `gst-launch-1.0`",
                 "input": "console",
                 "mapper": ["shell", {
                     "type": "regex",
