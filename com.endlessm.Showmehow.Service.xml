@@ -7,7 +7,7 @@
       <arg name="lesson" direction="in" type="s"/>
       <arg name="task" direction="in" type="s"/>
       <arg name="input" direction="in" type="s"/>
-      <arg name="result" direction="out" type="(ss)"/>
+      <arg name="result" direction="out" type="s"/>
     </method>
     <signal name="LessonsChanged"/>
     <signal name="ListeningForLessonEvents">

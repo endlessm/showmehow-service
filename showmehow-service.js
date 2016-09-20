@@ -444,8 +444,8 @@ const ShowmehowService = new Lang.Class({
                                                         JSON.stringify(task_detail.effects, null, 2));
                         } else {
                             this.complete_attempt_lesson_remote(method,
-                                                                new GLib.Variant('(ss)',
-                                                                                 [JSON.stringify(returnValue), '']));
+                                                                new GLib.Variant('s',
+                                                                                 JSON.stringify(returnValue)));
                             return;
                         }
                     }));
