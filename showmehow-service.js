@@ -443,9 +443,8 @@ const ShowmehowService = new Lang.Class({
                                                         result + ' with effects ' +
                                                         JSON.stringify(task_detail.effects, null, 2));
                         } else {
-                            this.complete_attempt_lesson_remote(method,
-                                                                new GLib.Variant('s',
-                                                                                 JSON.stringify(returnValue)));
+                            const serialized = JSON.stringify(returnValue);
+                            this.complete_attempt_lesson_remote(method, serialized);
                             return;
                         }
                     }));
