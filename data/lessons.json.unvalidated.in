@@ -137,8 +137,7 @@
                                 "type": "shell",
                                 "value": "pkexec ${CODING_SHARED_SCRIPT_DIR} test.txt"
                             }
-                        ],
-                        "move_to": "install_programming_hook"
+                        ]
                     }
                 }
             },
