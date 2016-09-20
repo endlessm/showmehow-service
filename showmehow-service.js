@@ -433,20 +433,8 @@ const ShowmehowService = new Lang.Class({
                             responses: responses
                         };
 
-                        /* Take the result and run it through 'effects' to
-                         * determine what to do next.
-                         */
-                        if (Object.keys(task_detail.effects).indexOf(result) === -1) {
-                            method.return_error_literal(ShowmehowErrorDomain,
-                                                        ShowmehowErrors.INVALID_TASK_SPEC,
-                                                        'Don\'t know how to handle response ' +
-                                                        result + ' with effects ' +
-                                                        JSON.stringify(task_detail.effects, null, 2));
-                        } else {
-                            const serialized = JSON.stringify(returnValue);
-                            this.complete_attempt_lesson_remote(method, serialized);
-                            return;
-                        }
+                        const serialized = JSON.stringify(returnValue);
+                        this.complete_attempt_lesson_remote(method, serialized);
                     }));
                 }));
             }));
