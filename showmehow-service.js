@@ -617,6 +617,11 @@ const ShowmehowService = new Lang.Class({
                             return extra.content;
                         });
 
+                        let returnValue = {
+                            result: result,
+                            responses: responses
+                        };
+
                         /* Take the result and run it through 'effects' to
                          * determine what to do next.
                          */
@@ -629,7 +634,7 @@ const ShowmehowService = new Lang.Class({
                         } else {
                             this.complete_attempt_lesson_remote(method,
                                                                 new GLib.Variant('(ss)',
-                                                                                 [result, '']));
+                                                                                 [JSON.stringify(returnValue), '']));
                             return;
                         }
                     }));
