@@ -93,6 +93,59 @@ function regex_validator(input, regex) {
     return ['failure', []];
 }
 
+function resolve_path(path) {
+    if (path.startsWith("~")) {
+        return GLib.build_pathv("/", [GLib.get_home_dir(), path.slice(1)]);
+    }
+
+    return path;
+}
+
+function check_directory_exists(input, directory) {
+    let file_object = Gio.File.new_for_path(resolve_path(directory));
+    try {
+        if (file_object.query_info("standard::type",
+                                   Gio.FileQueryInfoFlags.NONE,
+                                   null).get_file_type() === Gio.FileType.DIRECTORY) {
+            return ['success', []];
+        } else {
+            return ['failure', []];
+        }
+    } catch (e) {
+        logError(e, "Failed to get directory");
+        return ['failure', []];
+    }
+}
+
+function check_file_exists(input, file) {
+    let file_object = Gio.File.new_for_path(resolve_path(file));
+    try {
+        if (file_object.query_info("standard::type",
+                                   Gio.FileQueryInfoFlags.NONE,
+                                   null).get_file_type() == Gio.FileType.REGULAR) {
+            return ['success', []];
+        } else {
+            return ['failure', []];
+        }
+    } catch (e) {
+        logError(e, "Failed to get file");
+        return ['failure', []];
+    }
+}
+
+function check_file_contents(input, settings) {
+    let file_object = Gio.File.new_for_path(resolve_path(settings.path));
+    let ok, contents;
+
+    try {
+        [ok, contents] = GLib.file_get_contents(resolve_path(settings.path));
+    } catch (e) {
+        return ['failure', []];
+    }
+
+    return [String(contents).trim() === settings.value ? 'success': 'failure', []];
+}
+
 /* Executing raw shellcode. What could possibly go wrong? */
 function shell_executor(shellcode, environment) {
     if (!environment)
@@ -290,7 +343,10 @@ const _PIPELINE_FUNCS = {
     shell_custom: shell_custom_executor_output,
     input: function(input) { return [input, []]; },
     wait_message: add_wait_message,
-    wrapped_output: add_wrapped_output
+    wrapped_output: add_wrapped_output,
+    check_dir_exists: check_directory_exists,
+    check_file_exists: check_file_exists,
+    check_file_contents: check_file_contents
 };
 
 

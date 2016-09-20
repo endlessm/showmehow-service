@@ -596,22 +596,25 @@
             "mkdir": {
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
-                    "type": "regex",
-                    "value": ".*"
+                    "type": "check_dir_exists",
+                    "value": "~/code"
                 }]
             },
             "touch": {
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
-                    "type": "regex",
-                    "value": ".*"
+                    "type": "check_file_exists",
+                    "value": "~/code/secret.txt"
                 }]
             },
             "write_to_secret": {
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
-                    "type": "regex",
-                    "value": ".*"
+                    "type": "check_file_contents",
+                    "value": {
+                        "path": "~/code/secret.txt",
+                        "value": "kittens"
+                    }
                 }]
             }
         }
