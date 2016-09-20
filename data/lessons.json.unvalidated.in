@@ -17,7 +17,6 @@
                 "effects": {
                     "success": {
                         "reply": "Yes, I'm talking to you",
-                        "move_to": "choice_see_cool"
                     }
                 }
             },
@@ -43,12 +42,10 @@
                                 "type": "shell",
                                 "value": "gsettings set org.gnome.shell wobbly-effect true"
                             }
-                        ],
-                        "move_to": "open_move_window"
+                        ]
                     },
                     "no": {
-                        "reply": "You're boring! Sure you don't?",
-                        "move_to": "choice_see_cool"
+                        "reply": "You're boring! Sure you don't?"
                     }
                 }
             },
@@ -84,12 +81,10 @@
                                 "type": "shell",
                                 "value": "gsettings set org.gnome.shell wobbly-effect false"
                             }
-                        ],
-                        "move_to": "change_background_pic"
+                        ]
                     },
                     "unsatisfied": {
-                        "reply": "Move a window before coming back here!",
-                        "move_to": "open_move_window"
+                        "reply": "Move a window before coming back here!"
                     }
                 }
             },
@@ -162,8 +157,7 @@
                                 "type": "unlock",
                                 "value": ["showmehow"]
                             }
-                        ],
-                        "completes_lesson": true
+                        ]
                     },
                     "failure": {
                         "reply": "'install-programming' EXACTLY. I haven't got all day!"
@@ -200,8 +194,7 @@
                 ],
                 "effects": {
                     "success": {
-                        "reply": "That's right! Though now you need to tell showmehow what task you want to try. This is called an 'argument'. Try giving showmehow an argument so that it knows what to do. Want to know what argument to give it? There's only one, and it just told you what it was.",
-                        "move_to": "showmehow_argument"
+                        "reply": "That's right! Though now you need to tell showmehow what task you want to try. This is called an 'argument'. Try giving showmehow an argument so that it knows what to do. Want to know what argument to give it? There's only one, and it just told you what it was."
                     },
                     "failure": {
                         "reply": "Nope, that wasn't what I thought would happen! Try typing just 'showmehow' and hit 'enter'. No more, no less (though surrounding spaces are okay).",
@@ -241,8 +234,7 @@
                                 "type": "unlock",
                                 "value": ["joke", "readfile"]
                             }
-                        ],
-                        "completes_lesson": true
+                        ]
 
                     },
                     "failure": {
@@ -267,8 +259,7 @@
                 }],
                 "effects": {
                     "success": {
-                        "reply": "Ha-ha. Okay, lets try something even funnier.",
-                        "move_to": "fortune_cowsay"
+                        "reply": "Ha-ha. Okay, lets try something even funnier."
                     },
                     "failure": {
                         "reply": "No?"
@@ -284,8 +275,7 @@
                 }],
                 "effects": {
                     "success": {
-                        "reply": "Moo! Try some more jokes in the shell!",
-                        "completes_lesson": true
+                        "reply": "Moo! Try some more jokes in the shell!"
                     },
                     "failure": {
                         "reply": "Hmm, I thought a cow was going to say that"
@@ -309,8 +299,7 @@
                 }],
                 "effects": {
                     "success":{
-                        "reply": "Endless OS, as expected. Meow!",
-                        "move_to": "cat_cowsay"
+                        "reply": "Endless OS, as expected. Meow!"
                     },
                     "failure": {
                         "reply": "Hmm, are you sure you're reading /etc/os-release?"
@@ -327,7 +316,6 @@
                 "effects": {
                     "success": {
                         "reply": "Moo! You can read any file that is plain text using `cat`. Try it with files like /etc/resolv.conf",
-                        "completes_lesson": true,
                         "side_effects": [
                             {
                                 "type": "unlock",
@@ -358,7 +346,6 @@
                 "effects": {
                     "success": {
                         "reply": "See? Harmless. Don't be afraid to try new things!",
-                        "completes_lesson": true,
                         "side_effects": [
                             {
                                 "type": "unlock",
@@ -388,8 +375,7 @@
                 }],
                 "effects": {
                     "success": {
-                        "reply": "The `gsettings` tool just told you about a bunch of `commands`. You can access these commands by providing the command name as an argument to `gsettings`.",
-                        "move_to": "list_schemas"
+                        "reply": "The `gsettings` tool just told you about a bunch of `commands`. You can access these commands by providing the command name as an argument to `gsettings`."
                     },
                     "failure": {
                         "reply": "I thought that you were going to run `gsettings`?"
@@ -405,8 +391,7 @@
                 }],
                 "effects": {
                     "success": {
-                        "reply": "Those are all the categories. Now lets look at settings you can tweak in your shell.",
-                        "move_to": "list_keys_help"
+                        "reply": "Those are all the categories. Now lets look at settings you can tweak in your shell."
                     },
                     "failure": {
                         "reply": "Where are my settings categories? Try running the list-schemas subcommand for gsettings"
@@ -422,8 +407,7 @@
                 }],
                 "effects": {
                     "success": {
-                        "reply": "Okay, so gsettings [--schemadir SCHEMADIR] list-keys SCHEMA[:PATH] is how you do it",
-                        "move_to": "list_settings"
+                        "reply": "Okay, so gsettings [--schemadir SCHEMADIR] list-keys SCHEMA[:PATH] is how you do it"
                     },
                     "failure": {
                         "reply": "I don't know how to use this list-keys option! Get me some help for it!"
@@ -439,8 +423,7 @@
                 }],
                 "effects": {
                     "success": {
-                        "reply": "Interesting.... I wonder what we can play around with here...",
-                        "move_to": "disable_social_bar"
+                        "reply": "Interesting.... I wonder what we can play around with here..."
                     },
                     "failure": {
                         "reply": "I want to know about the settings available for org.gnome.shell in sorted order? Can you list-schemas on org.gnome.shell using gsettings and then pipe (|) the output to `sort`?"
@@ -461,8 +444,7 @@
                 }],
                 "effects": {
                     "success": {
-                        "reply": "There we go! No facebook icon!",
-                        "move_to": "enable_social_bar"
+                        "reply": "There we go! No facebook icon!"
                     },
                     "failure": {
                         "reply": "Hmm, I thought you'd change the value of org.gnome.shell enable-social-bar to false, but it is still true"
@@ -483,8 +465,7 @@
                 }],
                 "effects": {
                     "success": {
-                        "reply": "Okay, phew, facebook is back",
-                        "move_to": "add_terminal_pinned_help"
+                        "reply": "Okay, phew, facebook is back"
                     },
                     "failure": {
                         "reply": "Quick! I need facebook to come back! Change enable-social-bar on org.gnome.shell back to 'true'!"
@@ -500,8 +481,7 @@
                 }],
                 "effects": {
                     "success": {
-                        "reply": "Okay, so it is a list in square brackets, where every element is surrounded by quotation marks and separated by a comma. Just like this: ['chromium-browser.desktop', 'my-other-app.desktop']",
-                        "move_to": "add_terminal_pinned"
+                        "reply": "Okay, so it is a list in square brackets, where every element is surrounded by quotation marks and separated by a comma. Just like this: ['chromium-browser.desktop', 'my-other-app.desktop']"
                     },
                     "failure": {
                         "reply": "You didn't show me your pinned apps!"
@@ -522,8 +502,7 @@
                 }],
                 "effects": {
                     "success": {
-                        "reply": "Sweet, looks like I'll be sticking around!",
-                        "completes_lesson": true
+                        "reply": "Sweet, looks like I'll be sticking around!"
                     },
                     "failure": {
                         "reply": "I'm not there :( The Terminal's App ID is 'org.gnome.Terminal', so we should add the 'org.gnome.Terminal.desktop' entry to that list in taskbar-pins"
@@ -547,8 +526,7 @@
                 }],
                 "effects": {
                     "success": {
-                        "reply": "I love this song! Now you'll probably notice that we're stuck here. To get out of any command line application, you can use Control-C",
-                        "completes_lesson": true
+                        "reply": "I love this song! Now you'll probably notice that we're stuck here. To get out of any command line application, you can use Control-C"
                     },
                     "failure": {
                         "reply": "We need this song to get things into the right mood. Can you play it?"
