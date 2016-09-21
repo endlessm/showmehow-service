@@ -104,7 +104,7 @@
                 "mapper": ["input",
                   {
                     "type": "regex",
-                    "value": ".*"
+                    "value": "newsplash"
                   }
                 ],
                 "effects": {
