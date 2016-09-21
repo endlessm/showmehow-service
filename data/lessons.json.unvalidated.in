@@ -47,6 +47,20 @@
                     }
                 }
             },
+            "goog_key": {
+                "input": "text",
+                "mapper": ["input",
+                    {
+                        "type": "regex",
+                        "value": "Hfr gur Fbhepr, Yhxr"
+                    }
+                ],
+                "effects": {
+                    "success": {
+                        "reply": "Yes, I'm talking to you"
+                    }
+                }
+            },
             "open_move_window": {
                 "input": {
                     "type": "external_events",
