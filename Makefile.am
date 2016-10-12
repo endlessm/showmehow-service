@@ -25,10 +25,12 @@ CLEANFILES =
 # Rename the showmehow-service script
 showmehow-service: $(abs_top_srcdir)/showmehow-service.js
 	cp $< $@
+	chmod +x $@
 
 # Rename the showmehow-validator script
 showmehow-validator: $(abs_top_srcdir)/showmehow-validator.js
 	cp $< $@
+	chmod +x $@
 
 # GDBus-Codegen for Showmehow
 Showmehow.c: $(abs_top_srcdir)/com.endlessm.Showmehow.Service.xml
@@ -44,7 +46,7 @@ gsettings_SCHEMAS = com.endlessm.showmehow.gschema.xml
 @GSETTINGS_RULES@
 
 # Validation of lessons (produces data.lessons)
-data/lessons.json: $(abs_top_srcdir)/data/lessons.json.unvalidated.in
+data/lessons.json: $(abs_top_srcdir)/data/lessons.json.unvalidated.in $(all_js_files)
 	gjs --include-path=$(abs_top_srcdir) \
 	    $(abs_top_srcdir)/showmehow-validator.js \
 	    $(abs_top_srcdir)/data/lessons.json.unvalidated.in

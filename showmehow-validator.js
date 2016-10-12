@@ -9,9 +9,8 @@
  * the number of errors encountered.
  */
 
-const System = imports.system;
-
 const Gio = imports.gi.Gio;
+const System = imports.system;
 
 const Validation = imports.lib.validation;
 
@@ -22,9 +21,9 @@ const Validation = imports.lib.validation;
  * Open the provided json file and report any errors.
  */
 function validateFile(filename) {
-    const [ok, contents, etag] = Gio.File.new_for_path(filename).load_contents(null);
-    const [valid, errors] = Validation.validateDescriptors(JSON.parse(contents));
-    errors.forEach(e => log("lesson validation error: " + e));
+    let contents = Gio.File.new_for_path(filename).load_contents(null)[1];
+    let errors = Validation.validateDescriptors(JSON.parse(contents))[1];
+    errors.forEach(e => log('lesson validation error: ' + e));
     return errors.length;
 }
 
