@@ -18,6 +18,7 @@ const usage = [
     "Available commands:",
     "",
     "   set-command <id> <command-line> [executable]",
+    "   set-icon <id> <icon-name-or-path>",
     "   restore <id>",
     "",
 ];
@@ -32,6 +33,9 @@ switch (ARGV[0]) {
         break;
     case "set-command":
         DesktopFile.setCommand(ARGV[1], ARGV[2], ARGV[3]);
+        break;
+    case "set-icon":
+        DesktopFile.setIcon(ARGV[1], ARGV[2]);
         break;
     case undefined:
     case null:
