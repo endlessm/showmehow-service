@@ -1,3 +1,9 @@
+# Arbitrary files
+arbitrary_files = files/sw.txt
+
+filesdir = $(pkgdatadir)/files
+files_DATA = $(arbitrary_files)
+
 # Resource javascript modules
 resource_js_files = \
 	lib/validation.js \
