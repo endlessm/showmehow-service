@@ -24,6 +24,7 @@ const Lang = imports.lang;
 imports.searchPath.push('resource:///com/endlessm/showmehow');
 
 const Validation = imports.lib.validation;
+const Config = imports.lib.config;
 
 const SHOWMEHOW_SCHEMA = 'com.endlessm.showmehow';
 
@@ -94,6 +95,10 @@ function regex_validator(input, regex) {
 
 /* Executing raw shellcode. What could possibly go wrong? */
 function shell_executor(shellcode, environment) {
+    if (!environment)
+        environment = environment_as_object();
+    if (Object.keys(environment).indexOf('CODING_FILES_DIR') === -1)
+        environment.CODING_FILES_DIR = Config.coding_files_dir;
     return execute_command_for_output(['/bin/bash', "-c", shellcode + "; exit 0"],
                                       environment);
 }

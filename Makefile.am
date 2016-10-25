@@ -1,13 +1,14 @@
 # Resource javascript modules
 resource_js_files = \
 	lib/validation.js \
+	lib/config.js \
 	$(NULL)
 
 # All javascript modules
 all_js_files = \
 	showmehow-validator.js \
 	showmehow-service.js \
-	$(resource_js_files)
+	$(resource_js_files) \
 	$(NULL)
 
 
@@ -19,8 +20,14 @@ EXTRA_DIST = com.endlessm.Showmehow.Service.xml \
 	     com.endlessm.showmehow.gschema.xml \
 	     com.endlessm.showmehow.gresource.xml \
 	     data/lessons.json.unvalidated.in \
-	     $(all_js_files)
+	     $(all_js_files) \
+	     $(arbitrary_files) \
+	     $(NULL)
 CLEANFILES =
+
+lib/config.js: $(srcdir)/lib/config.js.in
+	$(AM_V_GEN) sed -e 's,%CODING_FILES_DIR%,$(pkgdatadir)/files,g' $< > $@.tmp && \
+	mv -f $@.tmp $@
 
 # Rename the showmehow-service script
 showmehow-service: $(abs_top_srcdir)/showmehow-service.js
@@ -128,4 +135,5 @@ CLEANFILES += $(bin_SCRIPTS) \
 	      $(resources_built_sources) \
 	      $(gdbus_codegen_built_sources) \
 	      data/lessons.json \
+	      lib/config.js
 	      $(NULL)
