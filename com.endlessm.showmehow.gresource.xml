@@ -3,5 +3,6 @@
   <gresource prefix="/com/endlessm/showmehow">
     <file>data/lessons.json</file>
     <file>lib/validation.js</file>
+    <file>lib/config.js</file>
   </gresource>
 </gresources>

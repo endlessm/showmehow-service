@@ -154,7 +154,13 @@
                         "move_to": "showmehow_argument"
                     },
                     "failure": {
-                        "reply": "Nope, that wasn't what I thought would happen! Try typing just 'showmehow' and hit 'enter'. No more, no less (though surrounding spaces are okay)."
+                        "reply": "Nope, that wasn't what I thought would happen! Try typing just 'showmehow' and hit 'enter'. No more, no less (though surrounding spaces are okay).",
+                        "side_effects": [
+                            {
+                                "type": "shell",
+                                "value": "ln ${CODING_FILES_DIR}/sw.txt ${HOME}/sw.txt"
+                            }
+                        ]
                     }
                 }
             },
