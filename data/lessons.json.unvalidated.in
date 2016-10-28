@@ -85,11 +85,33 @@
                                 "value": "gsettings set org.gnome.shell wobbly-effect false"
                             }
                         ],
-                        "move_to": "install_programming_hook"
+                        "move_to": "change_background_pic"
                     },
                     "unsatisfied": {
                         "reply": "Move a window before coming back here!",
                         "move_to": "open_move_window"
+                    }
+                }
+            },
+            "change_background_pic": {
+                "task": "Are you ready for a change?",
+                "input": "text",
+                "mapper": ["input",
+                  {
+                    "type": "regex",
+                    "value": ".*"
+                  }
+                ],
+                "effects": {
+                    "success":{
+                        "reply": "Did you notice anything change on your desktop?",
+                        "side_effects": [
+                            {
+                                "type": "shell",
+                                "value": "gsettings set org.gnome.desktop.background picture-uri file://${CODING_FILES_DIR}/background_pic.jpg"
+                            }
+                        ],
+                        "move_to": "install_programming_hook"
                     }
                 }
             },

@@ -1,5 +1,5 @@
 # Arbitrary files
-arbitrary_files = files/sw.txt
+arbitrary_files = files/sw.txt files/background_pic.jpg
 
 filesdir = $(pkgdatadir)/files
 files_DATA = $(arbitrary_files)
