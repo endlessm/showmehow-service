@@ -4,5 +4,6 @@
     <file>data/lessons.json</file>
     <file>lib/validation.js</file>
     <file>lib/config.js</file>
+    <file>lib/desktopFile.js</file>
   </gresource>
 </gresources>
