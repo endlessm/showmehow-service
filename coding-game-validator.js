@@ -1,5 +1,5 @@
 #!/usr/bin/env gjs
-/* showmehow-validator.js
+/* coding-game-validator.js
  *
  * Copyright (c) 2016 Endless Mobile Inc.
  * All Rights Reserved.

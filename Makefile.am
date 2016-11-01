@@ -22,12 +22,12 @@ EXTRA_DIST = com.endlessm.CodingGameService.xml \
 	     $(all_js_files)
 CLEANFILES =
 
-# Rename the showmehow-service script
+# Rename the coding-game-service script
 coding-game-service: $(abs_top_srcdir)/coding-game-service.js
 	cp $< $@
 	chmod +x $@
 
-# Rename the showmehow-validator script
+# Rename the coding-game-validator script
 coding-game-validator: $(abs_top_srcdir)/coding-game-validator.js
 	cp $< $@
 	chmod +x $@

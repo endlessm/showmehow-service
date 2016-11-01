@@ -1,4 +1,5 @@
-Showmehow Service
+Coding Game Service
 =================
 
-Showmehow as a service.
+The Coding Game Service is the central place where timelines about game state
+progression are kept.
