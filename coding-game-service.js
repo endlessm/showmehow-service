@@ -46,7 +46,7 @@ function loadTimelineDescriptorsFromFile(file) {
         let contents = file.load_contents(null)[1];
         success = true;
     } catch (e) {
-        warnings.push('Unable to load ' + file.get_parse_name() + ": " + String(e));
+        warnings.push('Unable to load ' + file.get_parse_name() + ': ' + String(e));
     }
 
     return [success ? descriptors : null, warnings];
@@ -77,7 +77,7 @@ function loadTimelineDescriptorsFromFile(file) {
 function loadTimelineDescriptors(cmdlineFilename) {
     let filenamesToTry = [
         cmdlineFilename,
-        GLib.build_pathv('/', [GLib.get_user_config_dir(), "coding-game-service", "timeline.json"])
+        GLib.build_pathv('/', [GLib.get_user_config_dir(), 'coding-game-service', 'timeline.json'])
     ].filter(f => !!f);
 
     var warnings = [];
@@ -139,7 +139,7 @@ const CodingGameServiceChatController = new Lang.Class({
     },
 
     sendChatMessage: function(message) {
-        log("Would send message: " + JSON.stringify(message));
+        log('Would send message: ' + JSON.stringify(message));
     }
 });
 
