@@ -128,6 +128,27 @@
                     }
                 }
             },
+            "explore_shared_account": {
+                "task": "Get ready for your next clue.",
+                "input": "text",
+                "mapper": ["input",
+                  {
+                    "type": "regex",
+                    "value": ".*"
+                  }
+                ],
+                "effects": {
+                    "success": {
+                        "reply": "Login to the shared account to find out more. There should be a file called test.txt, which contains more clues.",
+                        "side_effects": [
+                            {
+                                "type": "shell",
+                                "value": "pkexec ${CODING_SHARED_SCRIPT_DIR} test.txt"
+                            }
+                        ]
+                    }
+                }
+            },
             "install_programming_hook": {
                 "input": "console",
                 "mapper": [
