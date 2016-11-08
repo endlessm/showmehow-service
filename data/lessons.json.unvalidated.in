@@ -103,12 +103,34 @@
                   }
                 ],
                 "effects": {
-                    "success":{
+                    "success": {
                         "reply": "Did you notice anything change on your desktop?",
                         "side_effects": [
                             {
                                 "type": "shell",
                                 "value": "gsettings set org.gnome.desktop.background picture-uri file://${CODING_FILES_DIR}/background_pic.jpg"
+                            }
+                        ],
+                        "move_to": "explore_shared_account"
+                    }
+                }
+            },
+            "explore_shared_account": {
+                "task": "Get ready for your next clue.",
+                "input": "text",
+                "mapper": ["input",
+                  {
+                    "type": "regex",
+                    "value": ".*"
+                  }
+                ],
+                "effects": {
+                    "success": {
+                        "reply": "Login to the shared account to find out more. There should be a file called test.txt, which contains more clues.",
+                        "side_effects": [
+                            {
+                                "type": "shell",
+                                "value": "pkexec ${CODING_SHARED_SCRIPT_DIR} test.txt"
                             }
                         ],
                         "move_to": "install_programming_hook"
