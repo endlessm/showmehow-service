@@ -5,9 +5,8 @@ set -e
 
 if [ -z "$1"]; then
   exit 1
-else
-  FILE="$1"
 fi
+FILE="$1"
 
 [[ $(realpath --canonicalize-existing %coding_files_dir%/"$FILE") =~ %coding_files_dir%/ ]] || exit 2
 [[ $(realpath --canonicalize-missing /home/shared/Documents/"$FILE") =~ /home/shared/Documents/ ]] || exit 3
