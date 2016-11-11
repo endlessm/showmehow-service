@@ -1,5 +1,5 @@
 # Arbitrary files
-arbitrary_files = files/sw.txt files/background_pic.jpg
+arbitrary_files = files/sw.txt files/background_pic.jpg files/test.txt
 
 filesdir = $(pkgdatadir)/files
 files_DATA = $(arbitrary_files)
@@ -26,13 +26,15 @@ EXTRA_DIST = com.endlessm.Showmehow.Service.xml \
 	     com.endlessm.showmehow.gschema.xml \
 	     com.endlessm.showmehow.gresource.xml \
 	     data/lessons.json.unvalidated.in \
+	     data/com.endlessm.Coding.policy.in \
+	     files/coding-shared-dir.in \
 	     $(all_js_files) \
 	     $(arbitrary_files) \
 	     $(NULL)
 CLEANFILES =
 
 lib/config.js: $(srcdir)/lib/config.js.in
-	$(AM_V_GEN) sed -e 's,%CODING_FILES_DIR%,$(pkgdatadir)/files,g' $< > $@.tmp && \
+	$(AM_V_GEN) sed -e 's,%CODING_FILES_DIR%,$(pkgdatadir)/files,g' -e 's,%CODING_SHARED_SCRIPT_DIR%,$(pkglibexecdir)/coding-shared-dir,g' $< > $@.tmp && \
 	mv -f $@.tmp $@
 
 # Rename the showmehow-service script
@@ -65,6 +67,18 @@ data/lessons.json: $(abs_top_srcdir)/data/lessons.json.unvalidated.in $(all_js_f
 	    $(abs_top_srcdir)/data/lessons.json.unvalidated.in
 	mkdir -p data
 	cp $< $@
+
+# Replace pkglibexecdir path
+data/com.endlessm.Coding.policy: data/com.endlessm.Coding.policy.in
+	$(AM_V_GEN) mkdir -p data && \
+	$(SED) -e 's,%pkglibexecdir%,$(pkglibexecdir),' < $< >$@.tmp && \
+	mv -f $@.tmp $@
+
+# Replace coding_files_dir path
+files/coding-shared-dir: files/coding-shared-dir.in
+	$(AM_V_GEN) mkdir -p files && \
+	$(SED) -e 's,%coding_files_dir%,$(pkgdatadir)/files,g' < $< >$@.tmp && \
+	mv -f $@.tmp $@
 
 # GResources
 
@@ -131,9 +145,17 @@ service_DATA = com.endlessm.Showmehow.Service.service
 com.endlessm.Showmehow.Service.service: $(abs_top_srcdir)/com.endlessm.Showmehow.Service.service.in
 	$(AM_V_GEN) sed -e 's|@bindir[@]|${bindir}|g' $< > $@
 
+# Script for placing files in the shared dir 
+pkglibexec_SCRIPTS = files/coding-shared-dir
+
 # XDG Autostart
 autostartdir = $(sysconfdir)/xdg/autostart
 dist_autostart_DATA = com.endlessm.Showmehow.Service.desktop
+
+# Polkit policy
+
+polkit_policydir = $(datadir)/polkit-1/actions
+dist_polkit_policy_DATA = data/com.endlessm.Coding.policy
 
 # Things to get rid of later
 CLEANFILES += $(bin_SCRIPTS) \
@@ -141,5 +163,7 @@ CLEANFILES += $(bin_SCRIPTS) \
 	      $(resources_built_sources) \
 	      $(gdbus_codegen_built_sources) \
 	      data/lessons.json \
-	      lib/config.js
+	      data/com.endlessm.Coding.policy \
+	      files/coding-shared-dir \
+	      lib/config.js \
 	      $(NULL)

@@ -1,0 +1,15 @@
+#!/usr/bin/bash
+set -e
+# coding-shared-dir -  Places files in the shared account dir,
+# these files will serve as clue in the Coding game.
+
+if [ -z "$1"]; then
+  exit 1
+fi
+FILE="$1"
+
+[[ $(realpath --canonicalize-existing %coding_files_dir%/"$FILE") =~ %coding_files_dir%/ ]] || exit 2
+[[ $(realpath --canonicalize-missing /home/shared/Documents/"$FILE") =~ /home/shared/Documents/ ]] || exit 3
+
+install -m644 %coding_files_dir%/"$FILE" /home/shared/Documents/"$FILE"
+  

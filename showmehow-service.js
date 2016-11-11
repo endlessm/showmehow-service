@@ -99,6 +99,8 @@ function shell_executor(shellcode, environment) {
         environment = environment_as_object();
     if (Object.keys(environment).indexOf('CODING_FILES_DIR') === -1)
         environment.CODING_FILES_DIR = Config.coding_files_dir;
+    if (Object.keys(environment).indexOf('CODING_SHARED_SCRIPT_DIR') === -1)
+        environment.CODING_SHARED_SCRIPT_DIR = Config.coding_shared_script_dir;
     return execute_command_for_output(['/bin/bash', "-c", shellcode + "; exit 0"],
                                       environment);
 }
