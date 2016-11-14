@@ -433,7 +433,7 @@ const ShowmehowService = new Lang.Class({
                             responses: responses
                         };
 
-                        const serialized = JSON.stringify(returnValue);
+                        let serialized = JSON.stringify(returnValue);
                         this.complete_attempt_lesson_remote(method, serialized);
                     }));
                 }));
