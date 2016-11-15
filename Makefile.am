@@ -1,5 +1,9 @@
 # Arbitrary files
-arbitrary_files = files/sw.txt files/background_pic.jpg files/test.txt
+arbitrary_files = \
+	files/sw.txt \
+	files/background_pic.jpg \
+	files/test.txt \
+	$(NULL)
 
 filesdir = $(pkgdatadir)/files
 files_DATA = $(arbitrary_files)
@@ -20,17 +24,18 @@ all_js_files = \
 
 AM_CONFIG_MACRO_DIR =
 AM_DISTCHECK_CONFIGURE_FLAGS = --enable-introspection
-EXTRA_DIST = com.endlessm.Showmehow.Service.xml \
-	     com.endlessm.Showmehow.Service.desktop \
-	     com.endlessm.Showmehow.Service.service.in \
-	     com.endlessm.showmehow.gschema.xml \
-	     com.endlessm.showmehow.gresource.xml \
-	     data/lessons.json.unvalidated.in \
-	     data/com.endlessm.Coding.policy.in \
-	     files/coding-shared-dir.in \
-	     $(all_js_files) \
-	     $(arbitrary_files) \
-	     $(NULL)
+EXTRA_DIST = \
+	com.endlessm.Showmehow.Service.xml \
+	com.endlessm.Showmehow.Service.desktop \
+	com.endlessm.Showmehow.Service.service.in \
+	com.endlessm.showmehow.gschema.xml \
+	com.endlessm.showmehow.gresource.xml \
+	data/lessons.json.unvalidated.in \
+	data/com.endlessm.Coding.policy.in \
+	files/coding-shared-dir.in \
+	$(all_js_files) \
+	$(arbitrary_files) \
+	$(NULL)
 CLEANFILES =
 
 lib/config.js: $(srcdir)/lib/config.js.in
@@ -53,7 +58,10 @@ Showmehow.c: $(abs_top_srcdir)/com.endlessm.Showmehow.Service.xml
 
 Showmehow.h: Showmehow.c
 
-gdbus_codegen_built_sources = Showmehow.c Showmehow.h
+gdbus_codegen_built_sources = \
+	Showmehow.c \
+	Showmehow.h \
+	$(NULL)
 
 # GSettings schemas
 gsettings_SCHEMAS = com.endlessm.showmehow.gschema.xml
@@ -82,7 +90,8 @@ files/coding-shared-dir: files/coding-shared-dir.in
 
 # GResources
 
-resource_files = $(resource_js_files) \
+resource_files = \
+	$(resource_js_files) \
 	data/lessons.json \
 	$(NULL)
 
@@ -111,7 +120,8 @@ bin_SCRIPTS = showmehow-service \
 # Header files to install
 showmehowincludedir = $(includedir)/showmehow-service
 nobase_showmehowinclude_HEADERS = \
-	Showmehow.h
+	Showmehow.h \
+	$(NULL)
 
 # GObject-Introspection support
 include $(INTROSPECTION_MAKEFILE)
@@ -158,12 +168,13 @@ polkit_policydir = $(datadir)/polkit-1/actions
 dist_polkit_policy_DATA = data/com.endlessm.Coding.policy
 
 # Things to get rid of later
-CLEANFILES += $(bin_SCRIPTS) \
-	      $(service_DATA) \
-	      $(resources_built_sources) \
-	      $(gdbus_codegen_built_sources) \
-	      data/lessons.json \
-	      data/com.endlessm.Coding.policy \
-	      files/coding-shared-dir \
-	      lib/config.js \
-	      $(NULL)
+CLEANFILES += \
+	$(bin_SCRIPTS) \
+	$(service_DATA) \
+	$(resources_built_sources) \
+	$(gdbus_codegen_built_sources) \
+	data/lessons.json \
+	data/com.endlessm.Coding.policy \
+	files/coding-shared-dir \
+	lib/config.js \
+	$(NULL)
