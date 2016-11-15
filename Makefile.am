@@ -18,7 +18,8 @@ resource_nondist_js_files = \
 	$(NULL)
 
 lib/config.js: $(srcdir)/lib/config.js.in
-	$(AM_V_GEN) sed -e 's,%CODING_FILES_DIR%,$(pkgdatadir)/files,g' -e 's,%CODING_SHARED_SCRIPT_DIR%,$(pkglibexecdir)/coding-shared-dir,g' $< > $@.tmp && \
+	$(AM_V_GEN) mkdir -p lib/ && \
+	sed -e 's,%CODING_FILES_DIR%,$(pkgdatadir)/files,g' -e 's,%CODING_SHARED_SCRIPT_DIR%,$(pkglibexecdir)/coding-shared-dir,g' $< > $@.tmp && \
 	mv -f $@.tmp $@
 
 # All javascript modules
