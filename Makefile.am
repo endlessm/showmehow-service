@@ -9,16 +9,28 @@ filesdir = $(pkgdatadir)/files
 files_DATA = $(arbitrary_files)
 
 # Resource javascript modules
-resource_js_files = \
+resource_dist_js_files = \
 	lib/validation.js \
+	$(NULL)
+
+resource_nondist_js_files = \
 	lib/config.js \
 	$(NULL)
 
+lib/config.js: $(srcdir)/lib/config.js.in
+	$(AM_V_GEN) sed -e 's,%CODING_FILES_DIR%,$(pkgdatadir)/files,g' -e 's,%CODING_SHARED_SCRIPT_DIR%,$(pkglibexecdir)/coding-shared-dir,g' $< > $@.tmp && \
+	mv -f $@.tmp $@
+
 # All javascript modules
-all_js_files = \
+all_dist_js_files = \
 	showmehow-validator.js \
 	showmehow-service.js \
-	$(resource_js_files) \
+	$(resource_dist_js_files) \
+	$(NULL)
+
+all_js_files = \
+	$(all_dist_js_files) \
+	$(resource_nondist_js_files) \
 	$(NULL)
 
 
@@ -33,14 +45,10 @@ EXTRA_DIST = \
 	data/lessons.json.unvalidated.in \
 	data/com.endlessm.Coding.policy.in \
 	files/coding-shared-dir.in \
-	$(all_js_files) \
+	$(all_dist_js_files) \
 	$(arbitrary_files) \
 	$(NULL)
 CLEANFILES =
-
-lib/config.js: $(srcdir)/lib/config.js.in
-	$(AM_V_GEN) sed -e 's,%CODING_FILES_DIR%,$(pkgdatadir)/files,g' -e 's,%CODING_SHARED_SCRIPT_DIR%,$(pkglibexecdir)/coding-shared-dir,g' $< > $@.tmp && \
-	mv -f $@.tmp $@
 
 # Rename the showmehow-service script
 showmehow-service: $(abs_top_srcdir)/showmehow-service.js
@@ -91,7 +99,8 @@ files/coding-shared-dir: files/coding-shared-dir.in
 # GResources
 
 resource_files = \
-	$(resource_js_files) \
+	$(resource_dist_js_files) \
+	$(resource_nondist_js_files) \
 	data/lessons.json \
 	$(NULL)
 
