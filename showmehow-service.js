@@ -251,7 +251,7 @@ function add_wrapped_output(input) {
         {
             type: 'response',
             content: {
-                'type': "wrapped",
+                'type': 'wrapped',
                 'value': input
             }
         }
@@ -263,7 +263,7 @@ function add_wait_message(input) {
         {
             type: 'response',
             content: {
-                'type': "scroll_wait",
+                'type': 'scroll_wait',
                 value: select_random_from(WAIT_MESSAGES)
             }
         }
@@ -306,7 +306,7 @@ function lessonDescriptorMatching(lesson, descriptors) {
 
     if (matches.length !== 1) {
         log('Expected only a single match from ' + lesson +
-            ' but there were ' + matches.length + " matches");
+            ' but there were ' + matches.length + ' matches');
         return null;
     }
 
@@ -329,7 +329,7 @@ function loadLessonDescriptorsFromFile(file) {
         [descriptors, warnings] = Validation.validateDescriptors(JSON.parse(contents));
         success = true;
     } catch (e) {
-        warnings.push('Unable to load ' + file.get_parse_name() + ": " + String(e));
+        warnings.push('Unable to load ' + file.get_parse_name() + ': ' + String(e));
     }
 
     return [success ? descriptors : null, warnings];
@@ -360,7 +360,7 @@ function loadLessonDescriptorsFromFile(file) {
 function loadLessonDescriptors(cmdlineFilename) {
     let filenamesToTry = [
         cmdlineFilename,
-        GLib.build_pathv('/', [GLib.get_user_config_dir(), "showmehow", "lessons.json"])
+        GLib.build_pathv('/', [GLib.get_user_config_dir(), 'showmehow', 'lessons.json'])
     ].filter(f => !!f);
 
     var warnings = [];
@@ -512,7 +512,7 @@ const ShowmehowService = new Lang.Class({
 
         /* Log the warnings, and also make them available to clients who are interested.
          *
-         * XXX: For some odd reason, I'm not able to return 'as" here and need to
+         * XXX: For some odd reason, I'm not able to return 'as' here and need to
          * return an array of structures in order to get this to work. */
         this._descriptors.warnings.forEach(w => log(w));
 
@@ -632,7 +632,7 @@ const ShowmehowService = new Lang.Class({
                                                ShowmehowErrors.INVALID_TASK,
                                                'Either the lesson ' + lesson +
                                                ' or task id ' + task +
-                                               ' was invalid\n' + e + " " + e.stack);
+                                               ' was invalid\n' + e + ' ' + e.stack);
         }
 
         return success(task_detail);
