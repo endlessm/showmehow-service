@@ -18,7 +18,7 @@ GLIB_GSETTINGS
 # Checks for programs.
 
 # Checks for libraries.
-PKG_CHECK_MODULES(SHOWMEHOW, [glib-2.0 gio-2.0 gobject-2.0 gio-unix-2.0])
+PKG_CHECK_MODULES(SHOWMEHOW_SERVICE, [glib-2.0 gio-2.0 gobject-2.0 gio-unix-2.0])
 
 # Checks for SystemD
 systemdsystemunitdir="$($PKG_CONFIG systemd --variable=systemdsystemunitdir)"
@@ -35,7 +35,5 @@ AC_SUBST([systemdsystemunitdir])
 
 # Checks for library functions.
 
-AC_SUBST([SHOWMEHOW_CFLAGS])
-AC_SUBST([SHOWMEHOW_LDFLAGS])
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

@@ -116,9 +116,8 @@ resources_built_sources = showmehow-resources.c showmehow-resources.h
 libshowmehow_1_0_la_SOURCES = $(resources_built_sources) \
 			      $(gdbus_codegen_built_sources) \
 			      $(NULL)
-libshowmehow_1_0_la_CFLAGS = @SHOWMEHOW_CFLAGS@
-libshowmehow_1_0_la_LDFLAGS = @SHOWMEHOW_LDFLAGS@
-libshowmehow_1_0_la_LIBADD = @SHOWMEHOW_LIBS@
+libshowmehow_1_0_la_CFLAGS = $(SHOWMEHOW_SERVICE_CFLAGS)
+libshowmehow_1_0_la_LIBADD = $(SHOWMEHOW_SERVICE_LIBS)
 
 # All libraries
 lib_LTLIBRARIES = libshowmehow-1.0.la
