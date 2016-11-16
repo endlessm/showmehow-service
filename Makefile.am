@@ -46,6 +46,7 @@ EXTRA_DIST = \
 	data/lessons.json.unvalidated.in \
 	data/com.endlessm.Coding.policy.in \
 	files/coding-shared-dir.in \
+	lib/config.js.in \
 	$(all_dist_js_files) \
 	$(arbitrary_files) \
 	$(NULL)
