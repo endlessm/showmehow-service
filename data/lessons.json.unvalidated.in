@@ -551,11 +551,11 @@
         "desc": "Learn to navigate the filesystem",
         "entry": "list",
         "practice": {
-            "list": {
+            "change_to_root": {
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
-                    "value": ".*boot.*"
+                    "value": ".*"
                 }]
             },
             "list": {
@@ -569,7 +569,7 @@
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
-                    "value": ".*smspillaz.*"
+                    "value": ".*shared.*"
                 }]
             },
             "pwd": {
@@ -579,14 +579,35 @@
                     "value": "\/"
                 }]
             },
+            "cd": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": ".*"
+                }]
+            },
+            "list_home": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": ".*shared.*"
+                }]
+            },
+            "cd_home_dir": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": ".*"
+                }]
+            },
             "cd_and_cmd": {
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
-                    "value": ".*smspillaz.*"
+                    "value": ".*shared.*"
                 }]
             },
-            "cd_home_and_cmd": {
+            "list_home_dir": {
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
