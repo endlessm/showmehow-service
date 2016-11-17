@@ -311,56 +311,6 @@ function run_pipeline(pipeline, input, done) {
     return _run_pipeline_step(pipeline, 0, input, [], done);
 }
 
-function satisfied_external_event_output_with_largest_subset(satisfiedOutputs,
-                                                             lessonSatisfiedStatus) {
-    /* From here, if there is more than one event, we need
-     * to figure out which one best covers the case we're after. This
-     * means that it must subsume every other event.
-     *
-     * It should not be possible to have a situation where two events
-     * are matched and there is not a single event which subsumes
-     * them both. If this situation occurrs it is an error */
-    satisfiedOutputs = satisfiedOutputs.filter(function(satisfiedOutputKey) {
-        let satisfiedOutput = lessonSatisfiedStatus.outputs[satisfiedOutputKey];
-
-        /* Check if all the other satisfied outputs are subsets of this
-         * one. In the event that the subset of satisfied outputs is
-         * empty after returning this one, then the result will still
-         * be true, as [].every(w => false) is true. */
-        return satisfiedOutputs.filter(key => key != satisfiedOutputKey).every(function(key) {
-            return satisfiedOutput.subsumes.indexOf(key) !== -1;
-        });
-    });
-
-    if (satisfiedOutputs.length === 1) {
-        return {
-            name: satisfiedOutputs[0],
-            status: lessonSatisfiedStatus.outputs[satisfiedOutputs[0]]
-        };
-    }
-
-    /* Error cases - no outputs satisfied or more than one output
-     * satisfied. */
-    let satisfiedEvents = Array.prototype.concat.apply([], satisfiedOutputs.map(function(output) {
-        return lessonSatisfiedStatus.outputs[output].events;
-    })).join(', ');
-
-    if (satisfiedOutputs.length === 0) {
-        throw new Error('No outputs were satisfied by events: ' +
-                        satisfiedEvents + '. At any given point an ' +
-                        'output must be satisfiable even if no ' +
-                        'events occurr.');
-    }
-
-    throw new Error('More than one output (' +
-                    satisfiedOutputs.join(', ') + ") was matched when " +
-                    'following events were satisfied: ' + satisfiedEvents +
-                    '. Only one output should be satisfiable. ' +
-                    'Ensure that all outputs are expressed such that each event ' +
-                    'is the perfect subset of another set of events in the subsumes ' +
-                    'field.');
-}
-
 const _CUSTOM_PIPELINE_CONSTRUCTORS = {
     check_external_events: function(service, lesson, task) {
         let lessonSatisfiedStatus = service._pendingLessonEvents[lesson][task];
@@ -404,46 +354,6 @@ function mapper_to_pipeline_step(mapper, service, lesson, task) {
     };
 }
 
-const _INPUT_SIDE_EFFECTS = {
-    external_events: function(settings, service, lesson, task) {
-        /* If we're already listening for events on this lesson and
-         * task, clear the exsting structure and start over. */
-        if ((service._pendingLessonEvents[lesson] || {})[task]) {
-            delete service._pendingLessonEvents[lesson][task];
-        }
-
-        /* Mutate settings to get something close to what we want.
-         * We abuse JSON.stringify here to get a deep copy. */
-        let lessonSatisfiedStatus = {
-            outputs: JSON.parse(JSON.stringify(settings))
-        };
-        let interestedInEvents = Object.keys(lessonSatisfiedStatus.outputs).map(function(key) {
-            let outputSatisfied = lessonSatisfiedStatus.outputs[key];
-            let outputSatisfiedEventStatus = {};
-
-            /* Start tracking all these events */
-            outputSatisfied.events.forEach(function(event) {
-                return outputSatisfiedEventStatus[event] = false;
-            });
-
-            let interestingEvents = outputSatisfied.events;
-            outputSatisfied.events = outputSatisfiedEventStatus;
-            return interestingEvents;
-        }).reduce(function(interestedInEvents, interestingEvents) {
-            return addArrayUnique(interestedInEvents, interestingEvents);
-        }, []);
-
-        /* Use the settings to populate service._pendingLessonEvents
-         * then emit a signal to other applications that we are listening
-         * for certain events */
-        service._pendingLessonEvents[lesson] = service._pendingLessonEvents[lesson] || {};
-        service._pendingLessonEvents[lesson][task] = lessonSatisfiedStatus;
-
-        /* Emit that we're interested in them */
-        service.emit_listening_for_lesson_events(new GLib.Variant('a(s)',
-                                                                  interestedInEvents.map((w) => [w])));
-    }
-};
 
 const ShowmehowErrorDomain = GLib.quark_from_string('showmehow-error');
 const ShowmehowErrors = {
@@ -502,104 +412,6 @@ const ShowmehowService = new Lang.Class({
         return true;
     },
 
-    vfunc_handle_get_unlocked_lessons: function(method, client) {
-        try {
-            /* We call addArrayUnique here to ensure that showmehow is always in the
-             * list, even if the gsettings key messes up and gets reset to an
-             * empty list. */
-            let unlocked = addArrayUnique(this._settings.get_strv('unlocked-lessons'), [
-                'showmehow',
-                'intro'
-            ]).map(l => {
-                return lessonDescriptorMatching(l, this._descriptors);
-            }).filter(d => {
-                return d && d.available_to.indexOf(client) !== -1;
-            }).map(d => [d.name, d.desc, d.entry]);
-
-            this.complete_get_unlocked_lessons(method, GLib.Variant.new('a(sss)', unlocked));
-        } catch (e) {
-            method.return_error_literal(ShowmehowErrorDomain,
-                                        ShowmehowErrors.INTERNAL_ERROR,
-                                        String(e));
-        }
-
-        return true;
-    },
-
-    vfunc_handle_get_known_spells: function(method, client) {
-        try {
-            /* Get all the lesson details for the 'known' spells, eg, the ones the
-             * user has already completed.
-             */
-            let ret = this._settings.get_strv('known-spells').map(l => {
-                return lessonDescriptorMatching(l, this._descriptors);
-            }).filter(d => {
-                return d && d.available_to.indexOf(client) !== -1;
-            }).map(d => [d.name, d.desc, d.entry]);
-            this.complete_get_known_spells(method, GLib.Variant.new('a(sss)', ret));
-        } catch (e) {
-            method.return_error_literal(ShowmehowErrorDomain,
-                                        ShowmehowErrors.INTERNAL_ERROR,
-                                        String(e));
-        }
-
-        return true;
-    },
-
-    vfunc_handle_get_task_description: function(method, lesson, task) {
-        try {
-            /* Return the descriptions for this task
-             *
-             * Note that in the specification file we allow a shorthand
-             * to just specify that we want textual input, since it is
-             * a very common case. Detect that here and turn it into
-             * a JSON object representation that consumers can understand.
-             *
-             * Also note that this function is not necessarily stateless. Getting
-             * a task description might have side effects like starting the
-             * process to listen for certain OS-level events.
-             */
-            this._validateAndFetchTask(lesson, task, method, Lang.bind(this, function(task_detail) {
-                let input_spec;
-                if (typeof task_detail.input === 'string') {
-                    input_spec = {
-                        type: task_detail.input,
-                        settings: {
-                        }
-                    };
-                } else if (typeof task_detail.input === 'object') {
-                    input_spec = task_detail.input;
-                } else {
-                    method.return_error_literal(ShowmehowErrorDomain,
-                                                ShowmehowErrors.INVALID_TASK_SPEC,
-                                                'Can\'t have an input spec which ' +
-                                                'isn\'t either an object or a ' +
-                                                'string (error in processing ' +
-                                                JSON.stringify(task_detail.input) +
-                                                ')');
-                }
-
-                if (_INPUT_SIDE_EFFECTS[input_spec.type]) {
-                    _INPUT_SIDE_EFFECTS[input_spec.type](input_spec.settings,
-                                                         this,
-                                                         lesson,
-                                                         task);
-                }
-
-                this.complete_get_task_description(method,
-                                                   GLib.Variant.new('(ss)',
-                                                                    [task_detail.task,
-                                                                     JSON.stringify(input_spec)]));
-            }));
-        } catch (e) {
-            method.return_error_literal(ShowmehowErrorDomain,
-                                        ShowmehowErrors.INTERNAL_ERROR,
-                                        String(e));
-        }
-
-        return true;
-    },
-
     vfunc_handle_attempt_lesson_remote: function(method, lesson, task, input_code) {
         try {
             this._validateAndFetchTask(lesson, task, method, Lang.bind(this, function(task_detail) {
@@ -616,143 +428,18 @@ const ShowmehowService = new Lang.Class({
                             return extra.content;
                         });
 
-                        /* Take the result and run it through 'effects' to
-                         * determine what to do next.
-                         */
-                        if (Object.keys(task_detail.effects).indexOf(result) === -1) {
-                            method.return_error_literal(ShowmehowErrorDomain,
-                                                        ShowmehowErrors.INVALID_TASK_SPEC,
-                                                        'Don\'t know how to handle response ' +
-                                                        result + ' with effects ' +
-                                                        JSON.stringify(task_detail.effects, null, 2));
-                        } else {
-                            let effect = task_detail.effects[result];
-                            if (effect.reply) {
-                                if (typeof effect.reply === 'string') {
-                                    responses.push({
-                                        type: 'scrolled',
-                                        value: effect.reply
-                                    });
-                                } else if (typeof effect.reply === 'object') {
-                                    responses.push(effect.reply);
-                                } else {
-                                    method.return_error_literal(ShowmehowErrorDomain,
-                                                                ShowmehowErrors.INVALID_TASK_SPEC,
-                                                                'Can\'t have an output spec which ' +
-                                                                'isn\'t either an object or a ' +
-                                                                'string (error in processing ' +
-                                                                JSON.stringify(effect.reply) +
-                                                                ')');
-                                }
-                            }
+                        let returnValue = {
+                            result: result,
+                            responses: responses
+                        };
 
-                            if (effect.side_effects) {
-                                effect.side_effects.map(Lang.bind(this, function(side_effect) {
-                                    switch (side_effect.type) {
-                                    case 'shell':
-                                        shell_executor(side_effect.value);
-                                        break;
-                                    case 'unlock':
-                                        {
-                                            /* Get all unlocked tasks and this task's unlocks value and
-                                             * combine the two together into a single set */
-                                            let unlocked = this._settings.get_strv('unlocked-lessons');
-                                            this._settings.set_strv('unlocked-lessons', addArrayUnique(unlocked, side_effect.value));
-                                        }
-                                        break;
-                                    default:
-                                        method.return_error_literal(ShowmehowErrorDomain,
-                                                                    ShowmehowErrors.INVALID_TASK_SPEC,
-                                                                    'Don\'t know how to handle side effect type ' +
-                                                                    side_effect.type + ' in parsing (' +
-                                                                    JSON.stringify(side_effect) + ')');
-                                        break;
-                                    }
-                                }));
-                            }
-
-                            if (effect.completes_lesson) {
-                                /* Add this lesson to the known-spells key */
-                                let known = this._settings.get_strv('known-spells');
-                                this._settings.set_strv('known-spells',
-                                                        addArrayUnique(known, [lesson]));
-                            }
-
-                            let move_to = effect.move_to || (effect.completes_lesson ? '' : task);
-
-                            /* If we are going to move to a different task to this one, clear any
-                             * pending events for this lesson */
-                            if (move_to !== task &&
-                                (this._pendingLessonEvents[lesson] || {})[task]) {
-                                delete this._pendingLessonEvents[lesson][task];
-                            }
-
-                            this.complete_attempt_lesson_remote(method,
-                                                                new GLib.Variant('(ss)',
-                                                                                 [JSON.stringify(responses),
-                                                                                  move_to]));
-                        }
+                        let serialized = JSON.stringify(returnValue);
+                        this.complete_attempt_lesson_remote(method, serialized);
                     }));
                 }));
             }));
         } catch (e) {
-            method.return_error_literal(ShowmehowErrorDomain,
-                                        ShowmehowErrors.INTERNAL_ERROR,
-                                        String(e));
-        }
-
-        return true;
-    },
-
-    vfunc_handle_lesson_event: function(method, name) {
-        Object.keys(this._pendingLessonEvents).forEach(Lang.bind(this, function(lesson) {
-            Object.keys(this._pendingLessonEvents[lesson]).forEach(Lang.bind(this, function(task) {
-                let lessonSatisfiedStatus = this._pendingLessonEvents[lesson][task];
-                let satisfiedOutputs = Object.keys(lessonSatisfiedStatus.outputs).filter(function(key) {
-                    /* Return true if every event was satisfied
-                     *
-                     * Note that unlike above, we are
-                     * modifying spec.events inside of the filter
-                     * function, such that the filter will pass
-                     * if the event occurred. This means that in
-                     * some cases, there will be multiple signals
-                     * emitted if an output was satisfied and
-                     * not acted upon yet */
-                    let spec = lessonSatisfiedStatus.outputs[key];
-                    return Object.keys(spec.events).every(function(key) {
-                        spec.events[key] = (spec.events[key] || key == name);
-                        return spec.events[key];
-                    });
-                });
-
-                let satisfiedOutput = satisfied_external_event_output_with_largest_subset(satisfiedOutputs,
-                                                                                          lessonSatisfiedStatus);
-                if (satisfiedOutput.status.notify) {
-                    this.emit_lesson_events_satisfied(lesson, task);
-                }
-            }));
-        }));
-    },
-
-    vfunc_handle_register_clue: function(method, type, clue) {
-        try {
-            this._registerClue(type, clue);
-            this.complete_register_clue(method);
-        } catch (e) {
-            method.return_error_literal(ShowmehowErrorDomain,
-                                        ShowmehowErrors.INVALID_CLUE_TYPE,
-                                        String(e));
-            log(String(e));
-            log(String(e.stack));
-        }
-
-        return true;
-    },
-
-    vfunc_handle_get_clues: function(method) {
-        try {
-            this.complete_get_clues(method, this._settings.get_value('clues'));
-        } catch (e) {
+            logError(e, 'Internal error in handle_lesson_response');
             method.return_error_literal(ShowmehowErrorDomain,
                                         ShowmehowErrors.INTERNAL_ERROR,
                                         String(e));
@@ -812,23 +499,6 @@ const ShowmehowService = new Lang.Class({
         }
 
         return callback(pipeline);
-    },
-
-    _registerClue: function(type, content) {
-        if (KNOWN_CLUE_TYPES.indexOf(type) === -1) {
-            throw new Error('Tried to register clue of type ' + type + " but " +
-                            'the service does not know how to handle that type. ' +
-                            'Known clue types are ' + KNOWN_CLUE_TYPES.join(" "));
-        }
-
-        let clues = this._settings.get_value('clues').deep_unpack();
-        clues = addArrayUnique(clues, [[content, type]], function(v, array) {
-            return array.filter(function(existingClue) {
-                return existingClue[0] == v[0] &&
-                       existingClue[1] == v[1];
-            }).length === 0;
-        });
-        this._settings.set_value('clues', GLib.Variant.new("a(ss)", clues));
     }
 });
 
