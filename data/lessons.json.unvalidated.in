@@ -137,8 +137,7 @@
                                 "type": "shell",
                                 "value": "pkexec ${CODING_SHARED_SCRIPT_DIR} test.txt"
                             }
-                        ],
-                        "move_to": "install_programming_hook"
+                        ]
                     }
                 }
             },
@@ -543,6 +542,101 @@
                         "reply": "We need this song to get things into the right mood. Can you play it?"
                     }
                 }
+            }
+        }
+    },
+    {
+        "name": "navigation",
+        "available_to": ["console"],
+        "desc": "Learn to navigate the filesystem",
+        "entry": "list",
+        "practice": {
+            "change_to_root": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": ".*"
+                }]
+            },
+            "list": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": ".*boot.*"
+                }]
+            },
+            "list_child": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": ".*shared.*"
+                }]
+            },
+            "pwd": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": "\/"
+                }]
+            },
+            "cd": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": ".*"
+                }]
+            },
+            "list_home": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": ".*shared.*"
+                }]
+            },
+            "cd_home_dir": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": ".*"
+                }]
+            },
+            "cd_and_cmd": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": ".*shared.*"
+                }]
+            },
+            "list_home_dir": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": ".*Pictures.*"
+                }]
+            },
+            "mkdir": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "check_dir_exists",
+                    "value": "~/code"
+                }]
+            },
+            "touch": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "check_file_exists",
+                    "value": "~/code/secret.txt"
+                }]
+            },
+            "write_to_secret": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "check_file_contents",
+                    "value": {
+                        "path": "~/code/secret.txt",
+                        "value": "kittens"
+                    }
+                }]
             }
         }
     }

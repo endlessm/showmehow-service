@@ -3,7 +3,14 @@
     <method name="GetWarnings">
       <arg name="warnings" direction="out" type="a(s)"/>
     </method>
+    <method name="OpenSession">
+      <arg name="token" direction="out" type="i"/>
+    </method>
+    <method name="CloseSession">
+      <arg name="token" direction="in" type="i"/>
+    </method>
     <method name="AttemptLessonRemote">
+      <arg name="token" direction="in" type="i"/>
       <arg name="lesson" direction="in" type="s"/>
       <arg name="task" direction="in" type="s"/>
       <arg name="input" direction="in" type="s"/>

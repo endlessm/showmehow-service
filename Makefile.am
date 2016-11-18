@@ -116,6 +116,8 @@ resources_built_sources = showmehow-resources.c showmehow-resources.h
 # Generate the Showmehow GDBus Skeleton library
 libshowmehow_1_0_la_SOURCES = $(resources_built_sources) \
 			      $(gdbus_codegen_built_sources) \
+			      showmehow-cmd-helper.c \
+			      showmehow-cmd-helper.h \
 			      $(NULL)
 libshowmehow_1_0_la_CFLAGS = $(SHOWMEHOW_SERVICE_CFLAGS)
 libshowmehow_1_0_la_LIBADD = $(SHOWMEHOW_SERVICE_LIBS)
@@ -143,9 +145,9 @@ if HAVE_INTROSPECTION
 introspection_sources = $(libshowmehow_1_0_la_SOURCES)
 
 Showmehow-1.0.gir: libshowmehow-1.0.la
-Showmehow_1_0_gir_INCLUDES = GObject-2.0 Gio-2.0
+Showmehow_1_0_gir_INCLUDES = GObject-2.0 Gio-2.0 GLib-2.0
 Showmehow_1_0_gir_CFLAGS = $(INCLUDES)
-Showmehow_1_0_gir_LIBS = libshowmehow-1.0.la
+Showmehow_1_0_gir_LIBS = libshowmehow-1.0.la $(SHOWMEHOW_LDFLAGS)
 Showmehow_1_0_gir_FILES = $(introspection_sources)
 INTROSPECTION_GIRS += Showmehow-1.0.gir
 

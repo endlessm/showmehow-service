@@ -8,7 +8,6 @@
  * the operating system are stored and progress is kept.
  */
 
-
 const GLib = imports.gi.GLib;
 const Gio = imports.gi.Gio;
 const Showmehow = imports.gi.Showmehow;
@@ -68,6 +67,71 @@ function execute_command_for_output(argv, user_environment={}) {
     };
 }
 
+function spawnProcess(binary, argv=[], user_environment={}) {
+    let environment = environment_as_object();
+    Object.keys(user_environment).forEach(key => {
+        environment[key] = user_environment[key];
+    });
+
+    let launcher = new Gio.SubprocessLauncher({
+        flags: Gio.SubprocessFlags.STDIN_PIPE |
+               Gio.SubprocessFlags.STDOUT_PIPE |
+               Gio.SubprocessFlags.STDERR_PIPE
+    });
+
+    let envp = environment_object_to_envp(environment);
+    launcher.set_environ(envp);
+    argv.unshift(binary);
+    let proc = launcher.spawnv(argv);
+
+    return {
+        proc: proc,
+        stdin: proc.get_stdin_pipe(),
+        stdout: proc.get_stdout_pipe(),
+        stderr: proc.get_stderr_pipe()
+    };
+}
+
+const InteractiveShell = new Lang.Class({
+    Name: 'InteractiveShell',
+
+    _init: function(binary, argv=[], user_environment={}) {
+        this.parent();
+        this._process = spawnProcess(binary, argv, user_environment);
+
+        // Drain the standard output and error streams
+        Showmehow.read_nonblock_input_stream_for_bytes(this._process.stdout);
+        Showmehow.read_nonblock_input_stream_for_bytes(this._process.stderr);
+    },
+
+    // Validate input and write the result back to the stream
+    evaluate: function(input, callback, onError) {
+        this._process.stdin.write_all(input + "\n", null);
+
+        // We give the shell a maximum of 300ms to write its output
+        GLib.usleep(GLib.USEC_PER_SEC * 0.3);
+
+        // Once we're done, read the standard out for
+        // the result and pass it to callback
+        let stdout_bytes = Showmehow.read_nonblock_input_stream_for_bytes(this._process.stdout);
+        let stderr_bytes = Showmehow.read_nonblock_input_stream_for_bytes(this._process.stderr);
+
+        // Now run echo $? to get the exit code of the last process
+        this._process.stdin.write_all("echo $?\n", null);
+        GLib.usleep(GLib.USEC_PER_SEC * 0.1);
+        let exit_bytes = Showmehow.read_nonblock_input_stream_for_bytes(this._process.stdout);
+        return {
+            stdout: String(stdout_bytes.get_data()),
+            stderr: String(stderr_bytes.get_data()),
+            code: Number(String(exit_bytes.get_data()).trim())
+        };
+    },
+
+    kill: function() {
+        this._process.proc.force_exit();
+    }
+});             
+
 function select_random_from(array) {
     return array[Math.floor(Math.random() * array.length)];
 }
@@ -93,31 +157,93 @@ function regex_validator(input, regex) {
     return ['failure', []];
 }
 
+function resolve_path(path) {
+    if (path.startsWith("~")) {
+        return GLib.build_pathv("/", [GLib.get_home_dir(), path.slice(1)]);
+    }
+
+    return path;
+}
+
+function check_directory_exists(input, directory) {
+    let file_object = Gio.File.new_for_path(resolve_path(directory));
+    try {
+        if (file_object.query_info("standard::type",
+                                   Gio.FileQueryInfoFlags.NONE,
+                                   null).get_file_type() === Gio.FileType.DIRECTORY) {
+            return ['success', []];
+        } else {
+            return ['failure', []];
+        }
+    } catch (e) {
+        logError(e, "Failed to get directory");
+        return ['failure', []];
+    }
+}
+
+function check_file_exists(input, file) {
+    let file_object = Gio.File.new_for_path(resolve_path(file));
+    try {
+        if (file_object.query_info("standard::type",
+                                   Gio.FileQueryInfoFlags.NONE,
+                                   null).get_file_type() == Gio.FileType.REGULAR) {
+            return ['success', []];
+        } else {
+            return ['failure', []];
+        }
+    } catch (e) {
+        logError(e, "Failed to get file");
+        return ['failure', []];
+    }
+}
+
+function check_file_contents(input, settings) {
+    let file_object = Gio.File.new_for_path(resolve_path(settings.path));
+    let ok, contents;
+
+    try {
+        [ok, contents] = GLib.file_get_contents(resolve_path(settings.path));
+    } catch (e) {
+        return ['failure', []];
+    }
+
+    return [String(contents).trim() === settings.value ? 'success': 'failure', []];
+}
+
 /* Executing raw shellcode. What could possibly go wrong? */
-function shell_executor(shellcode, environment) {
+function shell_executor(shellcode, session, environment) {
+
+    // Note that at least for now, we don't support per-command environment
+    // variables in sessions - only in cases where the session
     if (!environment)
         environment = environment_as_object();
     if (Object.keys(environment).indexOf('CODING_FILES_DIR') === -1)
         environment.CODING_FILES_DIR = Config.coding_files_dir;
     if (Object.keys(environment).indexOf('CODING_SHARED_SCRIPT_DIR') === -1)
         environment.CODING_SHARED_SCRIPT_DIR = Config.coding_shared_script_dir;
-    return execute_command_for_output(['/bin/bash', "-c", shellcode + "; exit 0"],
-                                      environment);
+
+    if (session) {
+        return session.bash.evaluate(shellcode);
+    } else {
+        return execute_command_for_output(['/bin/bash', "-c", shellcode + "; exit 0"],
+                                          environment);
+    }
 }
 
-function shell_executor_output(shellcode, settings) {
+function shell_executor_output(shellcode, session, settings) {
     let result = shell_executor(shellcode,
+                                session,
                                 settings ? settings.environment : {});
     return [result.stdout + '\n' + result.stderr, []];
 }
 
-function shell_custom_executor_output(shellcode, settings) {
+function shell_custom_executor_output(shellcode, session, settings) {
     if (typeof settings.command !== 'string') {
         throw new Error('shell_custom_executor_output: settings.command ' +
                         'must be a string. settings is ' +
                         JSON.stringify(settings, null, 2));
     }
-    return shell_executor_output(settings.command, settings);
+    return shell_executor_output(settings.command, session, settings);
 }
 
 function add_wrapped_output(input) {
@@ -286,11 +412,12 @@ const KNOWN_CLUE_TYPES = [
 
 const _PIPELINE_FUNCS = {
     regex: regex_validator,
-    shell: shell_executor_output,
-    shell_custom: shell_custom_executor_output,
     input: function(input) { return [input, []]; },
     wait_message: add_wait_message,
-    wrapped_output: add_wrapped_output
+    wrapped_output: add_wrapped_output,
+    check_dir_exists: check_directory_exists,
+    check_file_exists: check_file_exists,
+    check_file_contents: check_file_contents
 };
 
 
@@ -312,7 +439,7 @@ function run_pipeline(pipeline, input, done) {
 }
 
 const _CUSTOM_PIPELINE_CONSTRUCTORS = {
-    check_external_events: function(service, lesson, task) {
+    check_external_events: function(mapper, service, session, lesson, task) {
         let lessonSatisfiedStatus = service._pendingLessonEvents[lesson][task];
         return function() {
             /* We need to figure out which output to map to here. It should
@@ -331,10 +458,20 @@ const _CUSTOM_PIPELINE_CONSTRUCTORS = {
                                                                               lessonSatisfiedStatus);
             return [event.name, []];
         };
-    }
+    },
+    shell: function(mapper, service, session, lesson, task) {
+        return function(input) {
+            return shell_executor_output(input, session, mapper.value);
+        }
+    },
+    shell_custom: function(mapper, service, session, lesson, task) {
+        return function(input) {
+            return shell_custom_executor_output(input, session, mapper.value);
+        }
+    },
 };
 
-function mapper_to_pipeline_step(mapper, service, lesson, task) {
+function mapper_to_pipeline_step(mapper, service, session, lesson, task) {
     let invalid = (!mapper ||
                    Object.keys(mapper).length !== 2 ||
                    mapper.type === undefined ||
@@ -346,7 +483,7 @@ function mapper_to_pipeline_step(mapper, service, lesson, task) {
     }
 
     if (_CUSTOM_PIPELINE_CONSTRUCTORS[mapper.type]) {
-        return _CUSTOM_PIPELINE_CONSTRUCTORS[mapper.type](service, lesson, task);
+        return _CUSTOM_PIPELINE_CONSTRUCTORS[mapper.type](mapper, service, session, lesson, task);
     }
 
     return function(input) {
@@ -397,6 +534,8 @@ const ShowmehowService = new Lang.Class({
                 }
             }));
         }
+        this._sessions = {};
+        this._sessionCount = 0;
     },
 
     vfunc_handle_get_warnings: function(method) {
@@ -412,11 +551,40 @@ const ShowmehowService = new Lang.Class({
         return true;
     },
 
-    vfunc_handle_attempt_lesson_remote: function(method, lesson, task, input_code) {
+    vfunc_handle_open_session: function(method) {
         try {
+            this._sessionCount++;
+            this._sessions[this._sessionCount] = {
+                bash: new InteractiveShell("/bin/bash", [], {})
+            };
+            this.complete_open_session(method, this._sessionCount);
+        } catch(e) {
+            logError(e, "Failed to open a new session");
+            method.return_error_literal(ShowmehowErrorDomain,
+                                        ShowmehowErrors.INTERNAL_ERROR,
+                                        String(e));
+        }
+    },
+
+    vfunc_handle_close_session: function(method, id) {
+        try {
+            Object.keys(this._sessions[id]).forEach(Lang.bind(this, function(key) {
+                this._sessions[id][key].kill();
+            }));
+        } catch(e) {
+            logError(e, "Failed to close session " + id);
+            method.return_error_literal(ShowmehowErrorDomain,
+                                        ShowmehowErrors.INTERNAL_ERROR,
+                                        String(e));
+        }
+    },
+
+    vfunc_handle_attempt_lesson_remote: function(method, session_id, lesson, task, input_code) {
+        try {
+            let session = this._sessions[session_id] || null;
             this._validateAndFetchTask(lesson, task, method, Lang.bind(this, function(task_detail) {
                 let mapper = task_detail.mapper;
-                this._withPipeline(mapper, lesson, task, method, Lang.bind(this, function(pipeline) {
+                this._withPipeline(mapper, session, lesson, task, method, Lang.bind(this, function(pipeline) {
                     /* Run each step in the pipeline over the input and
                      * get a result code at the end. Each step should
                      * pass a string to the next function. */
@@ -470,7 +638,7 @@ const ShowmehowService = new Lang.Class({
         return success(task_detail);
     },
 
-    _withPipeline: function(mappers, lesson, task, method, callback) {
+    _withPipeline: function(mappers, session, lesson, task, method, callback) {
         /* This function finds the executor and validator specified
          * and runs callback. If it can't find them, for instance, they
          * are invalid, it returns an error. */
@@ -481,9 +649,9 @@ const ShowmehowService = new Lang.Class({
                     return mapper_to_pipeline_step({
                         type: mapper,
                         value: null
-                    }, this, lesson, task);
+                    }, this, session, lesson, task);
                 } else if (typeof mapper === 'object') {
-                    return mapper_to_pipeline_step(mapper, this, lesson, task);
+                    return mapper_to_pipeline_step(mapper, this, session, lesson, task);
                 }
 
                 throw new Error('mapper must be a either a string or ' +
