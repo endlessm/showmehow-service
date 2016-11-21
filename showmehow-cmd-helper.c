@@ -42,8 +42,10 @@ showmehow_read_nonblock_input_stream_for_bytes (GPollableInputStream *pollable_s
             /* We received -EWOULDBLOCK. Return now */
             break;
           } else {
+            assert(read > 0);
+
             /* Okay, now append read bytes to the array */
-            g_byte_array_append (array, buffer, read);
+            g_byte_array_append (array, buffer, (guint) read);
           }
       }
 
