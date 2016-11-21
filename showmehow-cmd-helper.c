@@ -10,14 +10,15 @@
 #include <gio/gio.h>
 #include <glib.h>
 
+#define BUFLEN 1024
+
 GBytes *
 showmehow_read_nonblock_input_stream_for_bytes (GPollableInputStream *pollable_stream,
                                                 GError               *error)
 {
     /* We'll use a GByteArray here to keep copying information in and a static buffer of
      * 1024 bytes of character data to read the input stream */
-    size_t len = 1024;
-    char buffer[len];
+    guchar buffer[BUFLEN];
     
     GByteArray *array = g_byte_array_new ();
     size_t read = 0;
