@@ -21,7 +21,7 @@ showmehow_read_nonblock_input_stream_for_bytes (GPollableInputStream *pollable_s
     guchar buffer[BUFLEN];
     
     GByteArray *array = g_byte_array_new ();
-    size_t read = 0;
+    gssize read = 0;
     GError *read_error = NULL;
     
     while ((read = g_pollable_input_stream_read_nonblocking (pollable_stream,
