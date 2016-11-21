@@ -270,6 +270,45 @@ function add_wait_message(input) {
     ]];
 }
 
+function to_json(input) {
+    return [JSON.parse(input), []];
+}
+
+// json_traverse_recurse
+//
+// Descend into an object by checking each of its keys. This only
+// works for objects and doesn't work for arrays right now.
+function json_traverse_recurse(object, path_remaining) {
+    if (path_remaining.length === 0) {
+        return object;
+    }
+
+    let next = path_remaining.slice(1);
+    let key = path_remaining[0];
+
+    return json_traverse_recurse(object[key], next);
+}
+
+// json_pluck
+//
+// Pluck a value out of each member of an array of objects.
+function json_pluck(input, path) {
+    return [input.map(function(o) {
+        return json_traverse_recurse(o, path.split('/'));
+    }), []];
+}
+
+function equal_to(input, value) {
+    // This is evil, but works until we need proper checking here
+    return [JSON.stringify(input) === JSON.stringify(value) ? 'success': 'failure', []];
+}
+
+function is_subset(input, value) {
+    let inputAsSet = Set(input);
+    return [value.every(function(e) {
+        return inputAsSet.has(e);
+    }) ? 'success' : 'failure', []];
+}
 
 /**
  * addArrayUnique:
@@ -417,7 +456,11 @@ const _PIPELINE_FUNCS = {
     wrapped_output: add_wrapped_output,
     check_dir_exists: check_directory_exists,
     check_file_exists: check_file_exists,
-    check_file_contents: check_file_contents
+    check_file_contents: check_file_contents,
+    to_json: to_json,
+    pluck_path: json_pluck,
+    equal_to: equal_to,
+    is_subset: is_subset
 };
 
 
