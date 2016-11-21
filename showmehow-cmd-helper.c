@@ -7,6 +7,7 @@
  *
  */
 
+#include <assert.h>
 #include <gio/gio.h>
 #include <glib.h>
 
