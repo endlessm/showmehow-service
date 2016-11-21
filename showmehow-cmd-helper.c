@@ -26,7 +26,7 @@ showmehow_read_nonblock_input_stream_for_bytes (GPollableInputStream *pollable_s
     
     while ((read = g_pollable_input_stream_read_nonblocking (pollable_stream,
                                                              buffer,
-                                                             len,
+                                                             BUFLEN,
                                                              NULL,
                                                              &read_error)) != 0)
       {
