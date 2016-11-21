@@ -774,5 +774,47 @@
                 }]
             }
         }
+    },
+    {
+        "name": "webrequest",
+        "available_to": ["console"],
+        "desc": "Download stuff using the terminal",
+        "entry": "webrequest",
+        "practice": {
+            "wget_image": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "check_file_exists",
+                    "value": "ourcomputers_hero-1.jpg"
+                }]
+            },
+            "api_pokemon": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": "^.*\\{.*\\}"
+                }]
+            },
+            "api_pokemon_types": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", "to_json", {
+                    "type": "pluck_path",
+                    "value": "type/name"
+                }, {
+                    "type": "equal_to",
+                    "value": ["poison", "grass"]
+                }]
+            },
+            "api_pokemon_in_type": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", "to_json", {
+                    "type": "pluck_path",
+                    "value": "pokemon/name"
+                }, {
+                    "type": "is_subset",
+                    "value": ["venipede", "trubbish"]
+                }]
+            }
+        }
     }
 ]
