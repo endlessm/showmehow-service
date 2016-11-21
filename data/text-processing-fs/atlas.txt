@@ -1,0 +1,8 @@
+COUNTRY		CAPITAL		CONTINENT	SIZE	LANGUAGE
+Australia	Canberra	Australia	7.692	English
+U.K		London		Europe		0.243	English
+Brazil		Brasilia	S.America	8.516	Portuguese
+China		Beijing		Asia		9.957	Mandarin
+U.S.A		Washington.D.C	N.America	9.834	English
+Canada		Ottowa		N.America	9.984	English
+Russia		Moscow		Asia		17.1	Russian
