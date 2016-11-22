@@ -56,7 +56,7 @@ function execute_command_for_output(argv, user_environment={}) {
 
     if (!ok) {
         GLib.spawn_check_exit_status(status);
-        throw new Error('Failed to execute: ' + argv.join(" ") + ", no error " +
+        throw new Error('Failed to execute: ' + argv.join(' ') + ', no error ' +
                         'message was set');
     }
 
@@ -106,7 +106,7 @@ const InteractiveShell = new Lang.Class({
 
     // Validate input and write the result back to the stream
     evaluate: function(input, callback, onError) {
-        this._process.stdin.write_all(input + "\n", null);
+        this._process.stdin.write_all(input + '\n', null);
 
         // We give the shell a maximum of 300ms to write its output
         GLib.usleep(GLib.USEC_PER_SEC * 0.3);
@@ -117,7 +117,7 @@ const InteractiveShell = new Lang.Class({
         let stderr_bytes = Showmehow.read_nonblock_input_stream_for_bytes(this._process.stderr);
 
         // Now run echo $? to get the exit code of the last process
-        this._process.stdin.write_all("echo $?\n", null);
+        this._process.stdin.write_all('echo $?\n', null);
         GLib.usleep(GLib.USEC_PER_SEC * 0.1);
         let exit_bytes = Showmehow.read_nonblock_input_stream_for_bytes(this._process.stdout);
         return {
@@ -214,7 +214,7 @@ function check_file_contents(input, settings) {
 function shell_executor(shellcode, session, environment) {
 
     // Note that at least for now, we don't support per-command environment
-    // variables in sessions - only in cases where the session
+    // variables in sessions - only in cases where the session is not set
     if (!environment)
         environment = environment_as_object();
     if (Object.keys(environment).indexOf('CODING_FILES_DIR') === -1)
@@ -225,7 +225,7 @@ function shell_executor(shellcode, session, environment) {
     if (session) {
         return session.bash.evaluate(shellcode);
     } else {
-        return execute_command_for_output(['/bin/bash', "-c", shellcode + "; exit 0"],
+        return execute_command_for_output(['/bin/bash', '-c', shellcode + '; exit 0'],
                                           environment);
     }
 }
@@ -251,7 +251,7 @@ function add_wrapped_output(input) {
         {
             type: 'response',
             content: {
-                'type': "wrapped",
+                'type': 'wrapped',
                 'value': input
             }
         }
@@ -263,7 +263,7 @@ function add_wait_message(input) {
         {
             type: 'response',
             content: {
-                'type': "scroll_wait",
+                'type': 'scroll_wait',
                 value: select_random_from(WAIT_MESSAGES)
             }
         }
@@ -306,7 +306,7 @@ function lessonDescriptorMatching(lesson, descriptors) {
 
     if (matches.length !== 1) {
         log('Expected only a single match from ' + lesson +
-            ' but there were ' + matches.length + " matches");
+            ' but there were ' + matches.length + ' matches');
         return null;
     }
 
@@ -329,7 +329,7 @@ function loadLessonDescriptorsFromFile(file) {
         [descriptors, warnings] = Validation.validateDescriptors(JSON.parse(contents));
         success = true;
     } catch (e) {
-        warnings.push('Unable to load ' + file.get_parse_name() + ": " + String(e));
+        warnings.push('Unable to load ' + file.get_parse_name() + ': ' + String(e));
     }
 
     return [success ? descriptors : null, warnings];
@@ -360,7 +360,7 @@ function loadLessonDescriptorsFromFile(file) {
 function loadLessonDescriptors(cmdlineFilename) {
     let filenamesToTry = [
         cmdlineFilename,
-        GLib.build_pathv('/', [GLib.get_user_config_dir(), "showmehow", "lessons.json"])
+        GLib.build_pathv('/', [GLib.get_user_config_dir(), 'showmehow', 'lessons.json'])
     ].filter(f => !!f);
 
     var warnings = [];
@@ -512,7 +512,7 @@ const ShowmehowService = new Lang.Class({
 
         /* Log the warnings, and also make them available to clients who are interested.
          *
-         * XXX: For some odd reason, I'm not able to return 'as" here and need to
+         * XXX: For some odd reason, I'm not able to return 'as' here and need to
          * return an array of structures in order to get this to work. */
         this._descriptors.warnings.forEach(w => log(w));
 
@@ -555,11 +555,11 @@ const ShowmehowService = new Lang.Class({
         try {
             this._sessionCount++;
             this._sessions[this._sessionCount] = {
-                bash: new InteractiveShell("/bin/bash", [], {})
+                bash: new InteractiveShell('/bin/bash', [], {})
             };
             this.complete_open_session(method, this._sessionCount);
         } catch(e) {
-            logError(e, "Failed to open a new session");
+            logError(e, 'Failed to open a new session');
             method.return_error_literal(ShowmehowErrorDomain,
                                         ShowmehowErrors.INTERNAL_ERROR,
                                         String(e));
@@ -572,7 +572,7 @@ const ShowmehowService = new Lang.Class({
                 this._sessions[id][key].kill();
             }));
         } catch(e) {
-            logError(e, "Failed to close session " + id);
+            logError(e, 'Failed to close session ' + id);
             method.return_error_literal(ShowmehowErrorDomain,
                                         ShowmehowErrors.INTERNAL_ERROR,
                                         String(e));
@@ -632,7 +632,7 @@ const ShowmehowService = new Lang.Class({
                                                ShowmehowErrors.INVALID_TASK,
                                                'Either the lesson ' + lesson +
                                                ' or task id ' + task +
-                                               ' was invalid\n' + e + " " + e.stack);
+                                               ' was invalid\n' + e + ' ' + e.stack);
         }
 
         return success(task_detail);
