@@ -244,12 +244,9 @@ function copyDirectoryWithoutOverwriting(source, destination) {
                 // add them to the copy queue.
                 try {
                     copyTo.make_directory(null);
-                } catch (e) {
+                } catch (e if e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.EXISTS)) {
                      // Nope, maybe it already exists. If it does,
                      // that's fine, just keep going.
-                     if (!e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.EXISTS)) {
-                         throw e;
-                     }
                 }
             } else if (e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.WOULD_MERGE) ||
                        e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.EXISTS)) {
@@ -268,12 +265,8 @@ function copyDirectoryWithoutOverwriting(source, destination) {
                 children = toCopy.enumerate_children("standard::name",
                                                      Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS,
                                                      null);
-            } catch (e) {
-                if (e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.NOT_DIRECTORY)) {
-                    continue;
-                } else {
-                    throw e;
-                }
+            } catch (e if e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.NOT_DIRECTORY)) {
+                continue;
             }
 
             let child = null;
@@ -315,10 +308,7 @@ function workingDirectoryFor(dataDirectory) {
     // Make sure to make this directory first
     try {
         configHomeServicePath.make_directory_with_parents(null);
-    } catch (e) {
-        if (!e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.EXISTS)) {
-            throw e;
-        }
+    } catch (e if e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.EXISTS)) {
     }
 
     let configHomePath = Gio.File.new_for_path(GLib.build_pathv('/', [
