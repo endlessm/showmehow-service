@@ -340,7 +340,38 @@ function shell_executor(shellcode, session, environment, workingDirectory) {
     }
 }
 
+function python_executor(code, session, workingDirectory) {
+    if (session) {
+       return session.python.evaluate(code);
+    } else {
+        return execute_command_for_output([
+            '/usr/bin/python',
+            '-c',
+            'import sys; ' + code + 'sys.exit(0);'
+        ], {}, workingDirectory);
+    }
+}
+
+// A higher order function which applies shellcode, a data diretory
+// and other settings to an executor function
+function outputFromExecutor(executor, shellcode, session, settings) {
+    let dataDirectory = settings ? settings.in_data_directory : null;
+    let result = executor(shellcode,
+                          session,
+                          settings ? settings.environment : {},
+                          dataDirectory ? workingDirectoryFor(dataDirectory) : null);
+    return [result.stdout + '\n' + result.stderr, []];
+}
+
 function shell_executor_output(shellcode, session, settings) {
+    return outputFromExecutor(shell_executor, shellcode, session, settings);
+}
+
+function python_executor_output(shellcode, session, settings) {
+    return outputFromExecutor(python_executor, shellcode, session, settings);
+}
+
+function shell_executor_custom_output(shellcode, session, settings) {
     let dataDirectory = settings ? settings.in_data_directory : null;
     let result = shell_executor(shellcode,
                                 session,
@@ -348,7 +379,6 @@ function shell_executor_output(shellcode, session, settings) {
                                 dataDirectory ? workingDirectoryFor(dataDirectory) :
                                                 null);
     return [result.stdout + '\n' + result.stderr, []];
-}
 
 function shell_custom_executor_output(shellcode, session, settings) {
     if (typeof settings.command !== 'string') {
@@ -713,7 +743,8 @@ const ShowmehowService = new Lang.Class({
         try {
             this._sessionCount++;
             this._sessions[this._sessionCount] = {
-                bash: new InteractiveShell('/bin/bash', [], {})
+                bash: new InteractiveShell('/bin/bash', [], {}),
+                python: new InteractiveShell('/bin/python', [], {})
             };
             this.complete_open_session(method, this._sessionCount);
         } catch(e) {
