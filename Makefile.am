@@ -104,8 +104,6 @@ files/coding-shared-dir: files/coding-shared-dir.in
 # Install directories for lessons. We need to do this because files_DATA doesn't
 # support recursive copying
 install-data-hook:
-	echo $(filesdir)
-	echo $(pkgdatadir)
 	for i in $(lesson_directories); do cp -r $$i $(DESTDIR)/$(filesdir:/%=%)/; done
 
 # GResources
