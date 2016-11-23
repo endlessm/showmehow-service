@@ -647,7 +647,7 @@ const _CUSTOM_PIPELINE_CONSTRUCTORS = {
         return function(input) {
             return shell_custom_executor_output(input, session, mapper.value);
         }
-    },
+    }
 };
 
 function mapper_to_pipeline_step(mapper, service, session, lesson, task) {
