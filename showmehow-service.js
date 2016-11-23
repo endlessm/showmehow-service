@@ -272,10 +272,7 @@ function copyDirectoryWithoutOverwriting(source, destination) {
             let child = null;
 
             while ((child = children.next_file(null))) {
-                copyQueue.push(Gio.File.new_for_path(GLib.build_filenamev('/', [
-                    toCopy.get_path(),
-                    child.get_name()
-                ])));
+                copyQueue.push(toCopy.get_child(child.get_name()));
             }
         }
     }
