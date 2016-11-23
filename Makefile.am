@@ -5,6 +5,10 @@ arbitrary_files = \
 	files/test.txt \
 	$(NULL)
 
+lesson_directories = \
+	files/text-processing-fs \
+	$(NULL)
+
 filesdir = $(pkgdatadir)/files
 files_DATA = $(arbitrary_files)
 
@@ -96,6 +100,13 @@ files/coding-shared-dir: files/coding-shared-dir.in
 	$(AM_V_GEN) mkdir -p files && \
 	$(SED) -e 's,%coding_files_dir%,$(pkgdatadir)/files,g' < $< >$@.tmp && \
 	mv -f $@.tmp $@
+
+# Install directories for lessons. We need to do this because files_DATA doesn't
+# support recursive copying
+install-data-hook:
+	echo $(filesdir)
+	echo $(pkgdatadir)
+	for i in $(lesson_directories); do cp -r $$i $(DESTDIR)/$(filesdir:/%=%)/; done
 
 # GResources
 
