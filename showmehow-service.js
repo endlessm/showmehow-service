@@ -308,12 +308,7 @@ function workingDirectoryFor(dataDirectory) {
     } catch (e if e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.EXISTS)) {
     }
 
-    let configHomePath = Gio.File.new_for_path(GLib.build_pathv('/', [
-        GLib.get_user_config_dir(),
-        'com.endlessm.Showmehow.Service',
-        'data_directories',
-        dataDirectory
-    ]));
+    let configHomePath = configHomeServicePath.get_child(dataDirectory);
 
     // Make a local copy, without overwriting
     copyDirectoryWithoutOverwriting(dataDirectoryPath, configHomePath);
