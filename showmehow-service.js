@@ -241,7 +241,7 @@ function copyDirectoryWithoutOverwriting(source, destination) {
         try {
             toCopy.copy(copyTo, Gio.FileCopyFlags.NONE, null, null);
         } catch (e) {
-            if (e.code === Gio.IOErrorEnum.WOULD_RECURSE) {
+            if (e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.WOULD_RECURSE)) {
                 // Nope, this is a directory, make the directory if
                 // possible and then enumerate the children and
                 // add them to the copy queue.
@@ -250,12 +250,12 @@ function copyDirectoryWithoutOverwriting(source, destination) {
                 } catch (e) {
                      // Nope, maybe it already exists. If it does,
                      // that's fine, just keep going.
-                     if (e.code !== Gio.IOErrorEnum.EXISTS) {
+                     if (!e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.EXISTS)) {
                          throw e;
                      }
                 }
-            } else if (e.code === Gio.IOErrorEnum.WOULD_MERGE ||
-                       e.code === Gio.IOErrorEnum.EXISTS) {
+            } else if (e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.WOULD_MERGE) ||
+                       e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.EXISTS)) {
                 // Ignore this error, all we have to do is
                 // enumerate the files.
             } else {
@@ -272,7 +272,7 @@ function copyDirectoryWithoutOverwriting(source, destination) {
                                                      Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS,
                                                      null);
             } catch (e) {
-                if (e.code === Gio.IOErrorEnum.NOT_DIRECTORY) {
+                if (e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.NOT_DIRECTORY)) {
                     continue;
                 } else {
                     throw e;
@@ -319,7 +319,7 @@ function workingDirectoryFor(dataDirectory) {
     try {
         configHomeServicePath.make_directory_with_parents(null);
     } catch (e) {
-        if (e.code !== Gio.IOErrorEnum.EXISTS) {
+        if (!e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.EXISTS)) {
             throw e;
         }
     }
