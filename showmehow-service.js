@@ -42,13 +42,13 @@ function environment_as_object() {
     return environment;
 }
 
-function execute_command_for_output(argv, user_environment={}) {
+function execute_command_for_output(argv, user_environment={}, workingDirectory=null) {
     let environment = environment_as_object();
     Object.keys(user_environment).forEach(key => {
         environment[key] = user_environment[key];
     });
 
-    let [ok, stdout, stderr, status] = GLib.spawn_sync(null,
+    let [ok, stdout, stderr, status] = GLib.spawn_sync(workingDirectory,
                                                        argv,
                                                        environment_object_to_envp(environment),
                                                        0,
@@ -210,8 +210,136 @@ function check_file_contents(input, settings) {
     return [String(contents).trim() === settings.value ? 'success': 'failure', []];
 }
 
+// copyDirectoryWithoutOverwriting
+//
+// This function will copy the directory source to a
+// directory called destination without overwriting the
+// destination directory, recursively.
+//
+// We have this function here because Gio.File.prototype.copy
+// does not recursively copy directories, instead preferring
+// for the programmer to implement their own strategy.
+function copyDirectoryWithoutOverwriting(source, destination) {
+    // Attempt to copy the first over the second, but don't allow for
+    // overwrites. If it fails, it means we already have files there
+    // and shouldn't continue.
+    //
+    // If it fails because of G_IO_ERROR_WOULD_RECURSE, create the
+    // relevant directory and enumerate the children, adding them
+    // to the copy queue.
+    let copyQueue = [source];
+    while (copyQueue.length) {
+        let toCopy = copyQueue.shift();
+        // Get the relevant component to source and then append that
+        // to destination, creating a new GFile.
+        let relPath = source.get_relative_path(toCopy) || '';
+        let copyTo = Gio.File.new_for_path(GLib.build_pathv('/', [
+            destination.get_path(),
+            relPath
+        ]));
+
+        try {
+            toCopy.copy(copyTo, Gio.FileCopyFlags.NONE, null, null);
+        } catch (e) {
+            if (e.code === Gio.IOErrorEnum.WOULD_RECURSE) {
+                // Nope, this is a directory, make the directory if
+                // possible and then enumerate the children and
+                // add them to the copy queue.
+                try {
+                    copyTo.make_directory(null);
+                } catch (e) {
+                     // Nope, maybe it already exists. If it does,
+                     // that's fine, just keep going.
+                     if (e.code !== Gio.IOErrorEnum.EXISTS) {
+                         throw e;
+                     }
+                }
+            } else if (e.code === Gio.IOErrorEnum.WOULD_MERGE ||
+                       e.code === Gio.IOErrorEnum.EXISTS) {
+                // Ignore this error, all we have to do is
+                // enumerate the files.
+            } else {
+                // This is an error we can't ignore. Rethrow.
+                throw e;
+            }
+
+            // Now that we're done error-handling, enumerate the
+            // children and create GFile instances for each of them,
+            // adding them to the back of copyQueue.
+            let children = null;
+            try {
+                children = toCopy.enumerate_children("standard::name",
+                                                     Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS,
+                                                     null);
+            } catch (e) {
+                if (e.code === Gio.IOErrorEnum.NOT_DIRECTORY) {
+                    continue;
+                } else {
+                    throw e;
+                }
+            }
+
+            let child = null;
+
+            while ((child = children.next_file(null))) {
+                copyQueue.push(Gio.File.new_for_path(GLib.build_pathv('/', [
+                    toCopy.get_path(),
+                    child.get_name()
+                ])));
+            }
+        }
+    }
+}
+
+
+// workingDirectoryFor
+//
+// This function will check if a copy of dataDirectory has been made in
+// XDG_CONFIG_HOME/com.endlessm.Showmehow.Service/data_directories and
+// if not create it, copying files from the installed data into that
+// directory.
+//
+// This allows lessons to direct mutation of files in that directory.
+//
+// TODO: This should be per-session on the connnection level, so that
+// multiple uses of the service can't interfere with each other. For now
+// none of the lessons mutate the data, so this should be fine.
+function workingDirectoryFor(dataDirectory) {
+    let dataDirectoryPath = Gio.File.new_for_path(GLib.build_pathv('/', [
+        Config.coding_files_dir,
+        dataDirectory
+    ]));
+    let configHomeServicePath = Gio.File.new_for_path(GLib.build_pathv('/', [
+        GLib.get_user_config_dir(),
+        'com.endlessm.Showmehow.Service',
+        'data_directories'
+    ]));
+
+    // Make sure to make this directory first
+    try {
+        configHomeServicePath.make_directory_with_parents(null);
+    } catch (e) {
+        if (e.code !== Gio.IOErrorEnum.EXISTS) {
+            throw e;
+        }
+    }
+
+    let configHomePath = Gio.File.new_for_path(GLib.build_pathv('/', [
+        GLib.get_user_config_dir(),
+        'com.endlessm.Showmehow.Service',
+        'data_directories',
+        dataDirectory
+    ]));
+
+    // Make a local copy, without overwriting
+    copyDirectoryWithoutOverwriting(dataDirectoryPath, configHomePath);
+
+    // Now, once we're done, return the path to the working directory
+    return configHomePath.get_path();
+}
+
 /* Executing raw shellcode. What could possibly go wrong? */
-function shell_executor(shellcode, session, environment) {
+function shell_executor(shellcode, session, environment, workingDirectory) {
 
     // Note that at least for now, we don't support per-command environment
     // variables in sessions - only in cases where the session is not set
@@ -223,17 +351,25 @@ function shell_executor(shellcode, session, environment) {
         environment.CODING_SHARED_SCRIPT_DIR = Config.coding_shared_script_dir;
 
     if (session) {
+        // TODO: Right now the session support doesn't support working directories
+        // or environment variables since those are set from GSubprocessLauncher as
+        // one-per-process, but we could just execute some shellcode here to change
+        // the working directory or environment variables as required.
         return session.bash.evaluate(shellcode);
     } else {
         return execute_command_for_output(['/bin/bash', '-c', shellcode + '; exit 0'],
-                                          environment);
+                                          environment,
+                                          workingDirectory);
     }
 }
 
 function shell_executor_output(shellcode, session, settings) {
+    let dataDirectory = settings ? settings.in_data_directory : null;
     let result = shell_executor(shellcode,
                                 session,
-                                settings ? settings.environment : {});
+                                settings ? settings.environment : {},
+                                dataDirectory ? workingDirectoryFor(dataDirectory) :
+                                                null);
     return [result.stdout + '\n' + result.stderr, []];
 }
 

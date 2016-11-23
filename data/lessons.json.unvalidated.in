@@ -648,77 +648,132 @@
         "practice": {
             "cat": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "in_data_directory": "text-processing-fs"
+                    }
+                }, "wrapped_output", {
                     "type": "regex",
                     "value": "^Sherlock.*"
                 }]
             },
             "cat_grep": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "in_data_directory": "text-processing-fs"
+                    }
+                }, "wrapped_output", {
                     "type": "regex",
                     "value": "^.*appeared from then to 1927.*"
                 }]
             },
             "grep_file": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "in_data_directory": "text-processing-fs"
+                    }
+                }, "wrapped_output", {
                     "type": "regex",
                     "value": "^.*appeared from then to 1927.*"
                 }]
             },
             "grep_extended_regex": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "in_data_directory": "text-processing-fs"
+                    }
+                }, "wrapped_output", {
                     "type": "regex",
                     "value": "^First appearing in print in 1887.*"
                 }]
             },
             "grep_all": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "in_data_directory": "text-processing-fs"
+                    }
+                }, "wrapped_output", {
                     "type": "regex",
                     "value": "^.*GSettings .settings.*"
                 }]
             },
             "grep_all_regex": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "in_data_directory": "text-processing-fs"
+                    }
+                }, "wrapped_output", {
                     "type": "regex",
                     "value": "^.*GObject.*"
                 }]
             },
             "cat_atlas": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "in_data_directory": "text-processing-fs"
+                    }
+                }, "wrapped_output", {
                     "type": "regex",
                     "value": "COUNTRY.*CONTINENT.*"
                 }]
             },
             "awk_atlas": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "in_data_directory": "text-processing-fs"
+                    }
+                }, "wrapped_output", {
                     "type": "regex",
                     "value": "COUNTRY"
                 }]
             },
             "awk_atlas_countries_sorted": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "in_data_directory": "text-processing-fs"
+                    }
+                }, "wrapped_output", {
                     "type": "regex",
                     "value": "Australia"
                 }]
             },
             "awk_atlas_continents": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "in_data_directory": "text-processing-fs"
+                    }
+                }, "wrapped_output", {
                     "type": "regex",
                     "value": "CONTINENT"
                 }]
             },
             "awk_atlas_continents_uniq": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "in_data_directory": "text-processing-fs"
+                    }
+                }, "wrapped_output", {
                     "type": "regex",
                     "value": "Asia"
                 }]
