@@ -39,7 +39,6 @@ AM_CONFIG_MACRO_DIR =
 AM_DISTCHECK_CONFIGURE_FLAGS = --enable-introspection
 EXTRA_DIST = \
 	com.endlessm.Showmehow.Service.xml \
-	com.endlessm.Showmehow.Service.desktop \
 	com.endlessm.Showmehow.Service.service.in \
 	com.endlessm.showmehow.gschema.xml \
 	com.endlessm.showmehow.gresource.xml \
