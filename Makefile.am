@@ -170,10 +170,6 @@ com.endlessm.Showmehow.Service.service: $(abs_top_srcdir)/com.endlessm.Showmehow
 # Script for placing files in the shared dir 
 pkglibexec_SCRIPTS = files/coding-shared-dir
 
-# XDG Autostart
-autostartdir = $(sysconfdir)/xdg/autostart
-dist_autostart_DATA = com.endlessm.Showmehow.Service.desktop
-
 # Polkit policy
 
 polkit_policydir = $(datadir)/polkit-1/actions

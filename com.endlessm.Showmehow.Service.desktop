@@ -1,6 +1,0 @@
-[Desktop Entry]
-Name=Showmehow Service
-Exec=showmehow-service
-Type=Application
-NoDisplay=true
-X-GNOME-Autostart-enabled=true
