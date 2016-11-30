@@ -328,7 +328,7 @@ function loadLessonDescriptorsFromFile(file) {
         let contents = file.load_contents(null)[1];
         [descriptors, warnings] = Validation.validateDescriptors(JSON.parse(contents));
         success = true;
-    } catch (e) {
+    } catch (e if !e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.EXISTS)) {
         warnings.push('Unable to load ' + file.get_parse_name() + ': ' + String(e));
     }
 
