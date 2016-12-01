@@ -47,7 +47,6 @@ EXTRA_DIST = \
 	com.endlessm.showmehow.gschema.xml \
 	com.endlessm.showmehow.gresource.xml \
 	data/lessons.json.unvalidated.in \
-	data/com.endlessm.Coding.policy.in \
 	files/coding-shared-dir.in \
 	lib/config.js.in \
 	$(all_dist_js_files) \
@@ -88,12 +87,6 @@ data/lessons.json: $(abs_top_srcdir)/data/lessons.json.unvalidated.in $(all_js_f
 	    $(abs_top_srcdir)/data/lessons.json.unvalidated.in
 	mkdir -p data
 	cp $< $@
-
-# Replace pkglibexecdir path
-data/com.endlessm.Coding.policy: data/com.endlessm.Coding.policy.in
-	$(AM_V_GEN) mkdir -p data && \
-	$(SED) -e 's,%pkglibexecdir%,$(pkglibexecdir),' < $< >$@.tmp && \
-	mv -f $@.tmp $@
 
 # Replace coding_files_dir path
 files/coding-shared-dir: files/coding-shared-dir.in
@@ -178,11 +171,6 @@ com.endlessm.Showmehow.Service.service: $(abs_top_srcdir)/com.endlessm.Showmehow
 # Script for placing files in the shared dir 
 pkglibexec_SCRIPTS = files/coding-shared-dir
 
-# Polkit policy
-
-polkit_policydir = $(datadir)/polkit-1/actions
-dist_polkit_policy_DATA = data/com.endlessm.Coding.policy
-
 # Things to get rid of later
 CLEANFILES += \
 	$(bin_SCRIPTS) \
@@ -190,7 +178,6 @@ CLEANFILES += \
 	$(resources_built_sources) \
 	$(gdbus_codegen_built_sources) \
 	data/lessons.json \
-	data/com.endlessm.Coding.policy \
 	files/coding-shared-dir \
 	lib/config.js \
 	$(NULL)
