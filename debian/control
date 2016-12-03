@@ -2,7 +2,10 @@ Source: showmehow-service
 Priority: standard
 Maintainer: Sam Spilsbury <sam@endlessm.com>
 Build-Depends: autotools-dev,
+               cowsay,
                debhelper (>= 8.0.0),
+               fortune-mod,
+               eos-node-modules,
                gir1.2-glib-2.0,
                gjs,
                gobject-introspection,
