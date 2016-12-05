@@ -513,7 +513,7 @@ function loadLessonDescriptorsFromFile(file) {
 function loadLessonDescriptors(cmdlineFilename) {
     let filenamesToTry = [
         cmdlineFilename,
-        GLib.build_filenamev([GLib.get_user_config_dir(), 'showmehow-service', 'lessons.json'])
+        GLib.build_filenamev([GLib.get_user_config_dir(), 'com.endlessm.Showmehow.Service', 'lessons.json'])
     ].filter(f => !!f);
 
     var warnings = [];
