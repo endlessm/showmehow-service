@@ -260,19 +260,18 @@ function copyDirectoryWithoutOverwriting(source, destination) {
             // Now that we're done error-handling, enumerate the
             // children and create GFile instances for each of them,
             // adding them to the back of copyQueue.
-            let children = null;
+            let enumerator = null;
             try {
-                children = toCopy.enumerate_children('standard::name',
-                                                     Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS,
-                                                     null);
+                enumerator = toCopy.enumerate_children('standard::name',
+                                                       Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS,
+                                                       null);
             } catch (e if e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.NOT_DIRECTORY)) {
                 continue;
             }
 
-            let child = null;
-
-            while ((child = children.next_file(null))) {
-                copyQueue.push(toCopy.get_child(child.get_name()));
+            let childInfo = null;
+            while ((childInfo = enumerator.next_file(null))) {
+                copyQueue.push(enumerator.get_child(childInfo));
             }
         }
     }
