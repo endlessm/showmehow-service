@@ -159,7 +159,7 @@ function regex_validator(input, regex) {
 
 function resolve_path(path) {
     if (path.startsWith("~")) {
-        return GLib.build_pathv("/", [GLib.get_home_dir(), path.slice(1)]);
+        return GLib.build_filenamev([GLib.get_home_dir(), path.slice(1)]);
     }
 
     return path;
@@ -292,11 +292,11 @@ function copyDirectoryWithoutOverwriting(source, destination) {
 // multiple uses of the service can't interfere with each other. For now
 // none of the lessons mutate the data, so this should be fine.
 function workingDirectoryFor(dataDirectory) {
-    let dataDirectoryPath = Gio.File.new_for_path(GLib.build_pathv('/', [
+    let dataDirectoryPath = Gio.File.new_for_path(GLib.build_filenamev([
         Config.coding_files_dir,
         dataDirectory
     ]));
-    let configHomeServicePath = Gio.File.new_for_path(GLib.build_pathv('/', [
+    let configHomeServicePath = Gio.File.new_for_path(GLib.build_filenamev([
         GLib.get_user_config_dir(),
         'com.endlessm.Showmehow.Service',
         'data_directories'
