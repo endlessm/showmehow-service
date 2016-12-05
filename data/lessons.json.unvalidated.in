@@ -850,5 +850,197 @@
                 }]
             }
         }
+    },
+    {
+        "name": "python",
+        "available_to": ["console"],
+        "requires_session": true,
+        "desc": "The basics of Python",
+        "practice": {
+            "add_numbers": {
+                "input": "console",
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "runtime": "python"
+                    }
+                }, {
+                    "type": "shell_custom",
+                    "value": {
+                        "command": "print(a)",
+                        "runtime": "python"
+                    }
+                }, "wrapped_output", {
+                    "type": "regex",
+                    "value": "^11$"
+                }]
+            },
+            "print_string": {
+                "input": "console",
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "runtime": "python"
+                    }
+                }, "wrapped_output", {
+                    "type": "regex",
+                    "value": "^Hello, world!$"
+                }]
+            },
+            "string_format": {
+                "input": "console",
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "runtime": "python"
+                    }
+                }, "wrapped_output", {
+                    "type": "regex",
+                    "value": "^This is a string with a number: 7$"
+                }]
+            },
+            "split_string": {
+                "input": "console",
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "runtime": "python"
+                    }
+                }, {
+                    "type": "shell_custom",
+                    "value": {
+                        "command": "print(splitted)",
+                        "runtime": "python"
+                    }
+                }, "wrapped_output", {
+                    "type": "regex",
+                    "value": "^\\['Hello', 'world'\\]$"
+                }]
+            },
+            "join_string": {
+                "input": "console",
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "runtime": "python"
+                    }
+                }, "wrapped_output", {
+                    "type": "regex",
+                    "value": "^'Hello world'$"
+                }]
+            }
+        }
+    }, {
+        "name": "python_lists",
+        "available_to": ["console"],
+        "requires_session": true,
+        "desc": "Working with lists in python",
+        "practice": {
+            "convert_list": {
+                "input": "console",
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "runtime": "python",
+                        "before": "numbers = [1, 2, 3, 4, 5]"
+                    }
+                }, {
+                    "type": "shell_custom",
+                    "value": {
+                        "command": "print(fives)",
+                        "runtime": "python"
+                    }
+                }, "wrapped_output", {
+                    "type": "regex",
+                    "value": "^\\[5, 10, 15, 20, 25\\]$"
+                }]
+            },
+            "filter_list": {
+                "input": "console",
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "runtime": "python"
+                    }
+                }, {
+                    "type": "shell_custom",
+                    "value": {
+                        "command": "print(filtered)",
+                        "runtime": "python"
+                    }
+                }, "wrapped_output", {
+                    "type": "regex",
+                    "value": "^\\[2, 4\\]$"
+                }]
+            },
+            "dict_comprehension": {
+                "input": "console",
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "runtime": "python",
+                        "before": "environment = ['PATH=/bin:/usr/bin', 'LD_LIBRARY_PATH=/lib:/usr/lib:/usr/lib/x86_64-linux-gnu', 'GI_TYPELIB_PATH=/usr/lib/girepository-1.0']"
+                    }
+                }, "wrapped_output", {
+                    "type": "regex",
+                    "value": "^\\{'PATH': '/bin:/usr/bin', 'LD_LIBRARY_PATH': '/lib:/usr/lib:/usr/lib/x86_64-linux-gnu', 'GI_TYPELIB_PATH': '/usr/lib/girepository-1.0'\\}$"
+                }]
+            }
+        }
+    }, {
+        "name": "python_gi",
+        "available_to": ["console"],
+        "requires_session": true,
+        "desc": "Using GObject-Introspection to interact with system libraries",
+        "practice": {
+            "create_gi_binding": {
+                "input": "console",
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "runtime": "python"
+                    }
+                }, {
+                    "type": "shell_custom",
+                    "value": {
+                        "command": "print(Gio)",
+                        "runtime": "python"
+                    }
+                }, "wrapped_output", {
+                    "type": "regex",
+                    "value": "^.*GioProxyModule.*"
+                }]
+            },
+            "instantiate_gi_class": {
+                "input": "console",
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "runtime": "python"
+                    }
+                }, {
+                    "type": "shell_custom",
+                    "value": {
+                        "command": "print(notification)",
+                        "runtime": "python"
+                    }
+                }, "wrapped_output", {
+                    "type": "regex",
+                    "value": "^.*Gio.Notification.*$"
+                }]
+            },
+            "send_gnotification": {
+                "input": "console",
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "runtime": "python"
+                    }
+                }, "wrapped_output", {
+                    "type": "regex",
+                    "value": "^.*$"
+                }]
+            }
+        }
     }
 ]
