@@ -116,14 +116,9 @@ const InteractiveShell = new Lang.Class({
         let stdout_bytes = Showmehow.read_nonblock_input_stream_for_bytes(this._process.stdout);
         let stderr_bytes = Showmehow.read_nonblock_input_stream_for_bytes(this._process.stderr);
 
-        // Now run echo $? to get the exit code of the last process
-        this._process.stdin.write_all('echo $?\n', null);
-        GLib.usleep(GLib.USEC_PER_SEC * 0.1);
-        let exit_bytes = Showmehow.read_nonblock_input_stream_for_bytes(this._process.stdout);
         return {
             stdout: String(stdout_bytes.get_data()),
-            stderr: String(stderr_bytes.get_data()),
-            code: Number(String(exit_bytes.get_data()).trim())
+            stderr: String(stderr_bytes.get_data())
         };
     },
 
