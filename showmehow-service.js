@@ -42,13 +42,13 @@ function environment_as_object() {
     return environment;
 }
 
-function execute_command_for_output(argv, user_environment={}) {
+function execute_command_for_output(argv, user_environment={}, workingDirectory=null) {
     let environment = environment_as_object();
     Object.keys(user_environment).forEach(key => {
         environment[key] = user_environment[key];
     });
 
-    let [ok, stdout, stderr, status] = GLib.spawn_sync(null,
+    let [ok, stdout, stderr, status] = GLib.spawn_sync(workingDirectory,
                                                        argv,
                                                        environment_object_to_envp(environment),
                                                        0,
@@ -158,8 +158,8 @@ function regex_validator(input, regex) {
 }
 
 function resolve_path(path) {
-    if (path.startsWith("~")) {
-        return GLib.build_pathv("/", [GLib.get_home_dir(), path.slice(1)]);
+    if (path.startsWith('~')) {
+        return GLib.build_filenamev([GLib.get_home_dir(), path.slice(1)]);
     }
 
     return path;
@@ -168,7 +168,7 @@ function resolve_path(path) {
 function check_directory_exists(input, directory) {
     let file_object = Gio.File.new_for_path(resolve_path(directory));
     try {
-        if (file_object.query_info("standard::type",
+        if (file_object.query_info('standard::type',
                                    Gio.FileQueryInfoFlags.NONE,
                                    null).get_file_type() === Gio.FileType.DIRECTORY) {
             return ['success', []];
@@ -176,7 +176,7 @@ function check_directory_exists(input, directory) {
             return ['failure', []];
         }
     } catch (e) {
-        logError(e, "Failed to get directory");
+        logError(e, 'Failed to get directory');
         return ['failure', []];
     }
 }
@@ -184,7 +184,7 @@ function check_directory_exists(input, directory) {
 function check_file_exists(input, file) {
     let file_object = Gio.File.new_for_path(resolve_path(file));
     try {
-        if (file_object.query_info("standard::type",
+        if (file_object.query_info('standard::type',
                                    Gio.FileQueryInfoFlags.NONE,
                                    null).get_file_type() == Gio.FileType.REGULAR) {
             return ['success', []];
@@ -192,7 +192,7 @@ function check_file_exists(input, file) {
             return ['failure', []];
         }
     } catch (e) {
-        logError(e, "Failed to get file");
+        logError(e, 'Failed to get file');
         return ['failure', []];
     }
 }
@@ -210,8 +210,114 @@ function check_file_contents(input, settings) {
     return [String(contents).trim() === settings.value ? 'success': 'failure', []];
 }
 
+// copyDirectoryWithoutOverwriting
+//
+// This function will copy the directory source to a
+// directory called destination without overwriting the
+// destination directory, recursively.
+//
+// We have this function here because Gio.File.prototype.copy
+// does not recursively copy directories, instead preferring
+// for the programmer to implement their own strategy.
+function copyDirectoryWithoutOverwriting(source, destination) {
+    // Attempt to copy the first over the second, but don't allow for
+    // overwrites. If it fails, it means we already have files there
+    // and shouldn't continue.
+    //
+    // If it fails because of G_IO_ERROR_WOULD_RECURSE, create the
+    // relevant directory and enumerate the children, adding them
+    // to the copy queue.
+    let copyQueue = [source];
+    while (copyQueue.length) {
+        let toCopy = copyQueue.shift();
+        // Get the relevant component to source and then append that
+        // to destination, creating a new GFile.
+        let relPath = source.get_relative_path(toCopy) || '';
+        let copyTo = Gio.File.new_for_path(destination.resolve_relative_path(relPath));
+
+        try {
+            toCopy.copy(copyTo, Gio.FileCopyFlags.NONE, null, null);
+        } catch (e) {
+            if (e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.WOULD_RECURSE)) {
+                // Nope, this is a directory, make the directory if
+                // possible and then enumerate the children and
+                // add them to the copy queue.
+                try {
+                    copyTo.make_directory(null);
+                } catch (e if e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.EXISTS)) {
+                     // Nope, maybe it already exists. If it does,
+                     // that's fine, just keep going.
+                }
+            } else if (e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.WOULD_MERGE) ||
+                       e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.EXISTS)) {
+                // Ignore this error, all we have to do is
+                // enumerate the files.
+            } else {
+                // This is an error we can't ignore. Rethrow.
+                throw e;
+            }
+
+            // Now that we're done error-handling, enumerate the
+            // children and create GFile instances for each of them,
+            // adding them to the back of copyQueue.
+            let enumerator = null;
+            try {
+                enumerator = toCopy.enumerate_children('standard::name',
+                                                       Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS,
+                                                       null);
+            } catch (e if e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.NOT_DIRECTORY)) {
+                continue;
+            }
+
+            let childInfo = null;
+            while ((childInfo = enumerator.next_file(null))) {
+                copyQueue.push(enumerator.get_child(childInfo));
+            }
+        }
+    }
+}
+
+
+// workingDirectoryFor
+//
+// This function will check if a copy of dataDirectory has been made in
+// XDG_CONFIG_HOME/com.endlessm.Showmehow.Service/data_directories and
+// if not create it, copying files from the installed data into that
+// directory.
+//
+// This allows lessons to direct mutation of files in that directory.
+//
+// TODO: This should be per-session on the connnection level, so that
+// multiple uses of the service can't interfere with each other. For now
+// none of the lessons mutate the data, so this should be fine.
+function workingDirectoryFor(dataDirectory) {
+    let dataDirectoryPath = Gio.File.new_for_path(GLib.build_filenamev([
+        Config.coding_files_dir,
+        dataDirectory
+    ]));
+    let configHomeServicePath = Gio.File.new_for_path(GLib.build_filenamev([
+        GLib.get_user_config_dir(),
+        'com.endlessm.Showmehow.Service',
+        'data_directories'
+    ]));
+
+    // Make sure to make this directory first
+    try {
+        configHomeServicePath.make_directory_with_parents(null);
+    } catch (e if e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.EXISTS)) {
+    }
+
+    let configHomePath = configHomeServicePath.get_child(dataDirectory);
+
+    // Make a local copy, without overwriting
+    copyDirectoryWithoutOverwriting(dataDirectoryPath, configHomePath);
+
+    // Now, once we're done, return the path to the working directory
+    return configHomePath.get_path();
+}
+
 /* Executing raw shellcode. What could possibly go wrong? */
-function shell_executor(shellcode, session, environment) {
+function shell_executor(shellcode, session, environment, workingDirectory) {
 
     // Note that at least for now, we don't support per-command environment
     // variables in sessions - only in cases where the session is not set
@@ -223,17 +329,25 @@ function shell_executor(shellcode, session, environment) {
         environment.CODING_SHARED_SCRIPT_DIR = Config.coding_shared_script_dir;
 
     if (session) {
+        // TODO: Right now the session support doesn't support working directories
+        // or environment variables since those are set from GSubprocessLauncher as
+        // one-per-process, but we could just execute some shellcode here to change
+        // the working directory or environment variables as required.
         return session.bash.evaluate(shellcode);
     } else {
         return execute_command_for_output(['/bin/bash', '-c', shellcode + '; exit 0'],
-                                          environment);
+                                          environment,
+                                          workingDirectory);
     }
 }
 
 function shell_executor_output(shellcode, session, settings) {
+    let dataDirectory = settings ? settings.in_data_directory : null;
     let result = shell_executor(shellcode,
                                 session,
-                                settings ? settings.environment : {});
+                                settings ? settings.environment : {},
+                                dataDirectory ? workingDirectoryFor(dataDirectory) :
+                                                null);
     return [result.stdout + '\n' + result.stderr, []];
 }
 
@@ -270,6 +384,45 @@ function add_wait_message(input) {
     ]];
 }
 
+function to_json(input) {
+    return [JSON.parse(input), []];
+}
+
+// json_traverse_recurse
+//
+// Descend into an object by checking each of its keys. This only
+// works for objects and doesn't work for arrays right now.
+function json_traverse_recurse(object, path_remaining) {
+    if (path_remaining.length === 0) {
+        return object;
+    }
+
+    let next = path_remaining.slice(1);
+    let key = path_remaining[0];
+
+    return json_traverse_recurse(object[key], next);
+}
+
+// json_pluck
+//
+// Pluck a value out of each member of an array of objects.
+function json_pluck(input, path) {
+    return [input.map(function(o) {
+        return json_traverse_recurse(o, path.split('/'));
+    }), []];
+}
+
+function equal_to(input, value) {
+    // This is evil, but works until we need proper checking here
+    return [JSON.stringify(input) === JSON.stringify(value) ? 'success': 'failure', []];
+}
+
+function is_subset(input, value) {
+    let inputAsSet = Set(input);
+    return [value.every(function(e) {
+        return inputAsSet.has(e);
+    }) ? 'success' : 'failure', []];
+}
 
 /**
  * addArrayUnique:
@@ -360,7 +513,7 @@ function loadLessonDescriptorsFromFile(file) {
 function loadLessonDescriptors(cmdlineFilename) {
     let filenamesToTry = [
         cmdlineFilename,
-        GLib.build_filenamev([GLib.get_user_config_dir(), 'showmehow-service', 'lessons.json'])
+        GLib.build_filenamev([GLib.get_user_config_dir(), 'com.endlessm.Showmehow.Service', 'lessons.json'])
     ].filter(f => !!f);
 
     var warnings = [];
@@ -417,7 +570,11 @@ const _PIPELINE_FUNCS = {
     wrapped_output: add_wrapped_output,
     check_dir_exists: check_directory_exists,
     check_file_exists: check_file_exists,
-    check_file_contents: check_file_contents
+    check_file_contents: check_file_contents,
+    to_json: to_json,
+    pluck_path: json_pluck,
+    equal_to: equal_to,
+    is_subset: is_subset
 };
 
 
@@ -468,7 +625,7 @@ const _CUSTOM_PIPELINE_CONSTRUCTORS = {
         return function(input) {
             return shell_custom_executor_output(input, session, mapper.value);
         }
-    },
+    }
 };
 
 function mapper_to_pipeline_step(mapper, service, session, lesson, task) {

@@ -314,7 +314,7 @@
         "practice": {
             "cat": {
                 "input": "console",
-                "mapper": ["shell", {
+                "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
                     "value": "NAME=.*"
                 }],
@@ -329,7 +329,7 @@
             },
             "cat_cowsay": {
                 "input": "console",
-                "mapper": ["shell", {
+                "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
                     "value": "^.*_.*$"
                 }],
@@ -358,7 +358,7 @@
         "practice": {
             "breakit": {
                 "input": "console",
-                "mapper": ["shell", {
+                "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
                     "value": ".*command.*"
                 }],
@@ -387,7 +387,7 @@
         "practice": {
             "gsettings": {
                 "input": "console",
-                "mapper": ["shell", {
+                "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
                     "value": ".*Usage.*"
                 }],
@@ -402,7 +402,7 @@
             },
             "list_schemas": {
                 "input": "console",
-                "mapper": ["shell", {
+                "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
                     "value": "org.*"
                 }],
@@ -417,7 +417,7 @@
             },
             "list_keys_help": {
                 "input": "console",
-                "mapper": ["shell", {
+                "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
                     "value": ".*Usage.*"
                 }],
@@ -432,7 +432,7 @@
             },
             "list_settings": {
                 "input": "console",
-                "mapper": ["shell", {
+                "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
                     "value": "^always-show-log-out$"
                 }],
@@ -447,7 +447,7 @@
             },
             "disable_social_bar": {
                 "input": "console",
-                "mapper": ["shell", {
+                "mapper": ["shell", "wrapped_output", {
                     "type": "shell_custom",
                     "value": {
                         "command": "gsettings get org.gnome.shell enable-social-bar"
@@ -467,7 +467,7 @@
             },
             "enable_social_bar": {
                 "input": "console",
-                "mapper": ["shell", {
+                "mapper": ["shell", "wrapped_output", {
                     "type": "shell_custom",
                     "value": {
                         "command": "gsettings get org.gnome.shell enable-social-bar"
@@ -487,7 +487,7 @@
             },
             "add_terminal_pinned_help": {
                 "input": "console",
-                "mapper": ["shell", {
+                "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
                     "value": ".+"
                 }],
@@ -502,7 +502,7 @@
             },
             "add_terminal_pinned": {
                 "input": "console",
-                "mapper": ["shell", {
+                "mapper": ["shell", "wrapped_output", {
                     "type": "shell_custom",
                     "value": {
                         "command": "gsettings get org.gnome.shell taskbar-pins"
@@ -530,7 +530,7 @@
         "practice": {
             "playsong": {
                 "input": "console",
-                "mapper": ["shell", {
+                "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
                     "value": ".*"
                 }],
@@ -636,6 +636,238 @@
                         "path": "~/code/secret.txt",
                         "value": "kittens"
                     }
+                }]
+            }
+        }
+    },
+    {
+        "name": "text",
+        "available_to": ["console"],
+        "desc": "Process text like a ninja",
+        "entry": "cat",
+        "practice": {
+            "cat": {
+                "input": "console",
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "in_data_directory": "text-processing-fs"
+                    }
+                }, "wrapped_output", {
+                    "type": "regex",
+                    "value": "^Sherlock.*"
+                }]
+            },
+            "cat_grep": {
+                "input": "console",
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "in_data_directory": "text-processing-fs"
+                    }
+                }, "wrapped_output", {
+                    "type": "regex",
+                    "value": "^.*appeared from then to 1927.*"
+                }]
+            },
+            "grep_file": {
+                "input": "console",
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "in_data_directory": "text-processing-fs"
+                    }
+                }, "wrapped_output", {
+                    "type": "regex",
+                    "value": "^.*appeared from then to 1927.*"
+                }]
+            },
+            "grep_extended_regex": {
+                "input": "console",
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "in_data_directory": "text-processing-fs"
+                    }
+                }, "wrapped_output", {
+                    "type": "regex",
+                    "value": "^First appearing in print in 1887.*"
+                }]
+            },
+            "grep_all": {
+                "input": "console",
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "in_data_directory": "text-processing-fs"
+                    }
+                }, "wrapped_output", {
+                    "type": "regex",
+                    "value": "^.*GSettings .settings.*"
+                }]
+            },
+            "grep_all_regex": {
+                "input": "console",
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "in_data_directory": "text-processing-fs"
+                    }
+                }, "wrapped_output", {
+                    "type": "regex",
+                    "value": "^.*GObject.*"
+                }]
+            },
+            "cat_atlas": {
+                "input": "console",
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "in_data_directory": "text-processing-fs"
+                    }
+                }, "wrapped_output", {
+                    "type": "regex",
+                    "value": "COUNTRY.*CONTINENT.*"
+                }]
+            },
+            "awk_atlas": {
+                "input": "console",
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "in_data_directory": "text-processing-fs"
+                    }
+                }, "wrapped_output", {
+                    "type": "regex",
+                    "value": "COUNTRY"
+                }]
+            },
+            "awk_atlas_countries_sorted": {
+                "input": "console",
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "in_data_directory": "text-processing-fs"
+                    }
+                }, "wrapped_output", {
+                    "type": "regex",
+                    "value": "Australia"
+                }]
+            },
+            "awk_atlas_continents": {
+                "input": "console",
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "in_data_directory": "text-processing-fs"
+                    }
+                }, "wrapped_output", {
+                    "type": "regex",
+                    "value": "CONTINENT"
+                }]
+            },
+            "awk_atlas_continents_uniq": {
+                "input": "console",
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "in_data_directory": "text-processing-fs"
+                    }
+                }, "wrapped_output", {
+                    "type": "regex",
+                    "value": "Asia"
+                }]
+            }
+        }
+    },
+    {
+        "name": "ps",
+        "available_to": ["console"],
+        "desc": "Get a bird's eye view of what's running on your system",
+        "entry": "ps",
+        "practice": {
+            "ps": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": "   PID TTY          TIME CMD"
+                }]
+            },
+            "ps_aux": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": "^.*1.*systemd"
+                }]
+            },
+            "ps_aux_grep": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": "^.*showmehow-service.*"
+                }]
+            },
+            "ps_aux_grep_awk": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": "^[0-9]+"
+                }]
+            },
+            "view_proc_pid": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": "^attr.*"
+                }]
+            },
+            "view_proc_cmdline": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": "^.*gjs.*"
+                }]
+            }
+        }
+    },
+    {
+        "name": "webrequest",
+        "available_to": ["console"],
+        "desc": "Download stuff using the terminal",
+        "entry": "webrequest",
+        "practice": {
+            "wget_image": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "check_file_exists",
+                    "value": "ourcomputers_hero-1.jpg"
+                }]
+            },
+            "api_pokemon": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": "^.*\\{.*\\}"
+                }]
+            },
+            "api_pokemon_types": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", "to_json", {
+                    "type": "pluck_path",
+                    "value": "type/name"
+                }, {
+                    "type": "equal_to",
+                    "value": ["poison", "grass"]
+                }]
+            },
+            "api_pokemon_in_type": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", "to_json", {
+                    "type": "pluck_path",
+                    "value": "pokemon/name"
+                }, {
+                    "type": "is_subset",
+                    "value": ["venipede", "trubbish"]
                 }]
             }
         }

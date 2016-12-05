@@ -5,6 +5,10 @@ arbitrary_files = \
 	files/test.txt \
 	$(NULL)
 
+lesson_directories = \
+	files/text-processing-fs \
+	$(NULL)
+
 filesdir = $(pkgdatadir)/files
 files_DATA = $(arbitrary_files)
 
@@ -43,11 +47,11 @@ EXTRA_DIST = \
 	com.endlessm.showmehow.gschema.xml \
 	com.endlessm.showmehow.gresource.xml \
 	data/lessons.json.unvalidated.in \
-	data/com.endlessm.Coding.policy.in \
 	files/coding-shared-dir.in \
 	lib/config.js.in \
 	$(all_dist_js_files) \
 	$(arbitrary_files) \
+	$(lesson_directories) \
 	$(NULL)
 CLEANFILES =
 
@@ -85,17 +89,20 @@ data/lessons.json: $(abs_top_srcdir)/data/lessons.json.unvalidated.in $(all_js_f
 	mkdir -p data
 	cp $< $@
 
-# Replace pkglibexecdir path
-data/com.endlessm.Coding.policy: data/com.endlessm.Coding.policy.in
-	$(AM_V_GEN) mkdir -p data && \
-	$(SED) -e 's,%pkglibexecdir%,$(pkglibexecdir),' < $< >$@.tmp && \
-	mv -f $@.tmp $@
-
 # Replace coding_files_dir path
 files/coding-shared-dir: files/coding-shared-dir.in
 	$(AM_V_GEN) mkdir -p files && \
 	$(SED) -e 's,%coding_files_dir%,$(pkgdatadir)/files,g' < $< >$@.tmp && \
 	mv -f $@.tmp $@
+
+# Install directories for lessons. We need to do this because files_DATA doesn't
+# support recursive copying
+install-data-local:
+	mkdir -p $(DESTDIR)$(filesdir)
+	for i in $(srcdir)/$(lesson_directories); do cp -r $$i $(DESTDIR)$(filesdir) && chmod -R +w $(DESTDIR)$(filesdir)/$$i; done
+
+uninstall-local:
+	for i in $(srcdir)/$(lesson_directories); do rm -rf $(DESTDIR)/$(filesdir)/$$i; done
 
 # GResources
 
@@ -169,11 +176,6 @@ com.endlessm.Showmehow.Service.service: $(abs_top_srcdir)/com.endlessm.Showmehow
 # Script for placing files in the shared dir 
 pkglibexec_SCRIPTS = files/coding-shared-dir
 
-# Polkit policy
-
-polkit_policydir = $(datadir)/polkit-1/actions
-dist_polkit_policy_DATA = data/com.endlessm.Coding.policy
-
 # Things to get rid of later
 CLEANFILES += \
 	$(bin_SCRIPTS) \
@@ -181,7 +183,6 @@ CLEANFILES += \
 	$(resources_built_sources) \
 	$(gdbus_codegen_built_sources) \
 	data/lessons.json \
-	data/com.endlessm.Coding.policy \
 	files/coding-shared-dir \
 	lib/config.js \
 	$(NULL)
