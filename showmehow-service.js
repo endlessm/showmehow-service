@@ -158,7 +158,7 @@ function regex_validator(input, regex) {
 }
 
 function resolve_path(path) {
-    if (path.startsWith("~")) {
+    if (path.startsWith('~')) {
         return GLib.build_filenamev([GLib.get_home_dir(), path.slice(1)]);
     }
 
@@ -168,7 +168,7 @@ function resolve_path(path) {
 function check_directory_exists(input, directory) {
     let file_object = Gio.File.new_for_path(resolve_path(directory));
     try {
-        if (file_object.query_info("standard::type",
+        if (file_object.query_info('standard::type',
                                    Gio.FileQueryInfoFlags.NONE,
                                    null).get_file_type() === Gio.FileType.DIRECTORY) {
             return ['success', []];
@@ -176,7 +176,7 @@ function check_directory_exists(input, directory) {
             return ['failure', []];
         }
     } catch (e) {
-        logError(e, "Failed to get directory");
+        logError(e, 'Failed to get directory');
         return ['failure', []];
     }
 }
@@ -184,7 +184,7 @@ function check_directory_exists(input, directory) {
 function check_file_exists(input, file) {
     let file_object = Gio.File.new_for_path(resolve_path(file));
     try {
-        if (file_object.query_info("standard::type",
+        if (file_object.query_info('standard::type',
                                    Gio.FileQueryInfoFlags.NONE,
                                    null).get_file_type() == Gio.FileType.REGULAR) {
             return ['success', []];
@@ -192,7 +192,7 @@ function check_file_exists(input, file) {
             return ['failure', []];
         }
     } catch (e) {
-        logError(e, "Failed to get file");
+        logError(e, 'Failed to get file');
         return ['failure', []];
     }
 }
@@ -262,7 +262,7 @@ function copyDirectoryWithoutOverwriting(source, destination) {
             // adding them to the back of copyQueue.
             let children = null;
             try {
-                children = toCopy.enumerate_children("standard::name",
+                children = toCopy.enumerate_children('standard::name',
                                                      Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS,
                                                      null);
             } catch (e if e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.NOT_DIRECTORY)) {
