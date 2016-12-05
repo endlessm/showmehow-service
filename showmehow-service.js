@@ -92,6 +92,18 @@ function spawnProcess(binary, argv=[], user_environment={}) {
     };
 }
 
+
+const PROLOGUES = {
+    python: 'from gi.repository import Gio\n' +
+            'application = Gio.Application.new("com.endlessm.Showmehow.Showmehow", 0)\n' +
+            'def activate(argv):\n' +
+            '    from code import InteractiveConsole\n' +
+            '    InteractiveConsole(locals=globals()).interact()\n' +
+            '\n' +
+            'application.connect("activate", activate)\n' +
+            'application.run()\n'
+}
+
 const InteractiveShell = new Lang.Class({
     Name: 'InteractiveShell',
 
@@ -126,6 +138,27 @@ const InteractiveShell = new Lang.Class({
         this._process.proc.force_exit();
     }
 });             
+
+// These overrides set up the runtimes so that we get unbuffered input and
+// are able to interact just be sending data to the standard input and
+// output
+const RUNTIME_ARGV = {
+    python: ['-u', '-c', 'import code; code.InteractiveConsole(locals=globals()).interact()']
+}
+
+// createInteractiveShellFor
+//
+// Creates a new InteractiveShell instance for the given runtime, argv
+// and environment. Will do what is required to set up that runtime so that
+// it works correctly with the lessons we will run in showmehow (for instance
+// in python, sets up a GApplication instance).
+function createInteractiveShellFor(runtime, argv=[], user_environment={}) {
+    let shell = new InteractiveShell(which(runtime), RUNTIME_ARGV[runtime] || [], user_environment);
+    if (PROLOGUES[runtime]) {
+        shell.evaluate(PROLOGUES[runtime]);
+    }
+    return shell;
+}
 
 function select_random_from(array) {
     return array[Math.floor(Math.random() * array.length)];
@@ -203,6 +236,24 @@ function check_file_contents(input, settings) {
     }
 
     return [String(contents).trim() === settings.value ? 'success': 'failure', []];
+}
+
+// which
+function which(binary) {
+    const binaryPaths = GLib.getenv('PATH').split(':');
+    for (let path of binaryPaths) {
+        let gpath = Gio.File.new_for_path(GLib.build_filenamev([path, binary]));
+        try {
+            let info = gpath.query_info('access::*', Gio.FileQueryInfoFlags.NONE, null);
+            if (info.get_attribute_boolean(Gio.FILE_ATTRIBUTE_ACCESS_CAN_EXECUTE)) {
+                return gpath.get_path();
+            }
+        } catch (e if e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.NOT_FOUND)) {
+            continue;
+        }
+    }
+
+    throw new Error('Couldn\'t find ' + binary + ' in any PATH');
 }
 
 // copyDirectoryWithoutOverwriting
@@ -311,8 +362,7 @@ function workingDirectoryFor(dataDirectory) {
 }
 
 /* Executing raw shellcode. What could possibly go wrong? */
-function shell_executor(shellcode, session, environment, workingDirectory) {
-
+function shell_executor(shellcode, session, runtime, environment, workingDirectory) {
     // Note that at least for now, we don't support per-command environment
     // variables in sessions - only in cases where the session is not set
     if (!environment)
@@ -327,7 +377,7 @@ function shell_executor(shellcode, session, environment, workingDirectory) {
         // or environment variables since those are set from GSubprocessLauncher as
         // one-per-process, but we could just execute some shellcode here to change
         // the working directory or environment variables as required.
-        return session.bash.evaluate(shellcode);
+        return session[runtime].evaluate(shellcode);
     } else {
         return execute_command_for_output(['/bin/bash', '-c', shellcode + '; exit 0'],
                                           environment,
@@ -347,29 +397,23 @@ function python_executor(code, session, workingDirectory) {
     }
 }
 
-// A higher order function which applies shellcode, a data diretory
-// and other settings to an executor function
-function outputFromExecutor(executor, shellcode, session, settings) {
-    let dataDirectory = settings ? settings.in_data_directory : null;
-    let result = executor(shellcode,
-                          session,
-                          settings ? settings.environment : {},
-                          dataDirectory ? workingDirectoryFor(dataDirectory) : null);
-    return [result.stdout + '\n' + result.stderr, []];
-}
-
 function shell_executor_output(shellcode, session, settings) {
-    return outputFromExecutor(shell_executor, shellcode, session, settings);
-}
-
-function python_executor_output(shellcode, session, settings) {
-    return outputFromExecutor(python_executor, shellcode, session, settings);
-}
-
-function shell_executor_custom_output(shellcode, session, settings) {
     let dataDirectory = settings ? settings.in_data_directory : null;
+    let runtime = settings ? settings.runtime : null;
+
+    // Run the prologue for this task
+    if (settings.before) {
+        shell_executor(settings.before,
+                       session,
+                       runtime ? runtime : 'bash',
+                       settings ? settings.evironment : {},
+                       dataDirectory ? workingDirectoryFor(dataDirectory) :
+                                       null);
+    }
+
     let result = shell_executor(shellcode,
                                 session,
+                                runtime ? runtime : 'bash',
                                 settings ? settings.environment : {},
                                 dataDirectory ? workingDirectoryFor(dataDirectory) :
                                                 null);
@@ -734,13 +778,13 @@ const ShowmehowService = new Lang.Class({
         return true;
     },
 
-    vfunc_handle_open_session: function(method) {
+    vfunc_handle_open_session: function(method, runtimes) {
         try {
             this._sessionCount++;
-            this._sessions[this._sessionCount] = {
-                bash: new InteractiveShell('/bin/bash', [], {}),
-                python: new InteractiveShell('/bin/python', [], {})
-            };
+            this._sessions[this._sessionCount] = {};
+            runtimes.deep_unpack().forEach(Lang.bind(this, function([r]) {
+                this._sessions[this._sessionCount][r] = createInteractiveShellFor(r, [], {});
+            }));
             this.complete_open_session(method, this._sessionCount);
         } catch(e) {
             logError(e, 'Failed to open a new session');
