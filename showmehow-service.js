@@ -189,6 +189,18 @@ function regex_validator(input, regex) {
 }
 
 function resolve_path(path) {
+    // If it is an object, it might be relative to some data directory
+    if (typeof path === 'object') {
+        // Assume that it has this shape
+        switch (path.settings.type) {
+            case 'in_data_directory':
+                return GLib.build_filenamev([workingDirectoryFor(path.settings.value),
+                                             path.name]);
+            default:
+                throw new Error('Don\'t know how to handle path type ' + key);
+        }
+    }
+
     if (path.startsWith('~')) {
         return GLib.build_filenamev([GLib.get_home_dir(), path.slice(1)]);
     }
