@@ -91,22 +91,25 @@ function spawnProcess(binary, argv=[], user_environment={}) {
 
 
 const PROLOGUES = {
-    python: 'from gi.repository import Gio\n' +
-            'application = Gio.Application.new("com.endlessm.Showmehow.Showmehow", 0)\n' +
-            'def activate(argv):\n' +
-            '    from code import InteractiveConsole\n' +
-            '    InteractiveConsole(locals=globals()).interact()\n' +
-            '\n' +
-            'application.connect("activate", activate)\n' +
-            'application.run()\n'
+    python: function(id) {
+        return 'from gi.repository import Gio\n' +
+               'application = Gio.Application.new("com.endlessm.Showmehow.Showmehow' + id + '", 0)\n' +
+               'def activate(argv):\n' +
+               '    from code import InteractiveConsole\n' +
+               '    InteractiveConsole(locals=globals()).interact()\n' +
+               '\n' +
+               'application.connect("activate", activate)\n' +
+               'application.run()\n';
+    }
 }
 
 const InteractiveShell = new Lang.Class({
     Name: 'InteractiveShell',
 
-    _init: function(binary, argv=[], user_environment={}) {
+    _init: function(binary, id, argv=[], user_environment={}) {
         this.parent();
         this._process = spawnProcess(binary, argv, user_environment);
+        this.id = id;
 
         // Drain the standard output and error streams
         Showmehow.read_nonblock_input_stream_for_bytes(this._process.stdout);
@@ -154,10 +157,10 @@ const RUNTIME_ARGV = {
 // and environment. Will do what is required to set up that runtime so that
 // it works correctly with the lessons we will run in showmehow (for instance
 // in python, sets up a GApplication instance).
-function createInteractiveShellFor(runtime, argv=[], user_environment={}) {
-    let shell = new InteractiveShell(GLib.find_program_in_path(runtime), RUNTIME_ARGV[runtime] || [], user_environment);
+function createInteractiveShellFor(runtime, id, argv=[], user_environment={}) {
+    let shell = new InteractiveShell(GLib.find_program_in_path(runtime), id, RUNTIME_ARGV[runtime] || [], user_environment);
     if (PROLOGUES[runtime]) {
-        shell.evaluate(PROLOGUES[runtime]);
+        shell.evaluate(PROLOGUES[runtime](id));
     }
     return shell;
 }
@@ -793,7 +796,7 @@ const ShowmehowService = new Lang.Class({
                                                                     forLesson);
             if (runtimesRequired) {
                 runtimesRequired.forEach(Lang.bind(this, function(r) {
-                    this._sessions[this._sessionCount][r] = createInteractiveShellFor(r, [], {});
+                    this._sessions[this._sessionCount][r] = createInteractiveShellFor(r, this._sessionCount, [], {});
                 }));
                 this.complete_open_session(method, this._sessionCount);
             } else {
