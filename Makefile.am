@@ -98,11 +98,15 @@ files/coding-shared-dir: files/coding-shared-dir.in
 # Install directories for lessons. We need to do this because files_DATA doesn't
 # support recursive copying
 install-data-local:
-	mkdir -p $(DESTDIR)$(filesdir)
-	for i in $(srcdir)/$(lesson_directories); do cp -r $$i $(DESTDIR)$(filesdir) && chmod -R +w $(DESTDIR)$(filesdir)/$$i; done
+	mkdir -p $(DESTDIR)$(pkgdatadir)
+	for i in $(lesson_directories); do \
+		mkdir -p $(DESTDIR)$(pkgdatadir)/$$i && \
+		cp -r $(srcdir)/$$i $(DESTDIR)$(pkgdatadir)/$$i && \
+		chmod -R +w $(DESTDIR)$(pkgdatadir)/$$i; \
+	done
 
 uninstall-local:
-	for i in $(srcdir)/$(lesson_directories); do rm -rf $(DESTDIR)/$(filesdir)/$$i; done
+	for i in $(lesson_directories); do rm -rf $(DESTDIR)/$(pkgdatadir)/$$i; done
 
 # GResources
 
