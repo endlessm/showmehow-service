@@ -1162,7 +1162,8 @@
                 "mapper": [{
                     "type": "shell",
                     "value": {
-                        "runtime": "python"
+                        "runtime": "python",
+                        "before": "if globals().get('Gio', None):\n    del Gio\n\n"
                     }
                 }, {
                     "type": "shell_custom",
