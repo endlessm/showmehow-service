@@ -1198,7 +1198,7 @@
                     "value": "^.*Gio.Notification.*$"
                 }],
                 "example": {
-                    "success": "notification = Gio.notification.new('lunch-is-ready')",
+                    "success": "notification = Gio.Notification.new('lunch-is-ready')",
                     "failure": "notification = 7"
                 }
             },
@@ -1214,7 +1214,7 @@
                     "value": "^.*$"
                 }],
                 "example": {
-                    "success": "application.send_notification(notification, 'Lunch is ready!')"
+                    "success": "application.send_notification('Lunch is ready!', notification)"
                 }
             }
         }
