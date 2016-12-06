@@ -1133,14 +1133,20 @@
                     "type": "shell",
                     "value": {
                         "runtime": "python",
-                        "before": "environment = 'PATH=/bin:/usr/bin\nLD_LIBRARY_PATH=/lib:/usr/lib:/usr/lib/x86_64-linux-gnu\nGI_TYPELIB_PATH=/usr/lib/girepository-1.0'"
+                        "before": "environment = 'PATH=/bin:/usr/bin\\nLD_LIBRARY_PATH=/lib:/usr/lib:/usr/lib/x86_64-linux-gnu\\nGI_TYPELIB_PATH=/usr/lib/girepository-1.0'"
                     }
                 }, "wrapped_output", {
+                    "type": "shell_custom",
+                    "value": {
+                        "runtime": "python",
+                        "command": "print(environment_dict)"
+                    }
+                }, {
                     "type": "regex",
                     "value": "^\\{'PATH': '/bin:/usr/bin', 'LD_LIBRARY_PATH': '/lib:/usr/lib:/usr/lib/x86_64-linux-gnu', 'GI_TYPELIB_PATH': '/usr/lib/girepository-1.0'\\}$"
                 }],
                 "example": {
-                    "success": "environment_dict = { k: v for k, v in [x.split('=') for x in environment.split('\n')] }",
+                    "success": "environment_dict = { k: v for k, v in [x.split('=') for x in environment.split('\\n')] }",
                     "failure": "environment_dict = { k: v for k, v in [x.split('=') for x in environment.split('.')] }"
                 }
             }
