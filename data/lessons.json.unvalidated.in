@@ -23,41 +23,6 @@
                     "success": "yes"
                 }
             },
-            "choice_see_cool": {
-                "input": {
-                    "type": "choice",
-                    "settings": {
-                        "yes": {
-                            "text": "Sure, why not"
-                        },
-                        "no": {
-                            "text": "Go away"
-                        }
-                    },
-                    "examples": {
-                        "success": "yes"
-                    }
-                },
-                "mapper": ["input"],
-                "effects": {
-                    "yes": {
-                        "reply": "Okay, here goes.",
-                        "side_effects": [
-                            {
-                                "type": "shell",
-                                "value": "gsettings set org.gnome.shell wobbly-effect true"
-                            }
-                        ]
-                    },
-                    "no": {
-                        "reply": "You're boring! Sure you don't?"
-                    }
-                },
-                "examples": {
-                    "yes": "yes",
-                    "no": "no"
-                }
-            },
             "goog_key": {
                 "input": "text",
                 "mapper": ["input",
@@ -71,99 +36,8 @@
                         "reply": "Yes, I'm talking to you"
                     }
                 },
-                "examples": {
+                "example": {
                     "success": "Hfr gur Fbhepr, Yhxr"
-                }
-            },
-            "open_move_window": {
-                "input": {
-                    "type": "external_events",
-                    "settings": {
-                        "satisfied": {
-                            "events": [
-                                "window-moved"
-                            ],
-                            "notify": true,
-                            "subsumes": [
-                                "unsatisfied"
-                            ]
-                        },
-                        "unsatisfied": {
-                            "events": [
-                            ],
-                            "notify": false,
-                            "subsumes": [
-                            ]
-                        }
-                    }
-                },
-                "mapper": ["check_external_events"],
-                "effects": {
-                    "satisfied": {
-                        "reply": "Things are not as they seem around here.",
-                        "side_effects": [
-                            {
-                                "type": "shell",
-                                "value": "gsettings set org.gnome.shell wobbly-effect false"
-                            }
-                        ]
-                    },
-                    "unsatisfied": {
-                        "reply": "Move a window before coming back here!"
-                    }
-                },
-                "examples": {
-                    "satisfied": "satisfied",
-                    "unsatisfied": "unsatisfied"
-                }
-            },
-            "change_background_pic": {
-                "input": "text",
-                "mapper": ["input",
-                  {
-                    "type": "regex",
-                    "value": "newsplash"
-                  }
-                ],
-                "effects": {
-                    "success": {
-                        "reply": "Did you notice anything change on your desktop?",
-                        "side_effects": [
-                            {
-                                "type": "shell",
-                                "value": "gsettings set org.gnome.desktop.background picture-uri file://${CODING_FILES_DIR}/background_pic.jpg"
-                            }
-                        ],
-                        "move_to": "explore_shared_account"
-                    }
-                },
-                "examples": {
-                    "success": "newsplash"
-                }
-            },
-            "explore_shared_account": {
-                "task": "Get ready for your next clue.",
-                "input": "text",
-                "mapper": ["input",
-                    {
-                        "type": "regex",
-                        "value": ".*"
-                    }
-                ],
-                "effects": {
-                    "success": {
-                        "reply": "Login to the shared account to find out more. There should be a file called test.txt, which contains more clues.",
-                        "side_effects": [
-                            {
-                                "type": "shell",
-                                "value": "pkexec ${CODING_SHARED_SCRIPT_DIR} test.txt",
-                                "example": "yes"
-                            }
-                        ]
-                    }
-                },
-                "examples": {
-                    "success": "yes"
                 }
             },
             "install_programming_hook": {
@@ -197,9 +71,6 @@
                     "success": "install-programming",
                     "failure": "install-programming-no"
                 }
-            },
-            "intro-complete" : {
-                "task": "Buckle up Dorothy, because Kansas is going bye-bye!\nSee you in the 'Coding Fun' app on your desktop!"
             }
         }
     },
