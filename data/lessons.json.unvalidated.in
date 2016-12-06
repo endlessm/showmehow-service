@@ -473,15 +473,10 @@
                     "success": {
                         "reply": "I love this song! Now you'll probably notice that we're stuck here. To get out of any command line application, you can use Control-C",
                         "example": "echo hello"
-                    },
-                    "failure": {
-                        "reply": "We need this song to get things into the right mood. Can you play it?",
-                        "example": ""
                     }
                 },
                 "example": {
-                    "success": "echo hello",
-                    "failure": ""
+                    "success": "echo hello"
                 }
             }
         }
