@@ -7,6 +7,7 @@ arbitrary_files = \
 
 lesson_directories = \
 	files/text-processing-fs \
+	files/webrequest-fs \
 	$(NULL)
 
 filesdir = $(pkgdatadir)/files
