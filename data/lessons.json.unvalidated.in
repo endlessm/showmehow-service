@@ -915,9 +915,21 @@
         "practice": {
             "wget_image": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "in_data_directory": "webrequest-fs",
+                        "before": "rm ourcomputers_hero-1.jpg"
+                    }
+                }, "wrapped_output", {
                     "type": "check_file_exists",
-                    "value": "ourcomputers_hero-1.jpg"
+                    "value": {
+                        "settings": {
+                            "type": "in_data_directory",
+                            "value": "webrequest-fs"
+                        },
+                        "name": "ourcomputers_hero-1.jpg"
+                    }
                 }],
                 "example": {
                     "success": "wget https://endlessm.com/wp-content/uploads/2016/05/ourcomputers_hero-1.jpg",
