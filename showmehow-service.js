@@ -79,8 +79,7 @@ function spawnProcess(binary, argv=[], user_environment={}) {
 
     let envp = environment_object_to_envp(environment);
     launcher.set_environ(envp);
-    argv.unshift(binary);
-    let proc = launcher.spawnv(argv);
+    let proc = launcher.spawnv([binary].concat(argv));
 
     return {
         proc: proc,
