@@ -143,6 +143,11 @@ const InteractiveShell = new Lang.Class({
 // are able to interact just be sending data to the standard input and
 // output
 const RUNTIME_ARGV = {
+    // Note that here we need to call `import code; code.InteractiveConsole` etc. This is
+    // due to the way that python behaves when the standard out is not a tty device.
+    // InteractiveConsole has slightly different and more acceptable behaviour. We need to
+    // use it here despite the fact that we also do it in the prologue, since it is
+    // needed to ensure that the prologue code is actually evaluated in the first place.
     python: ['-u', '-c', 'import code; code.InteractiveConsole(locals=globals()).interact()']
 }
 
