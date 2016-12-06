@@ -330,7 +330,7 @@
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
-                    "value": ".*Usage.*"
+                    "value": "^.*List the keys in SCHEMA.*$"
                 }],
                 "effects": {
                     "success": {
