@@ -441,7 +441,11 @@ function add_wait_message(input) {
 }
 
 function to_json(input) {
-    return [JSON.parse(input), []];
+    try {
+        return [JSON.parse(input), []];
+    } catch (e) {
+        return [[], ['> That data wasn\'t JSON: ' + input]]
+    }
 }
 
 // json_traverse_recurse
@@ -456,7 +460,11 @@ function json_traverse_recurse(object, path_remaining) {
     let next = path_remaining.slice(1);
     let key = path_remaining[0];
 
-    return json_traverse_recurse(object[key], next);
+    try {
+        return json_traverse_recurse(object[key], next);
+    } catch (e) {
+        return ''
+    }
 }
 
 // json_pluck
