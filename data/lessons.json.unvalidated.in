@@ -486,16 +486,22 @@
         "available_to": ["console"],
         "desc": "Learn to navigate the filesystem",
         "entry": "list",
+        "requires_session": true,
         "practice": {
             "change_to_root": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": ["shell", {
+                    "type": "shell_custom",
+                    "value": {
+                        "command": "ls"
+                    }
+                }, {
                     "type": "regex",
-                    "value": ".*"
+                    "value": ".*boot.*"
                 }],
                 "example": {
                     "success": "cd /",
-                    "failure": ""
+                    "failure": "cd ~"
                 }
             },
             "list": {
@@ -505,7 +511,7 @@
                     "value": ".*boot.*"
                 }],
                 "example": {
-                    "success": "ls /",
+                    "success": "ls",
                     "failure": "ls /home"
                 }
             },
@@ -548,18 +554,24 @@
                     "value": ".*shared.*"
                 }],
                 "example": {
-                    "success": "ls home",
-                    "failure": "ls"
+                    "success": "ls",
+                    "failure": "ls /"
                 }
             },
             "cd_home_dir": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": ["shell", {
+                    "type": "shell_custom",
+                    "value": {
+                        "command": "ls"
+                    }
+                }, {
                     "type": "regex",
-                    "value": ".*"
+                    "value": ".*Pictures.*"
                 }],
                 "example": {
-                    "success": "cd /home"
+                    "success": "cd ~",
+                    "failure": "cd /"
                 }
             },
             "cd_and_cmd": {
@@ -569,7 +581,7 @@
                     "value": ".*shared.*"
                 }],
                 "example": {
-                    "success": "echo hello",
+                    "success": "cd /home && ls",
                     "failure": ""
                 }
             },
@@ -586,29 +598,44 @@
             },
             "mkdir": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "before": "rm -r ~/showmehow-code"
+                    }
+                }, "wrapped_output", {
                     "type": "check_dir_exists",
-                    "value": "~/code"
+                    "value": "~/showmehow-code"
                 }],
                 "example": {
-                    "success": "mkdir $HOME/code",
+                    "success": "mkdir -p ~/showmehow-code",
                     "failure": "echo hello"
                 }
             },
             "touch": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "before": "rm ~/showmehow-code/secret.txt"
+                    }
+                }, "wrapped_output", {
                     "type": "check_file_exists",
-                    "value": "~/code/secret.txt"
+                    "value": "~/showmehow-code/secret.txt"
                 }],
                 "example": {
-                    "success": "touch $HOME/code/secret.txt",
+                    "success": "touch $HOME/showmehow-code/secret.txt",
                     "failure": "touch $HOME/secret.txt"
                 }
             },
             "write_to_secret": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "before": "rm ~/showmehow-code/secret.txt"
+                    }
+                }, "wrapped_output", {
                     "type": "check_file_contents",
                     "value": {
                         "path": "~/code/secret.txt",
