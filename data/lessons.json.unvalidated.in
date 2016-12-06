@@ -170,14 +170,10 @@
                 "effects": {
                     "success": {
                         "reply": "Ha-ha. Okay, lets try something even funnier."
-                    },
-                    "failure": {
-                        "reply": "No?"
                     }
                 },
                 "example": {
-                    "success": "fortune",
-                    "failure": "notfortune"
+                    "success": "fortune"
                 }
             },
             "fortune_cowsay": {
