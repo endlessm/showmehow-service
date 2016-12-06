@@ -699,8 +699,8 @@
                     "value": "^.*appeared from then to 1927.*"
                 }],
                 "example": {
-                    "success": "grep sherlock.txt 19",
-                    "failure": "grep sherlock.txt 20"
+                    "success": "grep 19 sherlock.txt",
+                    "failure": "grep 20 sherlock.txt"
                 }
             },
             "grep_extended_regex": {
@@ -715,8 +715,8 @@
                     "value": "^First appearing in print in 1887.*"
                 }],
                 "example": {
-                    "success": "grep -E sherlock.txt 1[89]",
-                    "failure": "grep sherlock.txt 19"
+                    "success": "grep -E 1[89] sherlock.txt",
+                    "failure": "grep 19 sherlock.txt"
                 }
             },
             "grep_all": {
@@ -731,8 +731,8 @@
                     "value": "^.*GSettings .settings.*"
                 }],
                 "example": {
-                    "success": "grep -R . GSettings",
-                    "failure": "grep sherlock.txt GSettings"
+                    "success": "grep -R GSettings .",
+                    "failure": "grep GSettings sherlock.txt"
                 }
             },
             "grep_all_regex": {
@@ -747,8 +747,8 @@
                     "value": "^.*GObject.*"
                 }],
                 "example": {
-                    "success": "grep -R -E . G[\w]+",
-                    "failure": "grep -E sherlock.txt G[\w]+"
+                    "success": "grep -R -E G.+ .",
+                    "failure": "grep -E G.+ sherlock.txt"
                 }
             },
             "cat_atlas": {
@@ -760,7 +760,7 @@
                     }
                 }, "wrapped_output", {
                     "type": "regex",
-                    "value": "COUNTRY.*CONTINENT.*"
+                    "value": ".*COUNTRY.*"
                 }],
                 "example": {
                     "success": "cat atlas.txt",
@@ -775,8 +775,8 @@
                         "in_data_directory": "text-processing-fs"
                     }
                 }, "wrapped_output", {
-                    "type": "regex",
-                    "value": "COUNTRY"
+                    "type": "equal_to",
+                    "value": "COUNTRY\nAustralia\nU.K\nBrazil\nChina\nU.S.A\nCanada\nRussia\n\n"
                 }],
                 "example": {
                     "success": "cat atlas.txt | awk '{ print $1 }'",
@@ -791,8 +791,8 @@
                         "in_data_directory": "text-processing-fs"
                     }
                 }, "wrapped_output", {
-                    "type": "regex",
-                    "value": "Australia"
+                    "type": "equal_to",
+                    "value": "Australia\nBrazil\nCanada\nChina\nCOUNTRY\nRussia\nU.K\nU.S.A\n\n"
                 }],
                 "example": {
                     "success": "cat atlas.txt | awk '{ print $1 }' | sort",
@@ -807,11 +807,11 @@
                         "in_data_directory": "text-processing-fs"
                     }
                 }, "wrapped_output", {
-                    "type": "regex",
-                    "value": "CONTINENT"
+                    "type": "equal_to",
+                    "value": "CONTINENT\nAustralia\nEurope\nS.America\nAsia\nN.America\nN.America\nAsia\n\n"
                 }],
                 "example": {
-                    "success": "cat atlas.txt | awk '{ print $2 }'",
+                    "success": "cat atlas.txt | awk '{ print $3 }'",
                     "failure": "cat atlas.txt"
                 }
             },
@@ -823,11 +823,11 @@
                         "in_data_directory": "text-processing-fs"
                     }
                 }, "wrapped_output", {
-                    "type": "regex",
-                    "value": "Asia"
+                    "type": "equal_to",
+                    "value": "Asia\nAustralia\nCONTINENT\nEurope\nN.America\nS.America\n\n"
                 }],
                 "example": {
-                    "success": "cat atlas.txt | awk '{ print $1 }' | sort | uniq",
+                    "success": "cat atlas.txt | awk '{ print $3 }' | sort | uniq",
                     "failure": "cat atlas.txt"
                 }
             }
