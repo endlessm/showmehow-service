@@ -384,18 +384,6 @@ function shell_executor(shellcode, session, runtime, environment, workingDirecto
     }
 }
 
-function python_executor(code, session, workingDirectory) {
-    if (session) {
-       return session.python.evaluate(code);
-    } else {
-        return execute_command_for_output([
-            '/usr/bin/python',
-            '-c',
-            'import sys; ' + code + 'sys.exit(0);'
-        ], {}, workingDirectory);
-    }
-}
-
 function shell_executor_output(shellcode, session, settings) {
     let dataDirectory = settings ? settings.in_data_directory : null;
     let runtime = settings ? settings.runtime : null;
