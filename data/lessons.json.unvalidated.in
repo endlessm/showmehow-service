@@ -865,7 +865,7 @@
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
-                    "value": "^.*showmehow-service.*"
+                    "value": "^.*grep.*showmehow-service.*"
                 }],
                 "example": {
                     "success": "ps aux | grep showmehow-service",
