@@ -389,7 +389,7 @@ function shell_executor_output(shellcode, session, settings) {
     let runtime = settings ? settings.runtime : null;
 
     // Run the prologue for this task
-    if (settings.before) {
+    if (settings && settings.before) {
         shell_executor(settings.before,
                        session,
                        runtime ? runtime : 'bash',
