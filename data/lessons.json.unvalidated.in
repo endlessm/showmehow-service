@@ -940,7 +940,7 @@
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
-                    "value": "^.*\\{.*\\}"
+                    "value": "^\\{.*\\}"
                 }],
                 "example": {
                     "success": "curl http://pokeapi.co/api/v2/pokemon/1/",
