@@ -233,7 +233,7 @@ function copyDirectoryWithoutOverwriting(source, destination) {
         // Get the relevant component to source and then append that
         // to destination, creating a new GFile.
         let relPath = source.get_relative_path(toCopy) || '';
-        let copyTo = Gio.File.new_for_path(destination.resolve_relative_path(relPath));
+        let copyTo = destination.resolve_relative_path(relPath);
 
         try {
             toCopy.copy(copyTo, Gio.FileCopyFlags.NONE, null, null);
