@@ -307,12 +307,11 @@ function workingDirectoryFor(dataDirectory) {
     } catch (e if e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.EXISTS)) {
     }
 
-    let configHomePath = configHomeServicePath.get_child(dataDirectory);
-
     // Make a local copy, without overwriting
-    copyDirectoryWithoutOverwriting(dataDirectoryPath, configHomePath);
+    copyDirectoryWithoutOverwriting(dataDirectoryPath, configHomeServicePath);
 
     // Now, once we're done, return the path to the working directory
+    let configHomePath = configHomeServicePath.get_child(dataDirectory);
     return configHomePath.get_path();
 }
 
