@@ -424,48 +424,6 @@ function is_subset(input, value) {
 }
 
 /**
- * addArrayUnique:
- *
- * Given some array, add another array and ensure
- * that all elements are unique.
- *
- * Provide the third 'arraySearch' argument if you
- * need to provide a custom function to search
- * the existing array for the value that
- * is being added.
- */
-function addArrayUnique(lhs, rhs, arraySearchArg) {
-    let arraySearch = arraySearchArg || ((c, p) => p.indexOf(c) === -1);
-    return lhs.concat(rhs).reduce((p, c) => {
-        if (arraySearch(c, p)) {
-            p.push(c);
-        }
-        return p;
-    }, []);
-}
-
-/**
- * lessonDescriptorMatching:
- *
- * Given a lesson name and lesson descriptors, return
- * the lesson descriptor.
- */
-function lessonDescriptorMatching(lesson, descriptors) {
-    /* An immediately invoked function expression to extract the relevant
-     * useful information from a lesson descriptor without extracting
-     * everything all at once. */
-    let matches = descriptors.filter(d => d.name === lesson);
-
-    if (matches.length !== 1) {
-        log('Expected only a single match from ' + lesson +
-            ' but there were ' + matches.length + ' matches');
-        return null;
-    }
-
-    return matches[0];
-}
-
-/**
  * loadLessonDescriptorsFromFile
  *
  * Given a GFile, load and validate lesson descriptors from it. Returns
