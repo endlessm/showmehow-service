@@ -790,7 +790,7 @@
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
-                    "value": "   PID TTY          TIME CMD"
+                    "value": "  PID TTY          TIME CMD"
                 }]
             },
             "ps_aux": {
