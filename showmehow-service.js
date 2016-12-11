@@ -517,11 +517,6 @@ function loadLessonDescriptors(cmdlineFilename) {
     return [descriptors, monitor];
 }
 
-const KNOWN_CLUE_TYPES = [
-    'text',
-    'image-path'
-];
-
 const _PIPELINE_FUNCS = {
     regex: regex_validator,
     input: function(input) { return [input, []]; },
