@@ -661,8 +661,9 @@ const ShowmehowService = new Lang.Class({
     Name: 'ShowmehowService',
     Extends: Showmehow.ServiceSkeleton,
 
-    _init: function(props, descriptors, monitor) {
-        this.parent(props);
+    _init: function(descriptors, monitor) {
+        this.parent();
+
         this._settings = new Gio.Settings({ schema_id: SHOWMEHOW_SCHEMA });
         this._descriptors = descriptors;
         this._monitor = monitor;
@@ -913,7 +914,7 @@ const ShowmehowServiceApplication = new Lang.Class({
     vfunc_dbus_register: function(conn, object_path) {
         this.parent(conn, object_path);
         let [descriptors, monitor] = loadLessonDescriptors(this._commandLineFilename);
-        this._skeleton = new ShowmehowService({}, descriptors, monitor);
+        this._skeleton = new ShowmehowService(descriptors, monitor);
         this._skeleton.export(conn, object_path);
         return true;
     },
