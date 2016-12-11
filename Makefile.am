@@ -44,7 +44,6 @@ AM_DISTCHECK_CONFIGURE_FLAGS = --enable-introspection
 EXTRA_DIST = \
 	com.endlessm.Showmehow.Service.xml \
 	com.endlessm.Showmehow.Service.service.in \
-	com.endlessm.showmehow.gschema.xml \
 	com.endlessm.showmehow.gresource.xml \
 	data/lessons.json.unvalidated.in \
 	files/coding-shared-dir.in \
@@ -75,11 +74,6 @@ gdbus_codegen_built_sources = \
 	Showmehow.c \
 	Showmehow.h \
 	$(NULL)
-
-# GSettings schemas
-gsettings_SCHEMAS = com.endlessm.showmehow.gschema.xml
-
-@GSETTINGS_RULES@
 
 # Validation of lessons (produces data.lessons)
 data/lessons.json: $(abs_top_srcdir)/data/lessons.json.unvalidated.in $(all_js_files)

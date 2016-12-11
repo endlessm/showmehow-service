@@ -25,8 +25,6 @@ imports.searchPath.push('resource:///com/endlessm/showmehow');
 const Validation = imports.lib.validation;
 const Config = imports.lib.config;
 
-const SHOWMEHOW_SCHEMA = 'com.endlessm.showmehow';
-
 function environment_object_to_envp(environment) {
     if (environment) {
         return Object.keys(environment)
@@ -617,7 +615,6 @@ const ShowmehowService = new Lang.Class({
     _init: function(descriptors, monitor) {
         this.parent();
 
-        this._settings = new Gio.Settings({ schema_id: SHOWMEHOW_SCHEMA });
         this._descriptors = descriptors;
         this._monitor = monitor;
         this._pendingLessonEvents = {};
