@@ -852,6 +852,34 @@
         }
     },
     {
+        "name": "python_functions",
+        "available_to": ["chatbox"],
+        "desc": "Python functions attachment",
+        "practice": {
+            "python_functions::challenge": {
+                "input": "console",
+                "mapper": [{
+                    "type": "regex",
+                    "value": "bjAmbb"
+                }]
+            }
+        }
+    },
+    {
+        "name": "python_classes",
+        "available_to": ["chatbox"],
+        "desc": "Python classes attachment",
+        "practice": {
+            "python_classes::challenge": {
+                "input": "console",
+                "mapper": [{
+                    "type": "regex",
+                    "value": "bob"
+                }]
+            }
+        }
+    },
+    {
         "name": "python",
         "available_to": ["console"],
         "requires_session": true,
