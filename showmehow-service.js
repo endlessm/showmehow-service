@@ -405,6 +405,7 @@ function shell_executor_output(shellcode, session, settings) {
                                 dataDirectory ? workingDirectoryFor(dataDirectory) :
                                                 null);
     return [result.stdout + '\n' + result.stderr, []];
+}
 
 function shell_custom_executor_output(shellcode, session, settings) {
     if (typeof settings.command !== 'string') {
