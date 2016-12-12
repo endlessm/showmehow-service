@@ -55,5 +55,7 @@ Depends: cowsay,
          libshowmehow-service-0 (= ${binary:Version}),
          gjs,
          ${misc:Depends}
+Replaces: libshowmehow-service-0 (<< 0.0.0+dev212.0e5fc14bem1)
+Breaks: libshowmehow-service-0 (<< 0.0.0+dev212.0e5fc14bem1)
 Description: Showmehow Service
  A service for code and systems administration lessons in Mission.
