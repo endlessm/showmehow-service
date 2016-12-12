@@ -680,6 +680,7 @@ const ShowmehowService = new Lang.Class({
             Object.keys(this._sessions[id]).forEach(Lang.bind(this, function(key) {
                 this._sessions[id][key].kill();
             }));
+            this.complete_close_session(method);
         } catch(e) {
             logError(e, 'Failed to close session ' + id);
             method.return_error_literal(ShowmehowErrorDomain,
