@@ -479,6 +479,27 @@ function is_subset(input, value) {
 }
 
 /**
+ * lessonDescriptorMatching:
+ *
+ * Given a lesson name and lesson descriptors, return
+ * the lesson descriptor.
+ */
+function lessonDescriptorMatching(lesson, descriptors) {
+    /* An immediately invoked function expression to extract the relevant
+     * useful information from a lesson descriptor without extracting
+     * everything all at once. */
+    let matches = descriptors.filter(d => d.name === lesson);
+
+    if (matches.length !== 1) {
+        log('Expected only a single match from ' + lesson +
+            ' but there were ' + matches.length + ' matches');
+        return null;
+    }
+
+    return matches[0];
+}
+
+/**
  * loadLessonDescriptorsFromFile
  *
  * Given a GFile, load and validate lesson descriptors from it. Returns
