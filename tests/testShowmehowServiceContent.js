@@ -52,9 +52,7 @@ describe('Showmehow Service Lesson', function () {
             let session = -1;
             beforeAll(function() {
                 if (lesson.requires_session) {
-                    session = controller.call_open_session_sync(new GLib.Variant("a(s)", [
-                        ["python"], ["bash"]
-                    ]), null)[1];
+                    session = controller.call_open_session_sync(lesson.name, null)[1];
                 }
             });
 
