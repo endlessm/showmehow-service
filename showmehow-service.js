@@ -877,7 +877,7 @@ const ShowmehowService = new Lang.Class({
                 if (typeof mapper === 'string') {
                     return mapper_to_pipeline_step({
                         type: mapper,
-                        value: null
+                        value: ''
                     }, this, session, lesson, task);
                 } else if (typeof mapper === 'object') {
                     return mapper_to_pipeline_step(mapper, this, session, lesson, task);
