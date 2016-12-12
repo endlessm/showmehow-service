@@ -90,6 +90,18 @@ function spawnProcess(binary, argv=[], user_environment={}) {
     };
 }
 
+
+const PROLOGUES = {
+    python: 'from gi.repository import Gio\n' +
+            'application = Gio.Application.new("com.endlessm.Showmehow.Showmehow", 0)\n' +
+            'def activate(argv):\n' +
+            '    from code import InteractiveConsole\n' +
+            '    InteractiveConsole(locals=globals()).interact()\n' +
+            '\n' +
+            'application.connect("activate", activate)\n' +
+            'application.run()\n'
+}
+
 const InteractiveShell = new Lang.Class({
     Name: 'InteractiveShell',
 
@@ -114,14 +126,9 @@ const InteractiveShell = new Lang.Class({
         let stdout_bytes = Showmehow.read_nonblock_input_stream_for_bytes(this._process.stdout);
         let stderr_bytes = Showmehow.read_nonblock_input_stream_for_bytes(this._process.stderr);
 
-        // Now run echo $? to get the exit code of the last process
-        this._process.stdin.write_all('echo $?\n', null);
-        GLib.usleep(GLib.USEC_PER_SEC * 0.1);
-        let exit_bytes = Showmehow.read_nonblock_input_stream_for_bytes(this._process.stdout);
         return {
             stdout: String(stdout_bytes.get_data()),
-            stderr: String(stderr_bytes.get_data()),
-            code: Number(String(exit_bytes.get_data()).trim())
+            stderr: String(stderr_bytes.get_data())
         };
     },
 
@@ -129,6 +136,32 @@ const InteractiveShell = new Lang.Class({
         this._process.proc.force_exit();
     }
 });             
+
+// These overrides set up the runtimes so that we get unbuffered input and
+// are able to interact just be sending data to the standard input and
+// output
+const RUNTIME_ARGV = {
+    // Note that here we need to call `import code; code.InteractiveConsole` etc. This is
+    // due to the way that python behaves when the standard out is not a tty device.
+    // InteractiveConsole has slightly different and more acceptable behaviour. We need to
+    // use it here despite the fact that we also do it in the prologue, since it is
+    // needed to ensure that the prologue code is actually evaluated in the first place.
+    python: ['-u', '-c', 'import code; code.InteractiveConsole(locals=globals()).interact()']
+}
+
+// createInteractiveShellFor
+//
+// Creates a new InteractiveShell instance for the given runtime, argv
+// and environment. Will do what is required to set up that runtime so that
+// it works correctly with the lessons we will run in showmehow (for instance
+// in python, sets up a GApplication instance).
+function createInteractiveShellFor(runtime, argv=[], user_environment={}) {
+    let shell = new InteractiveShell(GLib.find_program_in_path(runtime), RUNTIME_ARGV[runtime] || [], user_environment);
+    if (PROLOGUES[runtime]) {
+        shell.evaluate(PROLOGUES[runtime]);
+    }
+    return shell;
+}
 
 function select_random_from(array) {
     return array[Math.floor(Math.random() * array.length)];
@@ -314,8 +347,7 @@ function workingDirectoryFor(dataDirectory) {
 }
 
 /* Executing raw shellcode. What could possibly go wrong? */
-function shell_executor(shellcode, session, environment, workingDirectory) {
-
+function shell_executor(shellcode, session, runtime, environment, workingDirectory) {
     // Note that at least for now, we don't support per-command environment
     // variables in sessions - only in cases where the session is not set
     if (!environment)
@@ -330,7 +362,7 @@ function shell_executor(shellcode, session, environment, workingDirectory) {
         // or environment variables since those are set from GSubprocessLauncher as
         // one-per-process, but we could just execute some shellcode here to change
         // the working directory or environment variables as required.
-        return session.bash.evaluate(shellcode);
+        return session[runtime].evaluate(shellcode);
     } else {
         return execute_command_for_output(['/bin/bash', '-c', shellcode + '; exit 0'],
                                           environment,
@@ -338,10 +370,35 @@ function shell_executor(shellcode, session, environment, workingDirectory) {
     }
 }
 
+function python_executor(code, session, workingDirectory) {
+    if (session) {
+       return session.python.evaluate(code);
+    } else {
+        return execute_command_for_output([
+            '/usr/bin/python',
+            '-c',
+            'import sys; ' + code + 'sys.exit(0);'
+        ], {}, workingDirectory);
+    }
+}
+
 function shell_executor_output(shellcode, session, settings) {
     let dataDirectory = settings ? settings.in_data_directory : null;
+    let runtime = settings ? settings.runtime : null;
+
+    // Run the prologue for this task
+    if (settings.before) {
+        shell_executor(settings.before,
+                       session,
+                       runtime ? runtime : 'bash',
+                       settings ? settings.evironment : {},
+                       dataDirectory ? workingDirectoryFor(dataDirectory) :
+                                       null);
+    }
+
     let result = shell_executor(shellcode,
                                 session,
+                                runtime ? runtime : 'bash',
                                 settings ? settings.environment : {},
                                 dataDirectory ? workingDirectoryFor(dataDirectory) :
                                                 null);
@@ -600,6 +657,41 @@ function mapper_to_pipeline_step(mapper, service, session, lesson, task) {
     };
 }
 
+// determineRuntimesNeededForLesson
+//
+// Look up the lesson in descriptors and examine each of the tasks
+// to determine what runtimes, if any, are required. If none are required
+// then return null and the caller should handle this appropriately
+function determineRuntimesNeededForLesson(descriptors, lesson) {
+    let lessonDetail = lessonDescriptorMatching(lesson, descriptors);
+    if (!lessonDetail.requires_session) {
+        return null;
+    }
+
+    // By default, if one of the mappers is 'shell' and a runtime is
+    // not specified, then add the 'bash' runtime. Otherwise add
+    // the specified runtime.
+    let runtimes = Set();
+    Object.keys(lessonDetail.practice).forEach(function(taskKey) {
+        let task = lessonDetail.practice[taskKey];
+        task.mapper.forEach(function(mapper) {
+            if (mapper === 'shell') {
+                runtimes.add('bash');
+            } else if (typeof mapper === 'object' &&
+                       mapper.type.startsWith('shell') &&
+                       typeof mapper.value === 'object' &&
+                       mapper.value.runtime) {
+                runtimes.add(mapper.value.runtime);
+            }
+        });
+    });
+
+    if (runtimes.size) {
+        return [...runtimes];
+    }
+
+    return null;
+}
 
 const ShowmehowErrorDomain = GLib.quark_from_string('showmehow-error');
 const ShowmehowErrors = {
@@ -660,13 +752,21 @@ const ShowmehowService = new Lang.Class({
         return true;
     },
 
-    vfunc_handle_open_session: function(method) {
+    vfunc_handle_open_session: function(method, forLesson) {
         try {
             this._sessionCount++;
-            this._sessions[this._sessionCount] = {
-                bash: new InteractiveShell('/bin/bash', [], {})
-            };
-            this.complete_open_session(method, this._sessionCount);
+            this._sessions[this._sessionCount] = {};
+
+            let runtimesRequired = determineRuntimesNeededForLesson(this._descriptors,
+                                                                    forLesson);
+            if (runtimesRequired) {
+                runtimesRequired.forEach(Lang.bind(this, function(r) {
+                    this._sessions[this._sessionCount][r] = createInteractiveShellFor(r, [], {});
+                }));
+                this.complete_open_session(method, this._sessionCount);
+            } else {
+                this.complete_open_session(method, -1);
+            }
         } catch(e) {
             logError(e, 'Failed to open a new session');
             method.return_error_literal(ShowmehowErrorDomain,
@@ -730,9 +830,7 @@ const ShowmehowService = new Lang.Class({
         let task_detail;
 
         try {
-            let lesson_detail = this._descriptors.filter(d => {
-                return d.name === lesson;
-            })[0];
+            let lesson_detail = lessonDescriptorMatching(lesson, this._descriptors);
             let task_detail_key = Object.keys(lesson_detail.practice).filter(k => {
                 return k === task;
             })[0];

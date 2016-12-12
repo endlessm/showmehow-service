@@ -4,6 +4,7 @@
       <arg name="warnings" direction="out" type="a(s)"/>
     </method>
     <method name="OpenSession">
+      <arg name="for_lesson" direction="in" type="s"/>
       <arg name="token" direction="out" type="i"/>
     </method>
     <method name="CloseSession">
