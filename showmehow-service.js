@@ -706,6 +706,44 @@ function mapper_to_pipeline_step(mapper, service, session, lesson, task) {
     };
 }
 
+// determineRuntimesNeededForLesson
+//
+// Look up the lesson in descriptors and examine each of the tasks
+// to determine what runtimes, if any, are required. If none are required
+// then return null and the caller should handle this appropriately
+function determineRuntimesNeededForLesson(descriptors, lesson) {
+    let lessonDetail = descriptors.filter(d => {
+        return d.name === lesson;
+    })[0];
+
+    if (!lessonDetail.requires_session) {
+        return null;
+    }
+
+    // By default, if one of the mappers is 'shell' and a runtime is
+    // not specified, then add the 'bash' runtime. Otherwise add
+    // the specified runtime.
+    let runtimes = Set();
+    Object.keys(lessonDetail.practice).forEach(function(taskKey) {
+        let task = lessonDetail.practice[taskKey];
+        task.mapper.forEach(function(mapper) {
+            if (mapper === 'shell') {
+                runtimes.add('bash');
+            } else if (typeof mapper === 'object' &&
+                       mapper.type.startsWith('shell') &&
+                       typeof mapper.value === 'object' &&
+                       mapper.value.runtime) {
+                runtimes.add(mapper.value.runtime);
+            }
+        });
+    });
+
+    if (runtimes.size) {
+        return [...runtimes];
+    }
+
+    return null;
+}
 
 const ShowmehowErrorDomain = GLib.quark_from_string('showmehow-error');
 const ShowmehowErrors = {
@@ -766,14 +804,21 @@ const ShowmehowService = new Lang.Class({
         return true;
     },
 
-    vfunc_handle_open_session: function(method, runtimes) {
+    vfunc_handle_open_session: function(method, forLesson) {
         try {
             this._sessionCount++;
             this._sessions[this._sessionCount] = {};
-            runtimes.deep_unpack().forEach(Lang.bind(this, function([r]) {
-                this._sessions[this._sessionCount][r] = createInteractiveShellFor(r, [], {});
-            }));
-            this.complete_open_session(method, this._sessionCount);
+
+            let runtimesRequired = determineRuntimesNeededForLesson(this._descriptors,
+                                                                    forLesson);
+            if (runtimesRequired) {
+                runtimesRequired.forEach(Lang.bind(this, function(r) {
+                    this._sessions[this._sessionCount][r] = createInteractiveShellFor(r, [], {});
+                }));
+                this.complete_open_session(method, this._sessionCount);
+            } else {
+                this.complete_open_session(method, -1);
+            }
         } catch(e) {
             logError(e, 'Failed to open a new session');
             method.return_error_literal(ShowmehowErrorDomain,
