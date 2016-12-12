@@ -158,7 +158,7 @@ const RUNTIME_ARGV = {
 // it works correctly with the lessons we will run in showmehow (for instance
 // in python, sets up a GApplication instance).
 function createInteractiveShellFor(runtime, argv=[], user_environment={}) {
-    let shell = new InteractiveShell(which(runtime), RUNTIME_ARGV[runtime] || [], user_environment);
+    let shell = new InteractiveShell(GLib.find_program_in_path(runtime), RUNTIME_ARGV[runtime] || [], user_environment);
     if (PROLOGUES[runtime]) {
         shell.evaluate(PROLOGUES[runtime]);
     }
@@ -241,24 +241,6 @@ function check_file_contents(input, settings) {
     }
 
     return [String(contents).trim() === settings.value ? 'success': 'failure', []];
-}
-
-// which
-function which(binary) {
-    const binaryPaths = GLib.getenv('PATH').split(':');
-    for (let path of binaryPaths) {
-        let gpath = Gio.File.new_for_path(GLib.build_filenamev([path, binary]));
-        try {
-            let info = gpath.query_info('access::*', Gio.FileQueryInfoFlags.NONE, null);
-            if (info.get_attribute_boolean(Gio.FILE_ATTRIBUTE_ACCESS_CAN_EXECUTE)) {
-                return gpath.get_path();
-            }
-        } catch (e if e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.NOT_FOUND)) {
-            continue;
-        }
-    }
-
-    throw new Error('Couldn\'t find ' + binary + ' in any PATH');
 }
 
 // copyDirectoryWithoutOverwriting
