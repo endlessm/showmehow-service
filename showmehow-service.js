@@ -712,10 +712,7 @@ function mapper_to_pipeline_step(mapper, service, session, lesson, task) {
 // to determine what runtimes, if any, are required. If none are required
 // then return null and the caller should handle this appropriately
 function determineRuntimesNeededForLesson(descriptors, lesson) {
-    let lessonDetail = descriptors.filter(d => {
-        return d.name === lesson;
-    })[0];
-
+    let lessonDetail = lessonDescriptorMatching(lesson, descriptors);
     if (!lessonDetail.requires_session) {
         return null;
     }
@@ -881,9 +878,7 @@ const ShowmehowService = new Lang.Class({
         let task_detail;
 
         try {
-            let lesson_detail = this._descriptors.filter(d => {
-                return d.name === lesson;
-            })[0];
+            let lesson_detail = lessonDescriptorMatching(lesson, this._descriptors);
             let task_detail_key = Object.keys(lesson_detail.practice).filter(k => {
                 return k === task;
             })[0];
