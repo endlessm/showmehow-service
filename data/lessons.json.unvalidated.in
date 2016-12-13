@@ -949,7 +949,7 @@
             },
             "api_pokemon_types": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", "to_json", {
+                "mapper": ["shell", "wrapped_output", "parse_json", {
                     "type": "pluck_path",
                     "value": "type/name"
                 }, {
@@ -963,7 +963,7 @@
             },
             "api_pokemon_in_type": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", "to_json", {
+                "mapper": ["shell", "wrapped_output", "parse_json", {
                     "type": "pluck_path",
                     "value": "pokemon/name"
                 }, {

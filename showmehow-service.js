@@ -440,7 +440,7 @@ function add_wait_message(input) {
     ]];
 }
 
-function to_json(input) {
+function parse_json(input) {
     try {
         return [JSON.parse(input), []];
     } catch (e) {
@@ -611,7 +611,7 @@ const _PIPELINE_FUNCS = {
     check_dir_exists: check_directory_exists,
     check_file_exists: check_file_exists,
     check_file_contents: check_file_contents,
-    to_json: to_json,
+    parse_json: parse_json,
     pluck_path: json_pluck,
     equal_to: equal_to,
     is_subset: is_subset
