@@ -526,6 +526,8 @@ function loadLessonDescriptorsFromFile(file) {
         success = true;
     } catch (e if e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.NOT_FOUND)) {
         // don't warn in this case
+    } catch (e) {
+        warnings.push('Unable to load ' + file.get_parse_name() + ': ' + String(e));
     }
 
     return [success ? descriptors : null, warnings];
