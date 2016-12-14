@@ -941,7 +941,11 @@
                 "mapper": [{
                     "type": "regex",
                     "value": "bjAmbb"
-                }]
+                }],
+                "example": {
+                    "success": "bjAmbb",
+                    "failure": "none"
+                }
             }
         }
     },
@@ -955,7 +959,11 @@
                 "mapper": [{
                     "type": "regex",
                     "value": "bob"
-                }]
+                }],
+                "example": {
+                    "success": "bob",
+                    "failure": "fred"
+                }
             }
         }
     },
