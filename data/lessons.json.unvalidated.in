@@ -15,36 +15,12 @@
                 ],
                 "effects": {
                     "success": {
-                        "reply": "Yes, I'm talking to you"
-                    }
-                }
-            },
-            "choice_see_cool": {
-                "input": {
-                    "type": "choice",
-                    "settings": {
-                        "yes": {
-                            "text": "Sure, why not"
-                        },
-                        "no": {
-                            "text": "Go away"
-                        }
+                        "reply": "Yes, I'm talking to you",
+                        "example": "yes?"
                     }
                 },
-                "mapper": ["input"],
-                "effects": {
-                    "yes": {
-                        "reply": "Okay, here goes.",
-                        "side_effects": [
-                            {
-                                "type": "shell",
-                                "value": "gsettings set org.gnome.shell wobbly-effect true"
-                            }
-                        ]
-                    },
-                    "no": {
-                        "reply": "You're boring! Sure you don't?"
-                    }
+                "example": {
+                    "success": "yes"
                 }
             },
             "goog_key": {
@@ -59,86 +35,9 @@
                     "success": {
                         "reply": "Yes, I'm talking to you"
                     }
-                }
-            },
-            "open_move_window": {
-                "input": {
-                    "type": "external_events",
-                    "settings": {
-                        "satisfied": {
-                            "events": [
-                                "window-moved"
-                            ],
-                            "notify": true,
-                            "subsumes": [
-                                "unsatisfied"
-                            ]
-                        },
-                        "unsatisfied": {
-                            "events": [
-                            ],
-                            "notify": false,
-                            "subsumes": [
-                            ]
-                        }
-                    }
                 },
-                "mapper": ["check_external_events"],
-                "effects": {
-                    "satisfied": {
-                        "reply": "Things are not as they seem around here.",
-                        "side_effects": [
-                            {
-                                "type": "shell",
-                                "value": "gsettings set org.gnome.shell wobbly-effect false"
-                            }
-                        ]
-                    },
-                    "unsatisfied": {
-                        "reply": "Move a window before coming back here!"
-                    }
-                }
-            },
-            "change_background_pic": {
-                "input": "text",
-                "mapper": ["input",
-                  {
-                    "type": "regex",
-                    "value": "newsplash"
-                  }
-                ],
-                "effects": {
-                    "success": {
-                        "reply": "Did you notice anything change on your desktop?",
-                        "side_effects": [
-                            {
-                                "type": "shell",
-                                "value": "gsettings set org.gnome.desktop.background picture-uri file://${CODING_FILES_DIR}/background_pic.jpg"
-                            }
-                        ],
-                        "move_to": "explore_shared_account"
-                    }
-                }
-            },
-            "explore_shared_account": {
-                "task": "Get ready for your next clue.",
-                "input": "text",
-                "mapper": ["input",
-                  {
-                    "type": "regex",
-                    "value": ".*"
-                  }
-                ],
-                "effects": {
-                    "success": {
-                        "reply": "Login to the shared account to find out more. There should be a file called test.txt, which contains more clues.",
-                        "side_effects": [
-                            {
-                                "type": "shell",
-                                "value": "pkexec ${CODING_SHARED_SCRIPT_DIR} test.txt"
-                            }
-                        ]
-                    }
+                "example": {
+                    "success": "Hfr gur Fbhepr, Yhxr"
                 }
             },
             "install_programming_hook": {
@@ -167,10 +66,11 @@
                     "failure": {
                         "reply": "'install-programming' EXACTLY. I haven't got all day!"
                     }
+                },
+                "example": {
+                    "success": "install-programming",
+                    "failure": "install-programming-no"
                 }
-            },
-            "intro-complete" : {
-                "task": "Buckle up Dorothy, because Kansas is going bye-bye!\nSee you in the 'Coding Fun' app on your desktop!"
             }
         }
     },
@@ -209,6 +109,10 @@
                             }
                         ]
                     }
+                },
+                "example": {
+                    "success": "showmehow",
+                    "failure": "showmehow-no"
                 }
             },
             "showmehow_argument": {
@@ -243,6 +147,10 @@
                     "failure": {
                         "reply": "Hmmm. I want to know what happens when you ask how to use 'showmehow'"
                     }
+                },
+                "example": {
+                    "success": "showmehow showmehow",
+                    "failure": "showmehow"
                 }
             }
         }
@@ -262,10 +170,10 @@
                 "effects": {
                     "success": {
                         "reply": "Ha-ha. Okay, lets try something even funnier."
-                    },
-                    "failure": {
-                        "reply": "No?"
                     }
+                },
+                "example": {
+                    "success": "fortune"
                 }
             },
             "fortune_cowsay": {
@@ -281,6 +189,10 @@
                     "failure": {
                         "reply": "Hmm, I thought a cow was going to say that"
                     }
+                },
+                "example": {
+                    "success": "fortune | cowsay",
+                    "failure": "fortune"
                 }
             }
         }
@@ -304,13 +216,17 @@
                     "failure": {
                         "reply": "Hmm, are you sure you're reading /etc/os-release?"
                     }
+                },
+                "example": {
+                    "success": "cat /etc/os-release",
+                    "failure": "cat /etc/resolv.conf"
                 }
             },
             "cat_cowsay": {
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
-                    "value": "^.*_.*$"
+                    "value": "^.*__.*$"
                 }],
                 "effects": {
                     "success": {
@@ -325,6 +241,10 @@
                     "failure": {
                         "reply": "Did you get a cow to say what's in /etc/os-release? Try again"
                     }
+                },
+                "example": {
+                    "success": "cat /etc/os-release | cowsay",
+                    "failure": "cat /etc/os-release"
                 }
             }
         }
@@ -354,6 +274,10 @@
                     "failure": {
                         "reply": "Oops, you actually ended up running something!"
                     }
+                },
+                "example": {
+                    "success": "sdfksdfdf",
+                    "failure": "ls"
                 }
             }
         }
@@ -377,6 +301,10 @@
                     "failure": {
                         "reply": "I thought that you were going to run `gsettings`?"
                     }
+                },
+                "example": {
+                    "success": "gsettings",
+                    "failure": "gsetings-typoed"
                 }
             },
             "list_schemas": {
@@ -392,13 +320,17 @@
                     "failure": {
                         "reply": "Where are my settings categories? Try running the list-schemas subcommand for gsettings"
                     }
+                },
+                "example": {
+                    "success": "gsettings list-schemas",
+                    "failure": "gsettings"
                 }
             },
             "list_keys_help": {
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
-                    "value": ".*Usage.*"
+                    "value": "^.*List the keys in SCHEMA.*$"
                 }],
                 "effects": {
                     "success": {
@@ -407,6 +339,10 @@
                     "failure": {
                         "reply": "I don't know how to use this list-keys option! Get me some help for it!"
                     }
+                },
+                "example": {
+                    "success": "gsettings help list-keys",
+                    "failure": "gsettings"
                 }
             },
             "list_settings": {
@@ -422,6 +358,10 @@
                     "failure": {
                         "reply": "I want to know about the settings available for org.gnome.shell in sorted order? Can you list-schemas on org.gnome.shell using gsettings and then pipe (|) the output to `sort`?"
                     }
+                },
+                "example": {
+                    "success": "gsettings list-keys org.gnome.shell",
+                    "failure": "gsettings"
                 }
             },
             "disable_social_bar": {
@@ -442,6 +382,10 @@
                     "failure": {
                         "reply": "Hmm, I thought you'd change the value of org.gnome.shell enable-social-bar to false, but it is still true"
                     }
+                },
+                "example": {
+                    "success": "gsettings set org.gnome.shell enable-social-bar false",
+                    "failure": "gsettings set org.gnome.shell enable-social-bar true"
                 }
             },
             "enable_social_bar": {
@@ -462,13 +406,17 @@
                     "failure": {
                         "reply": "Quick! I need facebook to come back! Change enable-social-bar on org.gnome.shell back to 'true'!"
                     }
+                },
+                "example": {
+                    "success": "gsettings set org.gnome.shell enable-social-bar true",
+                    "failure": "gsettings set org.gnome.shell enable-social-bar false"
                 }
             },
             "add_terminal_pinned_help": {
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
-                    "value": ".+"
+                    "value": "^\\[.*\\]$"
                 }],
                 "effects": {
                     "success": {
@@ -477,6 +425,10 @@
                     "failure": {
                         "reply": "You didn't show me your pinned apps!"
                     }
+                },
+                "example": {
+                    "success": "gsettings get org.gnome.shell taskbar-pins",
+                    "failure": "gsettings get org.gnome.shell wobbly-effect"
                 }
             },
             "add_terminal_pinned": {
@@ -497,6 +449,10 @@
                     "failure": {
                         "reply": "I'm not there :( The Terminal's App ID is 'org.gnome.Terminal', so we should add the 'org.gnome.Terminal.desktop' entry to that list in taskbar-pins"
                     }
+                },
+                "example": {
+                    "success": "gsettings set org.gnome.shell taskbar-pins \"['org.gnome.Terminal.desktop']\"",
+                    "failure": "gsettings set org.gnome.shell taskbar-pins \"[]\""
                 }
             }
         }
@@ -515,11 +471,12 @@
                 }],
                 "effects": {
                     "success": {
-                        "reply": "I love this song! Now you'll probably notice that we're stuck here. To get out of any command line application, you can use Control-C"
-                    },
-                    "failure": {
-                        "reply": "We need this song to get things into the right mood. Can you play it?"
+                        "reply": "I love this song! Now you'll probably notice that we're stuck here. To get out of any command line application, you can use Control-C",
+                        "example": "echo hello"
                     }
+                },
+                "example": {
+                    "success": "echo hello"
                 }
             }
         }
@@ -529,93 +486,166 @@
         "available_to": ["console"],
         "desc": "Learn to navigate the filesystem",
         "entry": "list",
+        "requires_session": true,
         "practice": {
             "change_to_root": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": ["shell", {
+                    "type": "shell_custom",
+                    "value": {
+                        "command": "ls"
+                    }
+                }, {
                     "type": "regex",
-                    "value": ".*"
-                }]
+                    "value": ".*boot.*"
+                }],
+                "example": {
+                    "success": "cd /",
+                    "failure": "cd ~"
+                }
             },
             "list": {
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
                     "value": ".*boot.*"
-                }]
+                }],
+                "example": {
+                    "success": "ls",
+                    "failure": "ls /home"
+                }
             },
             "list_child": {
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
                     "value": ".*shared.*"
-                }]
+                }],
+                "example": {
+                    "success": "ls /home",
+                    "failure": "ls /"
+                }
             },
             "pwd": {
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
                     "value": "\/"
-                }]
+                }],
+                "example": {
+                    "success": "pwd",
+                    "failure": "echo hello"
+                }
             },
             "cd": {
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
                     "value": ".*"
-                }]
+                }],
+                "example": {
+                    "success": "cd /home"
+                }
             },
             "list_home": {
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
                     "value": ".*shared.*"
-                }]
+                }],
+                "example": {
+                    "success": "ls",
+                    "failure": "ls /"
+                }
             },
             "cd_home_dir": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": ["shell", {
+                    "type": "shell_custom",
+                    "value": {
+                        "command": "ls"
+                    }
+                }, {
                     "type": "regex",
-                    "value": ".*"
-                }]
+                    "value": ".*Pictures.*"
+                }],
+                "example": {
+                    "success": "cd ~",
+                    "failure": "cd /"
+                }
             },
             "cd_and_cmd": {
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
                     "value": ".*shared.*"
-                }]
+                }],
+                "example": {
+                    "success": "cd /home && ls",
+                    "failure": ""
+                }
             },
             "list_home_dir": {
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
                     "value": ".*Pictures.*"
-                }]
+                }],
+                "example": {
+                    "success": "ls $HOME",
+                    "failure": "ls /"
+                }
             },
             "mkdir": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "before": "rm -r ~/showmehow-code"
+                    }
+                }, "wrapped_output", {
                     "type": "check_dir_exists",
-                    "value": "~/code"
-                }]
+                    "value": "~/showmehow-code"
+                }],
+                "example": {
+                    "success": "mkdir -p ~/showmehow-code",
+                    "failure": "echo hello"
+                }
             },
             "touch": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "before": "rm ~/showmehow-code/secret.txt"
+                    }
+                }, "wrapped_output", {
                     "type": "check_file_exists",
-                    "value": "~/code/secret.txt"
-                }]
+                    "value": "~/showmehow-code/secret.txt"
+                }],
+                "example": {
+                    "success": "touch $HOME/showmehow-code/secret.txt",
+                    "failure": "touch $HOME/secret.txt"
+                }
             },
             "write_to_secret": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "before": "rm ~/showmehow-code/secret.txt"
+                    }
+                }, "wrapped_output", {
                     "type": "check_file_contents",
                     "value": {
                         "path": "~/code/secret.txt",
                         "value": "kittens"
                     }
-                }]
+                }],
+                "example": {
+                    "success": "echo 'kittens' > $HOME/code/secret.txt",
+                    "failure": "echo 'cats' > $HOME/code/secret.txt"
+                }
             }
         }
     },
@@ -635,7 +665,11 @@
                 }, "wrapped_output", {
                     "type": "regex",
                     "value": "^Sherlock.*"
-                }]
+                }],
+                "example": {
+                    "success": "cat sherlock.txt",
+                    "failure": "cat atlas.txt"
+                }
             },
             "cat_grep": {
                 "input": "console",
@@ -647,7 +681,11 @@
                 }, "wrapped_output", {
                     "type": "regex",
                     "value": "^.*appeared from then to 1927.*"
-                }]
+                }],
+                "example": {
+                    "success": "cat sherlock.txt | grep 19",
+                    "failure": "cat sherlock.txt | grep 20"
+                }
             },
             "grep_file": {
                 "input": "console",
@@ -659,7 +697,11 @@
                 }, "wrapped_output", {
                     "type": "regex",
                     "value": "^.*appeared from then to 1927.*"
-                }]
+                }],
+                "example": {
+                    "success": "grep 19 sherlock.txt",
+                    "failure": "grep 20 sherlock.txt"
+                }
             },
             "grep_extended_regex": {
                 "input": "console",
@@ -671,7 +713,11 @@
                 }, "wrapped_output", {
                     "type": "regex",
                     "value": "^First appearing in print in 1887.*"
-                }]
+                }],
+                "example": {
+                    "success": "grep -E 1[89] sherlock.txt",
+                    "failure": "grep 19 sherlock.txt"
+                }
             },
             "grep_all": {
                 "input": "console",
@@ -683,7 +729,11 @@
                 }, "wrapped_output", {
                     "type": "regex",
                     "value": "^.*GSettings .settings.*"
-                }]
+                }],
+                "example": {
+                    "success": "grep -R GSettings .",
+                    "failure": "grep GSettings sherlock.txt"
+                }
             },
             "grep_all_regex": {
                 "input": "console",
@@ -695,7 +745,11 @@
                 }, "wrapped_output", {
                     "type": "regex",
                     "value": "^.*GObject.*"
-                }]
+                }],
+                "example": {
+                    "success": "grep -R -E G.+ .",
+                    "failure": "grep -E G.+ sherlock.txt"
+                }
             },
             "cat_atlas": {
                 "input": "console",
@@ -706,8 +760,12 @@
                     }
                 }, "wrapped_output", {
                     "type": "regex",
-                    "value": "COUNTRY.*CONTINENT.*"
-                }]
+                    "value": ".*COUNTRY.*"
+                }],
+                "example": {
+                    "success": "cat atlas.txt",
+                    "failure": "cat sherlock.txt"
+                }
             },
             "awk_atlas": {
                 "input": "console",
@@ -717,9 +775,13 @@
                         "in_data_directory": "text-processing-fs"
                     }
                 }, "wrapped_output", {
-                    "type": "regex",
-                    "value": "COUNTRY"
-                }]
+                    "type": "equal_to",
+                    "value": "COUNTRY\nAustralia\nU.K\nBrazil\nChina\nU.S.A\nCanada\nRussia\n\n"
+                }],
+                "example": {
+                    "success": "cat atlas.txt | awk '{ print $1 }'",
+                    "failure": "cat atlas.txt"
+                }
             },
             "awk_atlas_countries_sorted": {
                 "input": "console",
@@ -729,9 +791,13 @@
                         "in_data_directory": "text-processing-fs"
                     }
                 }, "wrapped_output", {
-                    "type": "regex",
-                    "value": "Australia"
-                }]
+                    "type": "equal_to",
+                    "value": "Australia\nBrazil\nCanada\nChina\nCOUNTRY\nRussia\nU.K\nU.S.A\n\n"
+                }],
+                "example": {
+                    "success": "cat atlas.txt | awk '{ print $1 }' | sort",
+                    "failure": "cat atlas.txt"
+                }
             },
             "awk_atlas_continents": {
                 "input": "console",
@@ -741,9 +807,13 @@
                         "in_data_directory": "text-processing-fs"
                     }
                 }, "wrapped_output", {
-                    "type": "regex",
-                    "value": "CONTINENT"
-                }]
+                    "type": "equal_to",
+                    "value": "CONTINENT\nAustralia\nEurope\nS.America\nAsia\nN.America\nN.America\nAsia\n\n"
+                }],
+                "example": {
+                    "success": "cat atlas.txt | awk '{ print $3 }'",
+                    "failure": "cat atlas.txt"
+                }
             },
             "awk_atlas_continents_uniq": {
                 "input": "console",
@@ -753,9 +823,13 @@
                         "in_data_directory": "text-processing-fs"
                     }
                 }, "wrapped_output", {
-                    "type": "regex",
-                    "value": "Asia"
-                }]
+                    "type": "equal_to",
+                    "value": "Asia\nAustralia\nCONTINENT\nEurope\nN.America\nS.America\n\n"
+                }],
+                "example": {
+                    "success": "cat atlas.txt | awk '{ print $3 }' | sort | uniq",
+                    "failure": "cat atlas.txt"
+                }
             }
         }
     },
@@ -771,41 +845,65 @@
                     "type": "regex",
                     "value": "  PID TTY          TIME CMD"
                 }]
+                "example": {
+                    "success": "ps",
+                    "failure": "echo Hello"
+                }
             },
             "ps_aux": {
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
                     "value": "^.*1.*systemd"
-                }]
+                }],
+                "example": {
+                    "success": "ps aux",
+                    "failure": "ps"
+                }
             },
             "ps_aux_grep": {
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
-                    "value": "^.*showmehow-service.*"
-                }]
+                    "value": "^.*grep.*showmehow-service.*"
+                }],
+                "example": {
+                    "success": "ps aux | grep showmehow-service",
+                    "failure": "ps aux"
+                }
             },
             "ps_aux_grep_awk": {
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
                     "value": "^[0-9]+"
-                }]
+                }],
+                "example": {
+                    "success": "ps aux | grep showmehow-service | awk '{ print $2 }'",
+                    "failure": "ps aux"
+                }
             },
             "view_proc_pid": {
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
                     "value": "^attr.*"
-                }]
+                }],
+                "example": {
+                    "success": "ls /proc/1",
+                    "failure": "ls /boot"
+                }
             },
             "view_proc_cmdline": {
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
                     "value": "^.*gjs.*"
-                }]
+                }],
+                "example": {
+                    "success": "echo gjs some command",
+                    "failure": "echo hello"
+                }
             }
         }
     },
@@ -817,37 +915,65 @@
         "practice": {
             "wget_image": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "in_data_directory": "webrequest-fs",
+                        "before": "rm ourcomputers_hero-1.jpg"
+                    }
+                }, "wrapped_output", {
                     "type": "check_file_exists",
-                    "value": "ourcomputers_hero-1.jpg"
-                }]
+                    "value": {
+                        "settings": {
+                            "type": "in_data_directory",
+                            "value": "webrequest-fs"
+                        },
+                        "name": "ourcomputers_hero-1.jpg"
+                    }
+                }],
+                "example": {
+                    "success": "wget https://endlessm.com/wp-content/uploads/2016/05/ourcomputers_hero-1.jpg",
+                    "failure": "echo hello"
+                }
             },
             "api_pokemon": {
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
-                    "value": "^.*\\{.*\\}"
-                }]
+                    "value": "^\\{.*\\}"
+                }],
+                "example": {
+                    "success": "curl http://pokeapi.co/api/v2/pokemon/1/",
+                    "failure": "curl http://pokeapi.co"
+                }
             },
             "api_pokemon_types": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", "to_json", {
+                "mapper": ["shell", "wrapped_output", "parse_json", {
                     "type": "pluck_path",
                     "value": "type/name"
                 }, {
                     "type": "equal_to",
                     "value": ["poison", "grass"]
-                }]
+                }],
+                "example": {
+                    "success": "curl -LSs http://pokeapi.co/api/v2/pokemon/1/ | ramda 'prop \\types'",
+                    "failure": "curl -LSs http://pokeapi.co/api/v2/pokemon/1/ | ramda 'prop \\names'"
+                }
             },
             "api_pokemon_in_type": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", "to_json", {
+                "mapper": ["shell", "wrapped_output", "parse_json", {
                     "type": "pluck_path",
                     "value": "pokemon/name"
                 }, {
                     "type": "is_subset",
                     "value": ["venipede", "trubbish"]
-                }]
+                }],
+                "example": {
+                    "success": "curl -LSs http://pokeapi.co/api/v2/type/4/ | ramda 'prop \\pokemon'",
+                    "failure": "curl -LSs http://pokeapi.co/api/v2/type/4/ | ramda 'prop \\names'"
+                }
             }
         }
     },
@@ -873,7 +999,11 @@
                 }, "wrapped_output", {
                     "type": "regex",
                     "value": "^11$"
-                }]
+                }],
+                "example": {
+                    "success": "a = 7 + 4",
+                    "failure": "7 + 2"
+                }
             },
             "print_string": {
                 "input": "console",
@@ -885,7 +1015,11 @@
                 }, "wrapped_output", {
                     "type": "regex",
                     "value": "^Hello, world!$"
-                }]
+                }],
+                "example": {
+                    "success": "print('Hello, world!')",
+                    "failure": "print('Hello there world!')"
+                }
             },
             "string_format": {
                 "input": "console",
@@ -897,7 +1031,11 @@
                 }, "wrapped_output", {
                     "type": "regex",
                     "value": "^This is a string with a number: 7$"
-                }]
+                }],
+                "example": {
+                    "success": "print('This is a string with a number: {}'.format(7))",
+                    "failure": "print('This is a string with a number: {'.format(7))"
+                }
             },
             "split_string": {
                 "input": "console",
@@ -915,7 +1053,11 @@
                 }, "wrapped_output", {
                     "type": "regex",
                     "value": "^\\['Hello', 'world'\\]$"
-                }]
+                }],
+                "example": {
+                    "success": "splitted = 'Hello world'.split(' ')",
+                    "failure": "splitted = 'Hello, world'.split(' ')"
+                }
             },
             "join_string": {
                 "input": "console",
@@ -927,7 +1069,11 @@
                 }, "wrapped_output", {
                     "type": "regex",
                     "value": "^'Hello world'$"
-                }]
+                }],
+                "example": {
+                    "success": "' '.join(splitted)",
+                    "failure": "'.'.join(splitted)"
+                }
             }
         }
     }, {
@@ -953,7 +1099,11 @@
                 }, "wrapped_output", {
                     "type": "regex",
                     "value": "^\\[5, 10, 15, 20, 25\\]$"
-                }]
+                }],
+                "example": {
+                    "success": "fives = [i * 5 for i in numbers]",
+                    "failure": "fives = [i * 4 for i in numbers]"
+                }
             },
             "filter_list": {
                 "input": "console",
@@ -971,7 +1121,11 @@
                 }, "wrapped_output", {
                     "type": "regex",
                     "value": "^\\[2, 4\\]$"
-                }]
+                }],
+                "example": {
+                    "success": "filtered = [i for i in numbers if i % 2 == 0]",
+                    "failure": "filtered = [i for i in numbers]"
+                }
             },
             "dict_comprehension": {
                 "input": "console",
@@ -979,12 +1133,22 @@
                     "type": "shell",
                     "value": {
                         "runtime": "python",
-                        "before": "environment = ['PATH=/bin:/usr/bin', 'LD_LIBRARY_PATH=/lib:/usr/lib:/usr/lib/x86_64-linux-gnu', 'GI_TYPELIB_PATH=/usr/lib/girepository-1.0']"
+                        "before": "environment = 'PATH=/bin:/usr/bin\\nLD_LIBRARY_PATH=/lib:/usr/lib:/usr/lib/x86_64-linux-gnu\\nGI_TYPELIB_PATH=/usr/lib/girepository-1.0'"
                     }
                 }, "wrapped_output", {
+                    "type": "shell_custom",
+                    "value": {
+                        "runtime": "python",
+                        "command": "print(environment_dict)"
+                    }
+                }, {
                     "type": "regex",
                     "value": "^\\{'PATH': '/bin:/usr/bin', 'LD_LIBRARY_PATH': '/lib:/usr/lib:/usr/lib/x86_64-linux-gnu', 'GI_TYPELIB_PATH': '/usr/lib/girepository-1.0'\\}$"
-                }]
+                }],
+                "example": {
+                    "success": "environment_dict = { k: v for k, v in [x.split('=') for x in environment.split('\\n')] }",
+                    "failure": "environment_dict = { k: v for k, v in [x.split('=') for x in environment.split('.')] }"
+                }
             }
         }
     }, {
@@ -998,7 +1162,8 @@
                 "mapper": [{
                     "type": "shell",
                     "value": {
-                        "runtime": "python"
+                        "runtime": "python",
+                        "before": "if globals().get('Gio', None):\n    del Gio\n\n"
                     }
                 }, {
                     "type": "shell_custom",
@@ -1009,7 +1174,11 @@
                 }, "wrapped_output", {
                     "type": "regex",
                     "value": "^.*GioProxyModule.*"
-                }]
+                }],
+                "example": {
+                    "success": "from gi.repository import Gio",
+                    "failure": "from gi import Gio"
+                }
             },
             "instantiate_gi_class": {
                 "input": "console",
@@ -1027,7 +1196,11 @@
                 }, "wrapped_output", {
                     "type": "regex",
                     "value": "^.*Gio.Notification.*$"
-                }]
+                }],
+                "example": {
+                    "success": "notification = Gio.Notification.new('lunch-is-ready')",
+                    "failure": "notification = 7"
+                }
             },
             "send_gnotification": {
                 "input": "console",
@@ -1039,7 +1212,10 @@
                 }, "wrapped_output", {
                     "type": "regex",
                     "value": "^.*$"
-                }]
+                }],
+                "example": {
+                    "success": "application.send_notification('Lunch is ready!', notification)"
+                }
             }
         }
     }

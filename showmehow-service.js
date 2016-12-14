@@ -79,8 +79,7 @@ function spawnProcess(binary, argv=[], user_environment={}) {
 
     let envp = environment_object_to_envp(environment);
     launcher.set_environ(envp);
-    argv.unshift(binary);
-    let proc = launcher.spawnv(argv);
+    let proc = launcher.spawnv([binary].concat(argv));
 
     return {
         proc: proc,
@@ -92,22 +91,25 @@ function spawnProcess(binary, argv=[], user_environment={}) {
 
 
 const PROLOGUES = {
-    python: 'from gi.repository import Gio\n' +
-            'application = Gio.Application.new("com.endlessm.Showmehow.Showmehow", 0)\n' +
-            'def activate(argv):\n' +
-            '    from code import InteractiveConsole\n' +
-            '    InteractiveConsole(locals=globals()).interact()\n' +
-            '\n' +
-            'application.connect("activate", activate)\n' +
-            'application.run()\n'
+    python: function(id) {
+        return 'from gi.repository import Gio\n' +
+               'application = Gio.Application.new("com.endlessm.Showmehow.Showmehow' + id + '", 0)\n' +
+               'def activate(argv):\n' +
+               '    from code import InteractiveConsole\n' +
+               '    InteractiveConsole(locals=globals()).interact()\n' +
+               '\n' +
+               'application.connect("activate", activate)\n' +
+               'application.run()\n';
+    }
 }
 
 const InteractiveShell = new Lang.Class({
     Name: 'InteractiveShell',
 
-    _init: function(binary, argv=[], user_environment={}) {
+    _init: function(binary, id, argv=[], user_environment={}) {
         this.parent();
         this._process = spawnProcess(binary, argv, user_environment);
+        this.id = id;
 
         // Drain the standard output and error streams
         Showmehow.read_nonblock_input_stream_for_bytes(this._process.stdout);
@@ -155,10 +157,10 @@ const RUNTIME_ARGV = {
 // and environment. Will do what is required to set up that runtime so that
 // it works correctly with the lessons we will run in showmehow (for instance
 // in python, sets up a GApplication instance).
-function createInteractiveShellFor(runtime, argv=[], user_environment={}) {
-    let shell = new InteractiveShell(GLib.find_program_in_path(runtime), RUNTIME_ARGV[runtime] || [], user_environment);
+function createInteractiveShellFor(runtime, id, argv=[], user_environment={}) {
+    let shell = new InteractiveShell(GLib.find_program_in_path(runtime), id, RUNTIME_ARGV[runtime] || [], user_environment);
     if (PROLOGUES[runtime]) {
-        shell.evaluate(PROLOGUES[runtime]);
+        shell.evaluate(PROLOGUES[runtime](id));
     }
     return shell;
 }
@@ -189,6 +191,18 @@ function regex_validator(input, regex) {
 }
 
 function resolve_path(path) {
+    // If it is an object, it might be relative to some data directory
+    if (typeof path === 'object') {
+        // Assume that it has this shape
+        switch (path.settings.type) {
+            case 'in_data_directory':
+                return GLib.build_filenamev([workingDirectoryFor(path.settings.value),
+                                             path.name]);
+            default:
+                throw new Error('Don\'t know how to handle path type ' + key);
+        }
+    }
+
     if (path.startsWith('~')) {
         return GLib.build_filenamev([GLib.get_home_dir(), path.slice(1)]);
     }
@@ -370,24 +384,12 @@ function shell_executor(shellcode, session, runtime, environment, workingDirecto
     }
 }
 
-function python_executor(code, session, workingDirectory) {
-    if (session) {
-       return session.python.evaluate(code);
-    } else {
-        return execute_command_for_output([
-            '/usr/bin/python',
-            '-c',
-            'import sys; ' + code + 'sys.exit(0);'
-        ], {}, workingDirectory);
-    }
-}
-
 function shell_executor_output(shellcode, session, settings) {
     let dataDirectory = settings ? settings.in_data_directory : null;
     let runtime = settings ? settings.runtime : null;
 
     // Run the prologue for this task
-    if (settings.before) {
+    if (settings && settings.before) {
         shell_executor(settings.before,
                        session,
                        runtime ? runtime : 'bash',
@@ -438,8 +440,12 @@ function add_wait_message(input) {
     ]];
 }
 
-function to_json(input) {
-    return [JSON.parse(input), []];
+function parse_json(input) {
+    try {
+        return [JSON.parse(input), []];
+    } catch (e) {
+        return [[], ['> That data wasn\'t JSON: ' + input]]
+    }
 }
 
 // json_traverse_recurse
@@ -454,7 +460,11 @@ function json_traverse_recurse(object, path_remaining) {
     let next = path_remaining.slice(1);
     let key = path_remaining[0];
 
-    return json_traverse_recurse(object[key], next);
+    try {
+        return json_traverse_recurse(object[key], next);
+    } catch (e) {
+        return ''
+    }
 }
 
 // json_pluck
@@ -601,7 +611,7 @@ const _PIPELINE_FUNCS = {
     check_dir_exists: check_directory_exists,
     check_file_exists: check_file_exists,
     check_file_contents: check_file_contents,
-    to_json: to_json,
+    parse_json: parse_json,
     pluck_path: json_pluck,
     equal_to: equal_to,
     is_subset: is_subset
@@ -782,7 +792,7 @@ const ShowmehowService = new Lang.Class({
                                                                     forLesson);
             if (runtimesRequired) {
                 runtimesRequired.forEach(Lang.bind(this, function(r) {
-                    this._sessions[this._sessionCount][r] = createInteractiveShellFor(r, [], {});
+                    this._sessions[this._sessionCount][r] = createInteractiveShellFor(r, this._sessionCount, [], {});
                 }));
                 this.complete_open_session(method, this._sessionCount);
             } else {
