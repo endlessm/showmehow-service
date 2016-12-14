@@ -8,19 +8,5 @@
         Lessons which have been unlocked and are available to the user.
       </description>
     </key>
-    <key name='known-spells' type='as'>
-      <default>[]</default>
-      <summary>Known Spells</summary>
-      <description>
-        Spells which you already know.
-      </description>
-    </key>
-    <key name='clues' type='a(ss)'>
-      <default>[]</default>
-      <summary>Accumulated Clues</summary>
-      <description>
-        Clues which have been accumulated
-      </description>
-    </key>
   </schema>
 </schemalist>
