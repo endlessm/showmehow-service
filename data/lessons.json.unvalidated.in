@@ -40,6 +40,30 @@
                     "success": "Hfr gur Fbhepr, Yhxr"
                 }
             },
+            "change_background_pic": {
+                "input": "text",
+                "mapper": [
+                    "input",
+                    {
+                        "type": "regex",
+                        "value": "newsplash"
+                    }
+                ],
+                "effects": {
+                    "success": {
+                        "reply": "Did you notice anything change on your desktop?",
+                        "side_effects": [
+                            {
+                                "type": "shell",
+                                "value": "gsettings set org.gnome.desktop.background picture-uri file://${CODING_FILES_DIR}/background_pic.jpg"
+                            }
+                        ]
+                    }
+                },
+                "example": {
+                    "success": "newsplash"
+                }
+            },
             "install_programming_hook": {
                 "input": "console",
                 "mapper": [
