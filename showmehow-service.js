@@ -731,16 +731,105 @@ const ShowmehowErrors = {
     INVALID_CLUE_TYPE: 2,
     INTERNAL_ERROR: 3
 };
-const ShowmehowService = new Lang.Class({
-    Name: 'ShowmehowService',
+
+const ShowmehowDBusService = new Lang.Class({
+    Name: 'ShowmehowDBusService',
     Extends: Showmehow.ServiceSkeleton,
 
-    _init: function(descriptors, monitor) {
+    _init: function() {
+        this.parent();
+        this._responders = {};
+    },
+
+    assignResponders: function(responders) {
+        this._responders = responders;
+    },
+
+    vfunc_handle_get_warnings: function(method) {
+        try {
+            let wrappedResponders = this._responders.fetchWarnings().map((w) => [w]);
+            this.complete_get_warnings(method, GLib.Variant.new('a(s)', wrappedResponders));
+        } catch(e) {
+            logError(e, 'Could not submit warnings');
+            method.return_error_literal(ShowmehowErrorDomain,
+                                        ShowmehowErrors.INTERNAL_ERROR,
+                                        String(e));
+        }
+
+        return true;
+    },
+
+    vfunc_handle_open_session: function(method, forLesson) {
+        try {
+            this.complete_open_session(method, this._responders.openSession(forLesson));
+        } catch(e) {
+            logError(e, 'Failed to open a new session');
+            method.return_error_literal(ShowmehowErrorDomain,
+                                        ShowmehowErrors.INTERNAL_ERROR,
+                                        String(e));
+        }
+    },
+
+    vfunc_handle_close_session: function(method, id) {
+        try {
+            this._responders.closeSession(id);
+            this.complete_close_session(method);
+        } catch(e) {
+            logError(e, 'Failed to close session ' + id);
+            method.return_error_literal(ShowmehowErrorDomain,
+                                        ShowmehowErrors.INTERNAL_ERROR,
+                                        String(e));
+        }
+    },
+
+    vfunc_handle_attempt_lesson_remote: function(method, session_id, lesson, task, input_code) {
+        try {
+            this._responders.attemptLessonWithInput(session_id,
+                                                    lesson,
+                                                    task,
+                                                    input_code,
+                                                    Lang.bind(this, function(domain, code, message) {
+                                                        method.return_error_literal(domain, code, message);
+                                                    }),
+                                                    Lang.bind(this, function(returnValue) {
+                                                        let serialized = JSON.stringify(returnValue);
+                                                        this.complete_attempt_lesson_remote(method,
+                                                                                            serialized);
+                                                    }));
+        } catch (e) {
+            logError(e, 'Internal error in handle_lesson_response');
+            method.return_error_literal(ShowmehowErrorDomain,
+                                        ShowmehowErrors.INTERNAL_ERROR,
+                                        String(e));
+        }
+
+        return true;
+    },
+
+    notifyClientsOfDescriptorChange: function() {
+        this.emit_lessons_changed();
+    }
+});
+
+const ShowmehowService = new Lang.Class({
+    Name: 'ShowmehowService',
+
+    _init: function(descriptors, monitor, remoteService) {
         this.parent();
 
         this._descriptors = descriptors;
         this._monitor = monitor;
         this._pendingLessonEvents = {};
+        this._remoteService = remoteService;
+
+        this._remoteService.assignResponders({
+            fetchWarnings: Lang.bind(this, function() {
+                return this._descriptors.warnings;
+            }),
+            openSession: Lang.bind(this, this._openSession),
+            closeSession: Lang.bind(this, this._closeSession),
+            attemptLessonWithInput: Lang.bind(this, this._attemptLessonWithInput)
+        });
 
         /* Log the warnings, and also make them available to clients who are interested.
          *
@@ -770,94 +859,54 @@ const ShowmehowService = new Lang.Class({
         this._sessionCount = 0;
     },
 
-    vfunc_handle_get_warnings: function(method) {
-        try {
-            this.complete_get_warnings(method, GLib.Variant.new('a(s)',
-                                                                this._descriptors.warnings.map((w) => [w])));
-        } catch(e) {
-            method.return_error_literal(ShowmehowErrorDomain,
-                                        ShowmehowErrors.INTERNAL_ERROR,
-                                        String(e));
-        }
+    _openSession: function(forLesson) {
+        this._sessionCount++;
+        this._sessions[this._sessionCount] = {};
 
-        return true;
-    },
-
-    vfunc_handle_open_session: function(method, forLesson) {
-        try {
-            this._sessionCount++;
-            this._sessions[this._sessionCount] = {};
-
-            let runtimesRequired = determineRuntimesNeededForLesson(this._descriptors,
-                                                                    forLesson);
-            if (runtimesRequired) {
-                runtimesRequired.forEach(Lang.bind(this, function(r) {
-                    this._sessions[this._sessionCount][r] = createInteractiveShellFor(r, this._sessionCount, [], {});
-                }));
-                this.complete_open_session(method, this._sessionCount);
-            } else {
-                this.complete_open_session(method, -1);
-            }
-        } catch(e) {
-            logError(e, 'Failed to open a new session');
-            method.return_error_literal(ShowmehowErrorDomain,
-                                        ShowmehowErrors.INTERNAL_ERROR,
-                                        String(e));
-        }
-    },
-
-    vfunc_handle_close_session: function(method, id) {
-        try {
-            Object.keys(this._sessions[id]).forEach(Lang.bind(this, function(key) {
-                this._sessions[id][key].kill();
+        let runtimesRequired = determineRuntimesNeededForLesson(this._descriptors,
+                                                                forLesson);
+        if (runtimesRequired) {
+            runtimesRequired.forEach(Lang.bind(this, function(r) {
+                this._sessions[this._sessionCount][r] = createInteractiveShellFor(r, this._sessionCount, [], {});
             }));
-            this.complete_close_session(method);
-        } catch(e) {
-            logError(e, 'Failed to close session ' + id);
-            method.return_error_literal(ShowmehowErrorDomain,
-                                        ShowmehowErrors.INTERNAL_ERROR,
-                                        String(e));
+            return this._sessionCount;
         }
+
+        return -1;
     },
 
-    vfunc_handle_attempt_lesson_remote: function(method, session_id, lesson, task, input_code) {
-        try {
-            let session = this._sessions[session_id] || null;
-            this._validateAndFetchTask(lesson, task, method, Lang.bind(this, function(task_detail) {
-                let mapper = task_detail.mapper;
-                this._withPipeline(mapper, session, lesson, task, method, Lang.bind(this, function(pipeline) {
-                    /* Run each step in the pipeline over the input and
-                     * get a result code at the end. Each step should
-                     * pass a string to the next function. */
-                    run_pipeline(pipeline, input_code, Lang.bind(this, function(result, extras) {
-                        /* Start to build up the response based on what is in extras */
-                        let responses = extras.filter(function(extra) {
-                            return extra.type === 'response';
-                        }).map(function(extra) {
-                            return extra.content;
-                        });
+    _closeSession: function(id) {
+        Object.keys(this._sessions[id]).forEach(Lang.bind(this, function(key) {
+            this._sessions[id][key].kill();
+        }));
+    },
 
-                        let returnValue = {
-                            result: result,
-                            responses: responses
-                        };
+    _attemptLessonWithInput: function(session_id, lesson, task, input_code, onError, done) {
+        let session = this._sessions[session_id] || null;
+        this._validateAndFetchTask(lesson, task, onError, Lang.bind(this, function(task_detail) {
+            let mapper = task_detail.mapper;
+            this._withPipeline(mapper, session, lesson, task, onError, Lang.bind(this, function(pipeline) {
+                /* Run each step in the pipeline over the input and
+                 * get a result code at the end. Each step should
+                 * pass a string to the next function. */
+                run_pipeline(pipeline, input_code, Lang.bind(this, function(result, extras) {
+                    /* Start to build up the response based on what is in extras */
+                    let responses = extras.filter(function(extra) {
+                        return extra.type === 'response';
+                    }).map(function(extra) {
+                        return extra.content;
+                    });
 
-                        let serialized = JSON.stringify(returnValue);
-                        this.complete_attempt_lesson_remote(method, serialized);
-                    }));
+                    done({
+                        result: result,
+                        responses: responses
+                    });
                 }));
             }));
-        } catch (e) {
-            logError(e, 'Internal error in handle_lesson_response');
-            method.return_error_literal(ShowmehowErrorDomain,
-                                        ShowmehowErrors.INTERNAL_ERROR,
-                                        String(e));
-        }
-
-        return true;
+        }));
     },
 
-    _validateAndFetchTask: function(lesson, task, method, success) {
+    _validateAndFetchTask: function(lesson, task, onError, success) {
         let task_detail;
 
         try {
@@ -867,17 +916,16 @@ const ShowmehowService = new Lang.Class({
             })[0];
             task_detail = lesson_detail.practice[task_detail_key];
         } catch(e) {
-            return method.return_error_literal(ShowmehowErrorDomain,
-                                               ShowmehowErrors.INVALID_TASK,
-                                               'Either the lesson ' + lesson +
-                                               ' or task id ' + task +
-                                               ' was invalid\n' + e + ' ' + e.stack);
+            onError(ShowmehowErrorDomain,
+                    ShowmehowErrors.INVALID_TASK,
+                    'Either the lesson ' + lesson + ' or task id ' + task +
+                    ' was invalid\n' + e + ' ' + e.stack);
         }
 
         return success(task_detail);
     },
 
-    _withPipeline: function(mappers, session, lesson, task, method, callback) {
+    _withPipeline: function(mappers, session, lesson, task, onError, callback) {
         /* This function finds the executor and validator specified
          * and runs callback. If it can't find them, for instance, they
          * are invalid, it returns an error. */
@@ -893,16 +941,20 @@ const ShowmehowService = new Lang.Class({
                     return mapper_to_pipeline_step(mapper, this, session, lesson, task);
                 }
 
+                onError(ShowmehowErrorDomain,
+                        ShowmehowErrors.INVALID_TASK_SPEC,
+                        'mapper must be a either a string or an object, ' +
+                        'got ' + JSON.stringify(mapper) + '\n' +
+                        String(e) + e.stack);
                 throw new Error('mapper must be a either a string or ' +
                                 'or an object, got ' + JSON.stringify(mapper));
             }));
         } catch (e) {
-            return method.return_error_literal(ShowmehowErrorDomain,
-                                               ShowmehowErrors.INVALID_TASK_SPEC,
-                                               'Couldn\'t run task ' + task +
-                                               ' on lesson ' + lesson + ': ' +
-                                               'Couldn\'t create pipeline: ' +
-                                               String(e) + e.stack);
+            onError(ShowmehowErrorDomain,
+                    ShowmehowErrors.INVALID_TASK_SPEC,
+                    'Couldn\'t run task ' + task + ' on lesson ' + lesson + ': ' +
+                    'Couldn\'t create pipeline: ' +
+                    String(e) + e.stack);
         }
 
         return callback(pipeline);
@@ -994,8 +1046,9 @@ const ShowmehowServiceApplication = new Lang.Class({
     vfunc_dbus_register: function(conn, object_path) {
         this.parent(conn, object_path);
         let [descriptors, monitor] = loadLessonDescriptors(this._commandLineFilename);
-        this._skeleton = new ShowmehowService(descriptors, monitor);
+        this._skeleton = new ShowmehowDBusService();
         this._skeleton.export(conn, object_path);
+        this._service = new ShowmehowService(descriptors, monitor, this._skeleton);
         return true;
     },
 
