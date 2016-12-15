@@ -27,6 +27,16 @@ lib/config.js: $(srcdir)/lib/config.js.in
 	sed -e 's,%CODING_FILES_DIR%,$(pkgdatadir)/files,g' -e 's,%CODING_SHARED_SCRIPT_DIR%,$(pkglibexecdir)/coding-shared-dir,g' $< > $@.tmp && \
 	mv -f $@.tmp $@
 
+# Mocks
+javascript_mocks = \
+	mocks/constructors.js \
+	$(NULL)
+
+# Tests
+javascript_tests = \
+	tests/testShowmehowServiceContent.js \
+	$(NULL)
+
 # All javascript modules
 all_dist_js_files = \
 	bin/showmehow-validator.js \
@@ -177,6 +187,44 @@ com.endlessm.Showmehow.Service.service: $(abs_top_srcdir)/com.endlessm.Showmehow
 
 # Script for placing files in the shared dir 
 pkglibexec_SCRIPTS = files/coding-shared-dir
+
+# Run tests when running 'make check'
+TESTS = \
+	$(javascript_tests) \
+	run_coverage.coverage \
+	$(NULL)
+LOG_COMPILER = gtester
+AM_LOG_FLAGS = -k --verbose
+
+TEST_EXTENSIONS = .js .coverage
+
+JS_LOG_DRIVER = env AM_TAP_AWK='$(AWK)' $(SHELL) $(top_srcdir)/tap-driver.sh
+JS_LOG_DRIVER_FLAGS = --comments
+JS_LOG_COMPILER = jasmine
+AM_JS_LOG_FLAGS = --tap --no-config @JASMINE_REPORT_ARGUMENT@
+
+# Use locally built versions of CodingGameService-1.0.gir, JS modules, and
+# libraries. We clobber GJS_PATH and include the js directory and the
+# $(top_srcdir) for including test helper files.
+# (May need to change to AM_TESTS_ENVIRONMENT in a later version of Automake)
+TESTS_ENVIRONMENT = \
+	export GJS_PATH="$(top_srcdir):$(top_srcdir)/js"; \
+	export GI_TYPELIB_PATH="$(top_builddir)$${GI_TYPELIB_PATH:+:$$GI_TYPELIB_PATH}"; \
+	export LD_LIBRARY_PATH="$(top_builddir)/.libs$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}"; \
+	export G_TEST_SRCDIR="$(abs_srcdir)/tests"; \
+	export G_TEST_BUILDDIR="$(abs_builddir)/tests"; \
+	export LC_ALL=C; \
+	$(NULL)
+
+# # # COVERAGE # # #
+
+# Don't specify the resource:/// URIs here, because the tests load modules from
+# the local directory, not from the GResource
+EOS_JS_COVERAGE_FILES := $(patsubst $(srcdir)/%,%,$(wildcard $(srcdir)/lib/*.js))
+
+@EOS_COVERAGE_RULES@
+
+AM_JS_LOG_FLAGS += @EOS_JS_COVERAGE_LOG_FLAGS@
 
 # Things to get rid of later
 CLEANFILES += \
