@@ -609,12 +609,18 @@
             },
             "cd_home_dir": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": ["shell", {
+                    "type": "shell_custom",
+                    "value": {
+                        "command": "pwd"
+                    }
+                }, {
                     "type": "regex",
-                    "value": ".*"
+                    "value": "\/home.*"
                 }],
                 "example": {
                     "success": "cd ~",
+                    "failure": "cd /"
                 }
             },
             "cd_and_cmd": {
