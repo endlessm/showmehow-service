@@ -77,6 +77,8 @@ function recursivelyDropOptionalDirectory(path) {
 // If we are running under an overridden home directory, create some
 // folders and files to satisfy the expected layout.
 function configureHomeDirectory() {
+    // overriddenHome here represents /home, of which the 'user'
+    // subdirectory should by convention be set as $HOME.
     let overiddenHome = GLib.getenv('OVERRIDDEN_HOME_BASE');
     if (!overiddenHome) {
         return;
@@ -85,6 +87,8 @@ function configureHomeDirectory() {
     // Create some users and some directories
     let directoriesToCreate = [
         GLib.build_filenamev([overiddenHome, 'shared']),
+        // This will work fine because $HOME needs to be set before
+        // gjs is started.
         GLib.build_filenamev([GLib.get_home_dir(), 'Pictures'])
     ];
 
