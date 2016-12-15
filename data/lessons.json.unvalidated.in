@@ -614,7 +614,7 @@
                     "value": ".*"
                 }],
                 "example": {
-                    "success": "cd ~"
+                    "success": "cd ~",
                 }
             },
             "cd_and_cmd": {
