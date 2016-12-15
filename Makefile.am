@@ -71,12 +71,12 @@ EXTRA_DIST = \
 CLEANFILES =
 
 # Rename the showmehow-service script
-bin/showmehow-service: $(abs_top_srcdir)/bin/showmehow-service.js
+showmehow-service: $(abs_top_srcdir)/bin/showmehow-service.js
 	cp $< $@
 	chmod +x $@
 
 # Rename the showmehow-validator script
-bin/showmehow-validator: $(abs_top_srcdir)/bin/showmehow-validator.js
+showmehow-validator: $(abs_top_srcdir)/bin/showmehow-validator.js
 	cp $< $@
 	chmod +x $@
 
@@ -147,8 +147,8 @@ lib_LTLIBRARIES = libshowmehow-1.0.la
 
 # Scripts to install
 bin_SCRIPTS = \
-	bin/showmehow-service \
-	bin/showmehow-validator
+	showmehow-service \
+	showmehow-validator
 
 # Header files to install
 showmehowincludedir = $(includedir)/showmehow-service
