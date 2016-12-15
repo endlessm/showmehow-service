@@ -46,6 +46,7 @@ describe('Showmehow Service Lesson', function () {
 
     beforeAll(function () {
         GLib.setenv('G_SETTINGS_BACKEND', 'memory', true);
+        GLib.setenv('PATH', GLib.getenv('PATH') + ':/usr/games', true);
         service = new Mocks.ChatServiceStub();
         controller = new Controller.ShowmehowController(defaultLessons, null, service);
     });
