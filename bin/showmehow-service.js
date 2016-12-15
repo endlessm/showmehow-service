@@ -1,25 +1,25 @@
 #!/usr/bin/env gjs
-/* showmehow-service.js
- *
- * Copyright (c) 2016 Endless Mobile Inc.
- * All Rights Reserved.
- *
- * The Showmehow service is the central place where all 'lessons' about
- * the operating system are stored and progress is kept.
- */
+// showmehow-service.js
+//
+// Copyright (c) 2016 Endless Mobile Inc.
+// All Rights Reserved.
+//
+// The Showmehow service is the central place where all 'lessons' about
+// the operating system are stored and progress is kept.
+
 
 const GLib = imports.gi.GLib;
 const Gio = imports.gi.Gio;
 const Showmehow = imports.gi.Showmehow;
 
-/* This is a hack to cause Showmehow js resources to get loaded */
+// This is a hack to cause Showmehow js resources to get loaded
 const ShowmehowResource = imports.gi.Showmehow.get_resource();  // eslint-disable-line no-unused-vars
 
 const Lang = imports.lang;
 
-/* Put ourself in the search path. Note that we have the least priority.
- * This will allow us to run locally against non-packed files that
- * are already on disk if the user sets GJS_PATH appropriately. */
+// Put ourself in the search path. Note that we have the least priority.
+// This will allow us to run locally against non-packed files that
+// are already on disk if the user sets GJS_PATH appropriately.
 imports.searchPath.push('resource:///com/endlessm/showmehow');
 
 const Config = imports.lib.config;
@@ -28,22 +28,22 @@ const Descriptors = imports.lib.descriptors;
 const Service = imports.lib.service;
 
 
-/**
- * parseArguments
- *
- * Sadly, GOptionEntry is not supported by Gjs, so this is a poor-man's
- * option parser.
- *
- * This option parser is a simple 'state machine' option parser. It just
- * has a state as to whether it is parsing a double-dash option, or
- * if it is parsing something else. There is no type checking or
- * validation.
- *
- * Sadly, this means that there is no way to add arguments to --help
- * to show the user.
- *
- * Everything is stored as an array.
- */
+//
+// parseArguments
+//
+// Sadly, GOptionEntry is not supported by Gjs, so this is a poor-man's
+// option parser.
+//
+// This option parser is a simple 'state machine' option parser. It just
+// has a state as to whether it is parsing a double-dash option, or
+// if it is parsing something else. There is no type checking or
+// validation.
+//
+// Sadly, this means that there is no way to add arguments to --help
+// to show the user.
+//
+// Everything is stored as an array.
+
 function parseArguments(argv) {
     var parsing = null;
     var options = {};
@@ -57,17 +57,17 @@ function parseArguments(argv) {
         let key = parsing || arg;
         options[key] = options[key] || [];
 
-        /* Whether we push arg to the options
-         * list depends on what is ahead of us.
-         *
-         * If this was a double-dash argument
-         * then check if the next argument
-         * starts with something that is
-         * not a double dash. If so, we should
-         * treat this argument as a key and
-         * not a value, otherwise treat it
-         * truthy value.
-         */
+        // Whether we push arg to the options
+        // list depends on what is ahead of us.
+        //
+        // If this was a double-dash argument
+        // then check if the next argument
+        // starts with something that is
+        // not a double dash. If so, we should
+        // treat this argument as a key and
+        // not a value, otherwise treat it
+        // truthy value.
+
         if (!isDoubleDash ||
             i === argv.length - 1 ||
             argv[i + 1].startsWith('--')) {
@@ -96,8 +96,8 @@ const ShowmehowServiceApplication = new Lang.Class({
     vfunc_handle_local_options: function(options) {
         this.parent(options);
 
-        /* For some rather daft reasons, we have to parse ARGV
-         * directly to find out some interesting things. */
+        // For some rather daft reasons, we have to parse ARGV
+        // directly to find out some interesting things.
         let parsed = parseArguments(ARGV);
         try {
             this._commandLineFilename = parsed['lessons-file'][0];
@@ -105,8 +105,8 @@ const ShowmehowServiceApplication = new Lang.Class({
             this._commandLineFilename = null;
         }
 
-        /* Must return -1 here to continue processing, otherwise
-         * we will exit with a code */
+        // Must return -1 here to continue processing, otherwise
+        // we will exit with a code
         return -1;
     },
 
