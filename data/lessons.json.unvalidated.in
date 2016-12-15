@@ -624,12 +624,7 @@
             },
             "cd_and_cmd": {
                 "input": "console",
-                "mapper": [{
-                    "type": "shell",
-                    "value": {
-                        "before": "mkdir -p ~/Pictures"
-                    }
-                }, "wrapped_output", {
+                "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
                     "value": ".*Pictures.*"
                 }],
