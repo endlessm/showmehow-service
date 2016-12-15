@@ -15,6 +15,9 @@ files_DATA = $(arbitrary_files)
 
 # Resource javascript modules
 resource_dist_js_files = \
+	lib/controller.js \
+	lib/descriptors.js \
+	lib/service.js \
 	lib/validation.js \
 	$(NULL)
 
