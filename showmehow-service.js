@@ -811,8 +811,8 @@ const ShowmehowDBusService = new Lang.Class({
     }
 });
 
-const ShowmehowService = new Lang.Class({
-    Name: 'ShowmehowService',
+const ShowmehowController = new Lang.Class({
+    Name: 'ShowmehowController',
 
     _init: function(descriptors, monitor, remoteService) {
         this.parent();
@@ -1048,7 +1048,7 @@ const ShowmehowServiceApplication = new Lang.Class({
         let [descriptors, monitor] = loadLessonDescriptors(this._commandLineFilename);
         this._skeleton = new ShowmehowDBusService();
         this._skeleton.export(conn, object_path);
-        this._service = new ShowmehowService(descriptors, monitor, this._skeleton);
+        this._service = new ShowmehowController(descriptors, monitor, this._skeleton);
         return true;
     },
 
