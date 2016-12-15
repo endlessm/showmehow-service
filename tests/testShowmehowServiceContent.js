@@ -14,7 +14,9 @@ const GLib = imports.gi.GLib;
 const Gio = imports.gi.Gio;
 const Lang = imports.lang;
 
-const Showmehow = imports.gi.Showmehow;
+const Controller = imports.lib.controller;
+const Descriptors = imports.lib.descriptors;
+const Mocks = imports.mocks.constructors;
 
 // sortExampleKeys
 //
@@ -36,15 +38,16 @@ function sortExampleKeys(keys) {
 }
 
 describe('Showmehow Service Lesson', function () {
-    let controller;
-    let defaultLessons = JSON.parse(GLib.file_get_contents('data/lessons.json')[1]);
+    let controller, service;
+    let [defaultLessons, warnings] = Descriptors.loadLessonDescriptorsFromFile(Gio.File.new_for_path('data/lessons.json'));
+
+    /* Set the 'warnings' key, since this is what ShowmehowController expects internally */
+    defaultLessons.warnings = warnings;
+
     beforeAll(function () {
         GLib.setenv('G_SETTINGS_BACKEND', 'memory', true);
-        controller = Showmehow.ServiceProxy.new_for_bus_sync(Gio.BusType.SESSION,
-                                                             0,
-                                                             "com.endlessm.Showmehow.Service",
-                                                             "/com/endlessm/Showmehow/Service",
-                                                             null);
+        service = new Mocks.ChatServiceStub();
+        controller = new Controller.ShowmehowController(defaultLessons, null, service);
     });
 
     defaultLessons.forEach(function(lesson) {
@@ -52,7 +55,13 @@ describe('Showmehow Service Lesson', function () {
             let session = -1;
             beforeAll(function() {
                 if (lesson.requires_session) {
-                    session = controller.call_open_session_sync(lesson.name, null)[1];
+                    session = service.openSession(lesson.name);
+                }
+            });
+
+            afterAll(function() {
+                if (session !== -1) {
+                    service.closeSession(session);
                 }
             });
 
@@ -61,13 +70,22 @@ describe('Showmehow Service Lesson', function () {
                     let task = lesson.practice[taskName];
                     sortExampleKeys(Object.keys(task.example)).forEach(function(result) {
                         let input = task.example[result];
-                        it("returns " + result + " when called with " + input, function() {
-                            let response = controller.call_attempt_lesson_remote_sync(session,
-                                                                                      lesson.name,
-                                                                                      taskName,
-                                                                                      input,
-                                                                                      null)[1];
-                            expect(JSON.parse(response).result).toEqual(result);
+                        it("returns " + result + " when called with " + input, function(done) {
+                            let errorHandler = function(domain, code, message) {
+                                throw new Error('Error ' + domain + ':' + code + ' "' + message + '" occurred');
+                            };
+
+                            let successHandler = function(response) {
+                                expect(response.result).toEqual(result);
+                                done();
+                            }
+
+                            let response = service.attemptLessonWithInput(session,
+                                                                          lesson.name,
+                                                                          taskName,
+                                                                          input,
+                                                                          errorHandler,
+                                                                          successHandler);
                         });
                     });
                 });
