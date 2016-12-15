@@ -86,7 +86,7 @@ function configureHomeDirectory() {
 
     // Create some users and some directories
     let directoriesToCreate = [
-        GLib.build_filenamev([overiddenHome, 'shared']),
+        GLib.build_filenamev([overiddenHome, 'home', 'shared']),
         // This will work fine because $HOME needs to be set before
         // gjs is started.
         GLib.build_filenamev([GLib.get_home_dir(), 'Pictures'])

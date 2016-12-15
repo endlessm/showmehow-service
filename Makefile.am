@@ -218,7 +218,7 @@ TESTS_ENVIRONMENT = \
 	export LC_ALL=C; \
 	export CODING_SOURCE_FILES_DIR="$(top_srcdir)/files"; \
 	export OVERRIDDEN_HOME_BASE="$${PWD}/$$(mktemp -d showmehow-service-tests-fake-home-XXXXXX)"; \
-	export HOME="$$(mkdir -p $${OVERRIDDEN_HOME_BASE}/user; echo $${OVERRIDDEN_HOME_BASE}/user)"; \
+	export HOME="$$(mkdir -p $${OVERRIDDEN_HOME_BASE}/home/user; echo $${OVERRIDDEN_HOME_BASE}/home/user)"; \
 	$(NULL)
 
 # # # COVERAGE # # #
