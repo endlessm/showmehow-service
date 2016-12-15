@@ -616,7 +616,7 @@
                     }
                 }, {
                     "type": "regex",
-                    "value": "\/home.*"
+                    "value": ".*\/home.*"
                 }],
                 "example": {
                     "success": "cd ~ && echo 'output'"
