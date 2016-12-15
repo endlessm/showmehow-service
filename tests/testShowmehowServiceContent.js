@@ -18,6 +18,49 @@ const Controller = imports.lib.controller;
 const Descriptors = imports.lib.descriptors;
 const Mocks = imports.mocks.constructors;
 
+const System = imports.system;
+
+// recursivelyDropDirectory
+//
+// Descend into a directory depth-first and remove all files. 'directory'
+// is a GFile representing a directory.
+function recursivelyDropDirectory(directory) {
+    // This can fail, but the strategy here is 'hope it doesnt'. If it fails
+    // something else is going wrong, since we are deleting files that we
+    // own.
+    let directoryPath = directory.get_path();
+    let enumerator = directory.enumerate_children('standard::name',
+                                                  Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS,
+                                                  null);
+    let fileChildren = [];
+
+    let childInfo = null;
+    while ((childInfo = enumerator.next_file(null))) {
+        let child = Gio.File.new_for_path(GLib.build_filenamev([directoryPath, childInfo.get_name()]));
+        let fileType = childInfo.get_file_type();
+        switch (fileType) {
+            case Gio.FileType.REGULAR:
+            case Gio.FileType.SYMBOLIC_LINK:
+                fileChildren.push(child);
+                break;
+            case Gio.FileType.DIRECTORY:
+                recursivelyDropDirectory(child);
+                break;
+            default:
+                throw new Error('Don\'t know how to handle file type ' + fileType);
+        }
+    }
+
+    // Now that we have dropped all directories, remove
+    // any files.
+    fileChildren.forEach(function(child) {
+        child.delete(null);
+    });
+
+    // Drop this directory
+    directory.delete(null);
+}
+
 // sortExampleKeys
 //
 // We need to do this here to ensure that 'failure' always comes before
@@ -65,6 +108,10 @@ describe('Showmehow Service Lesson', function () {
         GLib.setenv('CODING_TARGET_FILES_DIR', GLib.dir_make_tmp('showmehow-service-test-XXXXXX'), true);
         service = new Mocks.ChatServiceStub();
         controller = new Controller.ShowmehowController(defaultLessons, null, service);
+    });
+
+    afterAll(function() {
+        recursivelyDropDirectory(Gio.File.new_for_path(GLib.getenv('CODING_TARGET_FILES_DIR')));
     });
 
     defaultLessons.forEach(function(lesson) {
