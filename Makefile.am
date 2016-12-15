@@ -217,6 +217,8 @@ TESTS_ENVIRONMENT = \
 	export G_TEST_BUILDDIR="$(abs_builddir)/tests"; \
 	export LC_ALL=C; \
 	export CODING_SOURCE_FILES_DIR="$(top_srcdir)/files"; \
+	export OVERRIDDEN_HOME_BASE="$${PWD}/$$(mktemp -d showmehow-service-tests-fake-home-XXXXXX)"; \
+	export HOME="$$(mkdir -p $${OVERRIDDEN_HOME_BASE}/user; echo $${OVERRIDDEN_HOME_BASE}/user)"; \
 	$(NULL)
 
 # # # COVERAGE # # #
