@@ -619,7 +619,7 @@
                     "value": ".*\/home.*"
                 }],
                 "example": {
-                    "success": "cd ~ && echo 'output'"
+                    "success": "cd ~"
                 }
             },
             "cd_and_cmd": {
