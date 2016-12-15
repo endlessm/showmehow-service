@@ -816,7 +816,7 @@
                     }
                 }, "wrapped_output", {
                     "type": "equal_to",
-                    "value": "Australia\nBrazil\nCanada\nChina\nCOUNTRY\nRussia\nU.K\nU.S.A\n\n"
+                    "value": "Australia\nBrazil\nCOUNTRY\nCanada\nChina\nRussia\nU.K\nU.S.A\n\n"
                 }],
                 "example": {
                     "success": "cat atlas.txt | awk '{ print $1 }' | sort",
