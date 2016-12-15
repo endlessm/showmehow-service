@@ -79,7 +79,6 @@ function recursivelyDropOptionalDirectory(path) {
 function configureHomeDirectory() {
     let overiddenHome = GLib.getenv('OVERRIDDEN_HOME_BASE');
     if (!overiddenHome) {
-        log("HOME was not overidden, no need to create home base");
         return;
     }
 
