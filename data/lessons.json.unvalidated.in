@@ -390,10 +390,22 @@
             },
             "disable_social_bar": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "hook": "parse_gsettings",
+                        "hook_settings": {
+                            "variant_type": "b"
+                        }
+                    }
+                }, "wrapped_output", {
                     "type": "shell_custom",
                     "value": {
-                        "command": "gsettings get org.gnome.shell enable-social-bar"
+                        "command": "gsettings get org.gnome.shell enable-social-bar",
+                        "hook": "parse_gsettings",
+                        "hook_settings": {
+                            "variant_type": "b"
+                        }
                     }
                 }, {
                     "type": "regex",
@@ -414,10 +426,22 @@
             },
             "enable_social_bar": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "hook": "parse_gsettings",
+                        "hook_settings": {
+                            "variant_type": "b"
+                        }
+                    }
+                }, "wrapped_output", {
                     "type": "shell_custom",
                     "value": {
-                        "command": "gsettings get org.gnome.shell enable-social-bar"
+                        "command": "gsettings get org.gnome.shell enable-social-bar",
+                        "hook": "parse_gsettings",
+                        "hook_settings": {
+                            "variant_type": "b"
+                        }
                     }
                 }, {
                     "type": "regex",
@@ -457,10 +481,22 @@
             },
             "add_terminal_pinned": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "hook": "parse_gsettings",
+                        "hook_settings": {
+                            "variant_type": "as"
+                        }
+                    }
+                }, "wrapped_output", {
                     "type": "shell_custom",
                     "value": {
-                        "command": "gsettings get org.gnome.shell taskbar-pins"
+                        "command": "gsettings get org.gnome.shell taskbar-pins",
+                        "hook": "parse_gsettings",
+                        "hook_settings": {
+                            "variant_type": "as"
+                        }
                     }
                 }, {
                     "type": "regex",
@@ -475,8 +511,8 @@
                     }
                 },
                 "example": {
-                    "success": "gsettings set org.gnome.shell taskbar-pins \"['org.gnome.Terminal.desktop']\"",
-                    "failure": "gsettings set org.gnome.shell taskbar-pins \"[]\""
+                    "success": "gsettings set org.gnome.shell taskbar-pins ['org.gnome.Terminal.desktop']",
+                    "failure": "gsettings set org.gnome.shell taskbar-pins []"
                 }
             }
         }
