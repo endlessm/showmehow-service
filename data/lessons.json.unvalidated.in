@@ -914,7 +914,7 @@
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
-                    "value": "USER        PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND"
+                    "value": "USER\\s+PID\\s+%CPU\\s+%MEM\\s+VSZ\\s+RSS\\s+TTY\\s+STAT\\s+START\\s+TIME\\s+COMMAND"
                 }],
                 "example": {
                     "success": "ps aux",
