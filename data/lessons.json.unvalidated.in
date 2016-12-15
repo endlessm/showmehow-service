@@ -697,13 +697,13 @@
                 }, "wrapped_output", {
                     "type": "check_file_contents",
                     "value": {
-                        "path": "~/code/secret.txt",
+                        "path": "~/showmehow-code/secret.txt",
                         "value": "kittens"
                     }
                 }],
                 "example": {
-                    "success": "echo 'kittens' > $HOME/code/secret.txt",
-                    "failure": "echo 'cats' > $HOME/code/secret.txt"
+                    "success": "echo 'kittens' > $HOME/showmehow-code/secret.txt",
+                    "failure": "echo 'cats' > $HOME/showmehow-code/secret.txt"
                 }
             }
         }
