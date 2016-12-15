@@ -29,8 +29,10 @@ lib/config.js: $(srcdir)/lib/config.js.in
 
 # All javascript modules
 all_dist_js_files = \
-	showmehow-validator.js \
-	showmehow-service.js \
+	bin/showmehow-validator.js \
+	bin/showmehow-service.js \
+	$(javascript_mocks) \
+	$(javascript_tests) \
 	$(resource_dist_js_files) \
 	$(NULL)
 
@@ -56,12 +58,12 @@ EXTRA_DIST = \
 CLEANFILES =
 
 # Rename the showmehow-service script
-showmehow-service: $(abs_top_srcdir)/showmehow-service.js
+bin/showmehow-service: $(abs_top_srcdir)/bin/showmehow-service.js
 	cp $< $@
 	chmod +x $@
 
 # Rename the showmehow-validator script
-showmehow-validator: $(abs_top_srcdir)/showmehow-validator.js
+bin/showmehow-validator: $(abs_top_srcdir)/bin/showmehow-validator.js
 	cp $< $@
 	chmod +x $@
 
@@ -79,7 +81,7 @@ gdbus_codegen_built_sources = \
 # Validation of lessons (produces data.lessons)
 data/lessons.json: $(abs_top_srcdir)/data/lessons.json.unvalidated.in $(all_js_files)
 	gjs --include-path=$(abs_top_srcdir) \
-	    $(abs_top_srcdir)/showmehow-validator.js \
+	    $(abs_top_srcdir)/bin/showmehow-validator.js \
 	    $(abs_top_srcdir)/data/lessons.json.unvalidated.in
 	mkdir -p data
 	cp $< $@
@@ -131,8 +133,9 @@ libshowmehow_1_0_la_LIBADD = $(SHOWMEHOW_SERVICE_LIBS)
 lib_LTLIBRARIES = libshowmehow-1.0.la
 
 # Scripts to install
-bin_SCRIPTS = showmehow-service \
-	      showmehow-validator
+bin_SCRIPTS = \
+	bin/showmehow-service \
+	bin/showmehow-validator
 
 # Header files to install
 showmehowincludedir = $(includedir)/showmehow-service
