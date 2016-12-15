@@ -2,7 +2,10 @@
 <gresources>
   <gresource prefix="/com/endlessm/showmehow">
     <file>data/lessons.json</file>
-    <file>lib/validation.js</file>
     <file>lib/config.js</file>
+    <file>lib/controller.js</file>
+    <file>lib/descriptors.js</file>
+    <file>lib/service.js</file>
+    <file>lib/validation.js</file>
   </gresource>
 </gresources>
