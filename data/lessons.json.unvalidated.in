@@ -1184,7 +1184,7 @@
                         "runtime": "python",
                         "command": "print(environment_dict)"
                     }
-                }, {
+                }, "wrapped_output", {
                     "type": "regex",
                     "value": "^\\{'PATH': '/bin:/usr/bin', 'LD_LIBRARY_PATH': '/lib:/usr/lib:/usr/lib/x86_64-linux-gnu', 'GI_TYPELIB_PATH': '/usr/lib/girepository-1.0'\\}$"
                 }],
