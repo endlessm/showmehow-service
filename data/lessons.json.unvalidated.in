@@ -844,8 +844,11 @@
                         "in_data_directory": "text-processing-fs"
                     }
                 }, "wrapped_output", {
-                    "type": "equal_to",
-                    "value": "Australia\nBrazil\nCOUNTRY\nCanada\nChina\nRussia\nU.K\nU.S.A\n\n"
+                    "type": "regex",
+                    "value": {
+                        "single_line": true,
+                        "expression": "^Australia\\s*Brazil\\s*Canada\\s*China\\s*Russia\\s*U.S.A\\s*$"
+                    }
                 }],
                 "example": {
                     "success": "cat atlas.txt | awk '{ print $1 }' | sort",
