@@ -847,7 +847,7 @@
                     "type": "regex",
                     "value": {
                         "single_line": true,
-                        "expression": "^Australia\\s*Brazil\\s*Canada\\s*China\\s*Russia\\s*U.S.A\\s*$"
+                        "expression": "^Australia\\s*Brazil\\s*(.|\n)*U.K\\s*U.S.A\\s*$"
                     }
                 }],
                 "example": {
