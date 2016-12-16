@@ -989,7 +989,7 @@
         "available_to": ["chatbox"],
         "desc": "Python functions attachment",
         "practice": {
-            "python_functions::challenge": {
+            "challenge": {
                 "input": "console",
                 "mapper": [{
                     "type": "regex",
@@ -1007,7 +1007,7 @@
         "available_to": ["chatbox"],
         "desc": "Python classes attachment",
         "practice": {
-            "python_classes::challenge": {
+            "challenge": {
                 "input": "console",
                 "mapper": [{
                     "type": "regex",
