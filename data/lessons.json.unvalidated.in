@@ -99,6 +99,27 @@
         }
     },
     {
+        "name": "yoursystem",
+        "desc": "System quiz",
+        "available_to": [],
+        "entry": "find_configs",
+        "practice": {
+            "find_configs": {
+                "input": "console",
+                "mapper": [
+                    {
+                        "type": "regex",
+                        "value": "^\\.$"
+                    }
+                ],
+                "example": {
+                    "success": ".",
+                    "failure": "other"
+                }
+            }
+        }
+    },
+    {
         "name": "showmehow",
         "desc": "Show me how to do things in this mysterious environment...",
         "available_to": ["console"],
