@@ -70,7 +70,7 @@
                     "input",
                     {
                         "type": "regex",
-                        "value": "^install\\-programming$"
+                        "value": "^install\\-terminal$"
                     }
                 ],
                 "effects": {
@@ -88,12 +88,12 @@
                         ]
                     },
                     "failure": {
-                        "reply": "'install-programming' EXACTLY. I haven't got all day!"
+                        "reply": "'install-terminal' EXACTLY. I haven't got all day!"
                     }
                 },
                 "example": {
-                    "success": "install-programming",
-                    "failure": "install-programming-no"
+                    "success": "install-terminal",
+                    "failure": "install-terminal-no"
                 }
             }
         }
