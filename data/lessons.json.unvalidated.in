@@ -131,7 +131,7 @@
                                 "NONINTERACTIVE": "1"
                             }
                         }
-                    },
+                    }, "wrapped_output",
                     {
                         "type": "regex",
                         "value": "Hey.*"
