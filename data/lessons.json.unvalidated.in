@@ -23,21 +23,17 @@
                     "success": "yes"
                 }
             },
-            "goog_key": {
+            "enable_wobbly_windows": {
                 "input": "text",
                 "mapper": ["input",
                     {
-                        "type": "regex",
-                        "value": "Hfr gur Fbhepr, Yhxr"
+                        "type": "equal_to",
+                        "value": "\"wobbly_window\" = true;"
                     }
                 ],
-                "effects": {
-                    "success": {
-                        "reply": "Yes, I'm talking to you"
-                    }
-                },
                 "example": {
-                    "success": "Hfr gur Fbhepr, Yhxr"
+                    "success": "\"wobbly_window\" = true;",
+                    "failure": "\"wobbly_not_window\" = true;"
                 }
             },
             "change_background_pic": {
