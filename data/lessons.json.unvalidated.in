@@ -320,6 +320,17 @@
                     "success": "sdfksdfdf",
                     "failure": "ls"
                 }
+            },
+            "breakit_again": {
+                "input": "console",
+                "mapper": ["shell", "wrapped_output", {
+                    "type": "regex",
+                    "value": ".*command.*"
+                }],
+                "example": {
+                    "success": "sdfksdfdf",
+                    "failure": "ls"
+                }
             }
         }
     },
