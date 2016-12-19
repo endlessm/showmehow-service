@@ -28,12 +28,12 @@
                 "mapper": ["input",
                     {
                         "type": "equal_to",
-                        "value": "\"wobbly_window\" = true;"
+                        "value": "wobbly_window = true;"
                     }
                 ],
                 "example": {
-                    "success": "\"wobbly_window\" = true;",
-                    "failure": "\"wobbly_not_window\" = true;"
+                    "success": "wobbly_window = true;",
+                    "failure": "wobbly_not_window = true;"
                 }
             },
             "change_background_pic": {
