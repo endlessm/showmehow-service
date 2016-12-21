@@ -43,7 +43,7 @@ javascript_tests = \
 # All javascript modules
 all_dist_js_files = \
 	bin/showmehow-validator.js \
-	bin/showmehow-service.js \
+	bin/showmehow-service.js.in \
 	$(javascript_mocks) \
 	$(javascript_tests) \
 	$(resource_dist_js_files) \
@@ -71,8 +71,8 @@ EXTRA_DIST = \
 CLEANFILES =
 
 # Rename the showmehow-service script
-showmehow-service: $(abs_top_srcdir)/bin/showmehow-service.js
-	cp $< $@
+showmehow-service: $(srcdir)/bin/showmehow-service.js.in
+	$(AM_V_GEN) sed -e 's,%PKGDATADIR%,$(pkgdatadir),g' $< > $@.tmp && mv -f $@.tmp $@
 	chmod +x $@
 
 # Rename the showmehow-validator script
@@ -119,26 +119,24 @@ uninstall-local:
 	for i in $(lesson_directories); do rm -rf $(DESTDIR)/$(pkgdatadir)/$$i; done
 
 # GResources
-
 resource_files = \
 	$(resource_dist_js_files) \
 	$(resource_nondist_js_files) \
 	data/lessons.json \
 	$(NULL)
 
-showmehow-resources.h: $(abs_top_srcdir)/com.endlessm.showmehow.gresource.xml $(resource_files)
-	$(AM_V_GEN) glib-compile-resources --target=$@ --sourcedir=$(srcdir) --sourcedir=$(builddir) --generate --c-name showmehow $<
-showmehow-resources.c: $(abs_top_srcdir)/com.endlessm.showmehow.gresource.xml $(resource_files)
-	$(AM_V_GEN) glib-compile-resources --target=$@ --sourcedir=$(srcdir) --sourcedir=$(builddir) --generate --c-name showmehow $<
+resourcedir = $(pkgdatadir)
+resource_DATA = com.endlessm.showmehow.gresource
 
-resources_built_sources = showmehow-resources.c showmehow-resources.h
+com.endlessm.showmehow.gresource: $(abs_top_srcdir)/com.endlessm.showmehow.gresource.xml $(resource_files)
+	$(AM_V_GEN) glib-compile-resources --target=$@ --sourcedir=$(srcdir) --sourcedir=$(builddir) $<
 
 # Generate the Showmehow GDBus Skeleton library
-libshowmehow_1_0_la_SOURCES = $(resources_built_sources) \
-			      $(gdbus_codegen_built_sources) \
-			      showmehow-cmd-helper.c \
-			      showmehow-cmd-helper.h \
-			      $(NULL)
+libshowmehow_1_0_la_SOURCES = \
+	$(gdbus_codegen_built_sources) \
+	showmehow-cmd-helper.c \
+	showmehow-cmd-helper.h \
+	$(NULL)
 libshowmehow_1_0_la_CFLAGS = $(SHOWMEHOW_SERVICE_CFLAGS)
 libshowmehow_1_0_la_LIBADD = $(SHOWMEHOW_SERVICE_LIBS)
 
@@ -234,8 +232,8 @@ AM_JS_LOG_FLAGS += @EOS_JS_COVERAGE_LOG_FLAGS@
 CLEANFILES += \
 	$(bin_SCRIPTS) \
 	$(service_DATA) \
-	$(resources_built_sources) \
 	$(gdbus_codegen_built_sources) \
+	com.endlessm.showmehow.gresource \
 	data/lessons.json \
 	files/coding-shared-dir \
 	lib/config.js \

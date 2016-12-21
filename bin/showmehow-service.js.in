@@ -12,10 +12,11 @@ const GLib = imports.gi.GLib;
 const Gio = imports.gi.Gio;
 const Showmehow = imports.gi.Showmehow;
 
-// This is a hack to cause Showmehow js resources to get loaded
-const ShowmehowResource = imports.gi.Showmehow.get_resource();  // eslint-disable-line no-unused-vars
-
 const Lang = imports.lang;
+
+// Load our resource
+Gio.Resource.load(GLib.build_filenamev(['%PKGDATADIR%',
+                                        'com.endlessm.showmehow.gresource']))._register();
 
 // Put ourself in the search path. Note that we have the least priority.
 // This will allow us to run locally against non-packed files that
