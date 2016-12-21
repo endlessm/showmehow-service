@@ -71,7 +71,7 @@ describe('Showmehow Service Lesson', function () {
                     let task = lesson.practice[taskName];
                     sortExampleKeys(Object.keys(task.example)).forEach(function(result) {
                         let input = task.example[result];
-                        it("returns " + result + " when called with " + input, function(done) {
+                        it('returns ' + result + ' when called with ' + input, function(done) {
                             let errorHandler = function(domain, code, message) {
                                 throw new Error('Error ' + domain + ':' + code + ' "' + message + '" occurred');
                             };
