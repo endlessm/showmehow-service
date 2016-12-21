@@ -55,15 +55,13 @@ describe('Showmehow Service Lesson', function () {
         describe(lesson.name, function() {
             let session = -1;
             beforeAll(function() {
-                if (lesson.requires_session) {
+                if (lesson.requires_session)
                     session = service.openSession(lesson.name);
-                }
             });
 
             afterAll(function() {
-                if (session !== -1) {
+                if (session !== -1)
                     service.closeSession(session);
-                }
             });
 
             Object.keys(lesson.practice).forEach(function(taskName) {
