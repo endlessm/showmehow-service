@@ -148,7 +148,8 @@ lib_LTLIBRARIES = libshowmehow-1.0.la
 # Scripts to install
 bin_SCRIPTS = \
 	showmehow-service \
-	showmehow-validator
+	showmehow-validator \
+	$(NULL)
 
 # Header files to install
 showmehowincludedir = $(includedir)/showmehow-service
