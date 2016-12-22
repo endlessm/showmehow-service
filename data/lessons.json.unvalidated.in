@@ -579,11 +579,11 @@
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
-                    "value": ".*shared.*"
+                    "value": ".*etc.*"
                 }],
                 "example": {
-                    "success": "ls /home",
-                    "failure": "ls /"
+                    "success": "ls /",
+                    "failure": "ls /proc"
                 }
             },
             "pwd": {
@@ -623,11 +623,11 @@
                 "mapper": ["shell", {
                     "type": "shell_custom",
                     "value": {
-                        "command": "ls"
+                        "command": "pwd"
                     }
                 }, {
                     "type": "regex",
-                    "value": ".*Pictures.*"
+                    "value": "\/home.*"
                 }],
                 "example": {
                     "success": "cd ~",
@@ -638,16 +638,21 @@
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
-                    "value": ".*shared.*"
+                    "value": ".*etc.*"
                 }],
                 "example": {
-                    "success": "cd /home && ls",
+                    "success": "cd / && ls",
                     "failure": ""
                 }
             },
             "list_home_dir": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "before": "mkdir -p ~/Pictures"
+                    }
+                }, "wrapped_output", {
                     "type": "regex",
                     "value": ".*Pictures.*"
                 }],
