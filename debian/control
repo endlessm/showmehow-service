@@ -3,6 +3,7 @@ Priority: standard
 Maintainer: Sam Spilsbury <sam@endlessm.com>
 Build-Depends: autotools-dev,
                debhelper (>= 8.0.0),
+               eos-node-modules-dev (>= 1.0.0),
                gir1.2-glib-2.0,
                gjs,
                gobject-introspection,
