@@ -111,7 +111,7 @@ install-data-local:
 	mkdir -p $(DESTDIR)$(pkgdatadir)
 	for i in $(lesson_directories); do \
 		mkdir -p $(DESTDIR)$(pkgdatadir)/$$i && \
-		cp -r $(srcdir)/$$i $(DESTDIR)$(pkgdatadir)/$$i && \
+		cp -r $(srcdir)/$$i $(DESTDIR)$(pkgdatadir)/$$i/.. && \
 		chmod -R +w $(DESTDIR)$(pkgdatadir)/$$i; \
 	done
 
@@ -216,6 +216,7 @@ TESTS_ENVIRONMENT = \
 	export G_TEST_SRCDIR="$(abs_srcdir)/tests"; \
 	export G_TEST_BUILDDIR="$(abs_builddir)/tests"; \
 	export LC_ALL=C; \
+	export CODING_SOURCE_FILES_DIR="$(top_srcdir)/files"; \
 	$(NULL)
 
 # # # COVERAGE # # #
