@@ -16,7 +16,7 @@ Build-Depends: autotools-dev,
                libwebkit2gtk-4.0-dev,
                pkg-config,
                python-lcov-cobertura (>= 1.5),
-               showmehow
+               python3-showmehow
 Standards-Version: 3.9.4
 Section: non-free/libs
 Homepage: http://www.endlessm.com
