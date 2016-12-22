@@ -928,7 +928,7 @@
                 }],
                 "example": {
                     "success": "ps aux | grep showmehow-service | awk '{ print $2 }'",
-                    "failure": "ps aux"
+                    "failure": "ps aux | grep asdasd123"
                 }
             },
             "view_proc_pid": {
