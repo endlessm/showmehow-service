@@ -390,10 +390,22 @@
             },
             "disable_social_bar": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "hook": "parse_gsettings",
+                        "hook_settings": {
+                            "variant_type": "b"
+                        }
+                    }
+                }, "wrapped_output", {
                     "type": "shell_custom",
                     "value": {
-                        "command": "gsettings get org.gnome.shell enable-social-bar"
+                        "command": "gsettings get org.gnome.shell enable-social-bar",
+                        "hook": "parse_gsettings",
+                        "hook_settings": {
+                            "variant_type": "b"
+                        }
                     }
                 }, {
                     "type": "regex",
@@ -414,10 +426,22 @@
             },
             "enable_social_bar": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "hook": "parse_gsettings",
+                        "hook_settings": {
+                            "variant_type": "b"
+                        }
+                    }
+                }, "wrapped_output", {
                     "type": "shell_custom",
                     "value": {
-                        "command": "gsettings get org.gnome.shell enable-social-bar"
+                        "command": "gsettings get org.gnome.shell enable-social-bar",
+                        "hook": "parse_gsettings",
+                        "hook_settings": {
+                            "variant_type": "b"
+                        }
                     }
                 }, {
                     "type": "regex",
@@ -457,10 +481,22 @@
             },
             "add_terminal_pinned": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "hook": "parse_gsettings",
+                        "hook_settings": {
+                            "variant_type": "as"
+                        }
+                    }
+                }, "wrapped_output", {
                     "type": "shell_custom",
                     "value": {
-                        "command": "gsettings get org.gnome.shell taskbar-pins"
+                        "command": "gsettings get org.gnome.shell taskbar-pins",
+                        "hook": "parse_gsettings",
+                        "hook_settings": {
+                            "variant_type": "as"
+                        }
                     }
                 }, {
                     "type": "regex",
@@ -475,8 +511,8 @@
                     }
                 },
                 "example": {
-                    "success": "gsettings set org.gnome.shell taskbar-pins \"['org.gnome.Terminal.desktop']\"",
-                    "failure": "gsettings set org.gnome.shell taskbar-pins \"[]\""
+                    "success": "gsettings set org.gnome.shell taskbar-pins ['org.gnome.Terminal.desktop']",
+                    "failure": "gsettings set org.gnome.shell taskbar-pins []"
                 }
             }
         }
@@ -816,7 +852,7 @@
                     }
                 }, "wrapped_output", {
                     "type": "equal_to",
-                    "value": "Australia\nBrazil\nCanada\nChina\nCOUNTRY\nRussia\nU.K\nU.S.A\n\n"
+                    "value": "Australia\nBrazil\nCOUNTRY\nCanada\nChina\nRussia\nU.K\nU.S.A\n\n"
                 }],
                 "example": {
                     "success": "cat atlas.txt | awk '{ print $1 }' | sort",
@@ -878,7 +914,7 @@
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
-                    "value": "USER        PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND"
+                    "value": "USER\\s+PID\\s+%CPU\\s+%MEM\\s+VSZ\\s+RSS\\s+TTY\\s+STAT\\s+START\\s+TIME\\s+COMMAND"
                 }],
                 "example": {
                     "success": "ps aux",
@@ -941,7 +977,11 @@
                 "mapper": [{
                     "type": "regex",
                     "value": "bjAmbb"
-                }]
+                }],
+                "example": {
+                    "success": "bjAmbb",
+                    "failure": "none"
+                }
             }
         }
     },
@@ -955,7 +995,11 @@
                 "mapper": [{
                     "type": "regex",
                     "value": "bob"
-                }]
+                }],
+                "example": {
+                    "success": "bob",
+                    "failure": "fred"
+                }
             }
         }
     },

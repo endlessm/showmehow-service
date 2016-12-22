@@ -1,0 +1,83 @@
+#!/usr/bin/env gjs
+// showmehow-service.js
+//
+// Copyright (c) 2016 Endless Mobile Inc.
+// All Rights Reserved.
+//
+// The Showmehow service is the central place where all 'lessons' about
+// the operating system are stored and progress is kept.
+
+
+const GLib = imports.gi.GLib;
+const Gio = imports.gi.Gio;
+const Showmehow = imports.gi.Showmehow;
+
+const Lang = imports.lang;
+const System = imports.system;
+
+// Load our resource
+Gio.Resource.load(GLib.build_filenamev(['%PKGDATADIR%',
+                                        'com.endlessm.showmehow.gresource']))._register();
+
+// Put ourself in the search path. Note that we have the least priority.
+// This will allow us to run locally against non-packed files that
+// are already on disk if the user sets GJS_PATH appropriately.
+imports.searchPath.push('resource:///com/endlessm/showmehow');
+
+const Config = imports.lib.config;
+const Controller = imports.lib.controller;
+const Descriptors = imports.lib.descriptors;
+const Service = imports.lib.service;
+
+
+const ShowmehowServiceApplication = new Lang.Class({
+    Name: 'ShowmehowServiceApplication',
+    Extends: Gio.Application,
+
+    _init: function(params) {
+        this.parent(params);
+        this._skeleton = null;
+        this._commandLineFilename = null;
+
+        this.add_main_option('lessons-file', 'l'.charCodeAt(0), GLib.OptionFlags.NONE, GLib.OptionArg.FILENAME,
+                             'Use this file for lessons', 'PATH');
+    },
+
+    vfunc_startup: function() {
+        this.parent();
+        this.hold();
+    },
+
+    vfunc_handle_local_options: function(options) {
+        let lessonsFileOption = options.lookup_value('lessons-file', new GLib.VariantType('ay'));
+        if (lessonsFileOption)
+            this._commandLineFilename = lessonsFileOption.get_bytestring().toString();
+
+        // Continue default processing...
+        return -1;
+    },
+
+    vfunc_dbus_register: function(conn, object_path) {
+        this.parent(conn, object_path);
+        let [descriptors, monitor] = Descriptors.loadLessonDescriptors(this._commandLineFilename);
+        this._skeleton = new Service.ShowmehowDBusService();
+        this._skeleton.export(conn, object_path);
+        this._service = new Controller.ShowmehowController(descriptors, monitor, this._skeleton);
+        return true;
+    },
+
+    vfunc_dbus_unregister: function(conn, object_path) {
+        if (this._skeleton && this._skeleton.has_connection(conn)) {
+            this._skeleton.unexport();
+        }
+
+        this.parent(conn, object_path);
+    }
+});
+
+let args = [System.programInvocationName].concat(ARGV);
+let application = new ShowmehowServiceApplication({
+    'application-id': 'com.endlessm.Showmehow.Service',
+    'flags': Gio.ApplicationFlags.IS_SERVICE
+});
+application.run(args);

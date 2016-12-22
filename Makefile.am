@@ -15,6 +15,9 @@ files_DATA = $(arbitrary_files)
 
 # Resource javascript modules
 resource_dist_js_files = \
+	lib/controller.js \
+	lib/descriptors.js \
+	lib/service.js \
 	lib/validation.js \
 	$(NULL)
 
@@ -27,10 +30,22 @@ lib/config.js: $(srcdir)/lib/config.js.in
 	sed -e 's,%CODING_FILES_DIR%,$(pkgdatadir)/files,g' -e 's,%CODING_SHARED_SCRIPT_DIR%,$(pkglibexecdir)/coding-shared-dir,g' $< > $@.tmp && \
 	mv -f $@.tmp $@
 
+# Mocks
+javascript_mocks = \
+	mocks/constructors.js \
+	$(NULL)
+
+# Tests
+javascript_tests = \
+	tests/testShowmehowServiceContent.js \
+	$(NULL)
+
 # All javascript modules
 all_dist_js_files = \
-	showmehow-validator.js \
-	showmehow-service.js \
+	bin/showmehow-validator.js \
+	bin/showmehow-service.js.in \
+	$(javascript_mocks) \
+	$(javascript_tests) \
 	$(resource_dist_js_files) \
 	$(NULL)
 
@@ -56,12 +71,12 @@ EXTRA_DIST = \
 CLEANFILES =
 
 # Rename the showmehow-service script
-showmehow-service: $(abs_top_srcdir)/showmehow-service.js
-	cp $< $@
+showmehow-service: $(srcdir)/bin/showmehow-service.js.in
+	$(AM_V_GEN) sed -e 's,%PKGDATADIR%,$(pkgdatadir),g' $< > $@.tmp && mv -f $@.tmp $@
 	chmod +x $@
 
 # Rename the showmehow-validator script
-showmehow-validator: $(abs_top_srcdir)/showmehow-validator.js
+showmehow-validator: $(abs_top_srcdir)/bin/showmehow-validator.js
 	cp $< $@
 	chmod +x $@
 
@@ -79,7 +94,7 @@ gdbus_codegen_built_sources = \
 # Validation of lessons (produces data.lessons)
 data/lessons.json: $(abs_top_srcdir)/data/lessons.json.unvalidated.in $(all_js_files)
 	gjs --include-path=$(abs_top_srcdir) \
-	    $(abs_top_srcdir)/showmehow-validator.js \
+	    $(abs_top_srcdir)/bin/showmehow-validator.js \
 	    $(abs_top_srcdir)/data/lessons.json.unvalidated.in
 	mkdir -p data
 	cp $< $@
@@ -104,26 +119,24 @@ uninstall-local:
 	for i in $(lesson_directories); do rm -rf $(DESTDIR)/$(pkgdatadir)/$$i; done
 
 # GResources
-
 resource_files = \
 	$(resource_dist_js_files) \
 	$(resource_nondist_js_files) \
 	data/lessons.json \
 	$(NULL)
 
-showmehow-resources.h: $(abs_top_srcdir)/com.endlessm.showmehow.gresource.xml $(resource_files)
-	$(AM_V_GEN) glib-compile-resources --target=$@ --sourcedir=$(srcdir) --sourcedir=$(builddir) --generate --c-name showmehow $<
-showmehow-resources.c: $(abs_top_srcdir)/com.endlessm.showmehow.gresource.xml $(resource_files)
-	$(AM_V_GEN) glib-compile-resources --target=$@ --sourcedir=$(srcdir) --sourcedir=$(builddir) --generate --c-name showmehow $<
+resourcedir = $(pkgdatadir)
+resource_DATA = com.endlessm.showmehow.gresource
 
-resources_built_sources = showmehow-resources.c showmehow-resources.h
+com.endlessm.showmehow.gresource: $(abs_top_srcdir)/com.endlessm.showmehow.gresource.xml $(resource_files)
+	$(AM_V_GEN) glib-compile-resources --target=$@ --sourcedir=$(srcdir) --sourcedir=$(builddir) $<
 
 # Generate the Showmehow GDBus Skeleton library
-libshowmehow_1_0_la_SOURCES = $(resources_built_sources) \
-			      $(gdbus_codegen_built_sources) \
-			      showmehow-cmd-helper.c \
-			      showmehow-cmd-helper.h \
-			      $(NULL)
+libshowmehow_1_0_la_SOURCES = \
+	$(gdbus_codegen_built_sources) \
+	showmehow-cmd-helper.c \
+	showmehow-cmd-helper.h \
+	$(NULL)
 libshowmehow_1_0_la_CFLAGS = $(SHOWMEHOW_SERVICE_CFLAGS)
 libshowmehow_1_0_la_LIBADD = $(SHOWMEHOW_SERVICE_LIBS)
 
@@ -131,8 +144,10 @@ libshowmehow_1_0_la_LIBADD = $(SHOWMEHOW_SERVICE_LIBS)
 lib_LTLIBRARIES = libshowmehow-1.0.la
 
 # Scripts to install
-bin_SCRIPTS = showmehow-service \
-	      showmehow-validator
+bin_SCRIPTS = \
+	showmehow-service \
+	showmehow-validator \
+	$(NULL)
 
 # Header files to install
 showmehowincludedir = $(includedir)/showmehow-service
@@ -175,12 +190,50 @@ com.endlessm.Showmehow.Service.service: $(abs_top_srcdir)/com.endlessm.Showmehow
 # Script for placing files in the shared dir 
 pkglibexec_SCRIPTS = files/coding-shared-dir
 
+# Run tests when running 'make check'
+TESTS = \
+	$(javascript_tests) \
+	run_coverage.coverage \
+	$(NULL)
+LOG_COMPILER = gtester
+AM_LOG_FLAGS = -k --verbose
+
+TEST_EXTENSIONS = .js .coverage
+
+JS_LOG_DRIVER = env AM_TAP_AWK='$(AWK)' $(SHELL) $(top_srcdir)/tap-driver.sh
+JS_LOG_DRIVER_FLAGS = --comments
+JS_LOG_COMPILER = jasmine
+AM_JS_LOG_FLAGS = --tap --no-config @JASMINE_REPORT_ARGUMENT@
+
+# Use locally built versions of CodingGameService-1.0.gir, JS modules, and
+# libraries. We clobber GJS_PATH and include the js directory and the
+# $(top_srcdir) for including test helper files.
+# (May need to change to AM_TESTS_ENVIRONMENT in a later version of Automake)
+TESTS_ENVIRONMENT = \
+	export GJS_PATH="$(top_srcdir):$(top_srcdir)/js"; \
+	export GI_TYPELIB_PATH="$(top_builddir)$${GI_TYPELIB_PATH:+:$$GI_TYPELIB_PATH}"; \
+	export LD_LIBRARY_PATH="$(top_builddir)/.libs$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}"; \
+	export G_TEST_SRCDIR="$(abs_srcdir)/tests"; \
+	export G_TEST_BUILDDIR="$(abs_builddir)/tests"; \
+	export LC_ALL=C; \
+	$(NULL)
+
+# # # COVERAGE # # #
+
+# Don't specify the resource:/// URIs here, because the tests load modules from
+# the local directory, not from the GResource
+EOS_JS_COVERAGE_FILES := $(patsubst $(srcdir)/%,%,$(wildcard $(srcdir)/lib/*.js))
+
+@EOS_COVERAGE_RULES@
+
+AM_JS_LOG_FLAGS += @EOS_JS_COVERAGE_LOG_FLAGS@
+
 # Things to get rid of later
 CLEANFILES += \
 	$(bin_SCRIPTS) \
 	$(service_DATA) \
-	$(resources_built_sources) \
 	$(gdbus_codegen_built_sources) \
+	com.endlessm.showmehow.gresource \
 	data/lessons.json \
 	files/coding-shared-dir \
 	lib/config.js \
