@@ -206,11 +206,11 @@ JS_LOG_COMPILER = jasmine
 AM_JS_LOG_FLAGS = --tap --no-config @JASMINE_REPORT_ARGUMENT@
 
 # Use locally built versions of CodingGameService-1.0.gir, JS modules, and
-# libraries. We clobber GJS_PATH and include the js directory and the
+# libraries. We clobber GJS_PATH and include the lib directory and the
 # $(top_srcdir) for including test helper files.
 # (May need to change to AM_TESTS_ENVIRONMENT in a later version of Automake)
 TESTS_ENVIRONMENT = \
-	export GJS_PATH="$(top_srcdir):$(top_srcdir)/js"; \
+	export GJS_PATH="$(top_srcdir):$(top_srcdir)/lib:$(top_builddir)/lib"; \
 	export GI_TYPELIB_PATH="$(top_builddir)$${GI_TYPELIB_PATH:+:$$GI_TYPELIB_PATH}"; \
 	export LD_LIBRARY_PATH="$(top_builddir)/.libs$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}"; \
 	export G_TEST_SRCDIR="$(abs_srcdir)/tests"; \
