@@ -607,17 +607,6 @@
                     "success": "cd /home"
                 }
             },
-            "list_home": {
-                "input": "console",
-                "mapper": ["shell", "wrapped_output", {
-                    "type": "regex",
-                    "value": ".*shared.*"
-                }],
-                "example": {
-                    "success": "ls",
-                    "failure": "ls /"
-                }
-            },
             "cd_home_dir": {
                 "input": "console",
                 "mapper": ["shell", {
