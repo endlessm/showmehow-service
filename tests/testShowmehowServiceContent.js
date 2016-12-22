@@ -80,18 +80,6 @@ function sortExampleKeys(keys) {
     });
 }
 
-// getTopLevelSourceDirectory
-//
-// This (somewhat horrible) hack reads the last element on the ARGV from
-// jasmine to determine the path this file. It then resolves that as
-// an absolute path, gets the directory name and goes one level up
-// to determine where the source directory is. This is required in
-// the distcheck case where we rely on files in the source directory
-// and the interpreter is running in the build directory.
-function getTopLevelSourceDirectory() {
-    return Gio.File.new_for_path(ARGV[ARGV.length - 1]).get_parent().get_parent().get_path();
-}
-
 describe('Showmehow Service Lesson', function () {
     let controller, service;
     let [defaultLessons, warnings] = Descriptors.loadLessonDescriptorsFromFile(Gio.File.new_for_path('data/lessons.json'));
@@ -102,9 +90,6 @@ describe('Showmehow Service Lesson', function () {
     beforeAll(function () {
         GLib.setenv('GSETTINGS_BACKEND', 'memory', true);
         GLib.setenv('PATH', GLib.getenv('PATH') + ':/usr/games', true);
-        GLib.setenv('CODING_SOURCE_FILES_DIR',
-                    GLib.build_filenamev([getTopLevelSourceDirectory(), 'files']),
-                    true);
         GLib.setenv('CODING_TARGET_FILES_DIR', GLib.dir_make_tmp('showmehow-service-test-XXXXXX'), true);
         service = new Mocks.ChatServiceStub();
         controller = new Controller.ShowmehowController(defaultLessons, null, service);
