@@ -1,5 +1,5 @@
 {
-    "include_paths": ["."],
+    "include_paths": [".", "lib"],
     "spec_files": ["tests"],
     "options": "--verbose",
     "environment": {
