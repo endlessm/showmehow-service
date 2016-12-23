@@ -17,6 +17,7 @@ Build-Depends: autotools-dev,
                libglib2.0-dev (>= 2.38),
                libwebkit2gtk-4.0-dev,
                pkg-config,
+               procps,
                python-gi,
                python-lcov-cobertura (>= 1.5),
                python3-showmehow
