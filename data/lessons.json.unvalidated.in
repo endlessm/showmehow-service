@@ -572,18 +572,18 @@
                 }],
                 "example": {
                     "success": "ls",
-                    "failure": "ls /home"
+                    "failure": "ls $HOME/.."
                 }
             },
             "list_child": {
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
-                    "value": ".*etc.*"
+                    "value": ".*shared.*"
                 }],
                 "example": {
-                    "success": "ls /",
-                    "failure": "ls /proc"
+                    "success": "ls $HOME/..",
+                    "failure": "ls /"
                 }
             },
             "pwd": {
@@ -604,27 +604,38 @@
                     "value": ".*"
                 }],
                 "example": {
-                    "success": "cd /home"
+                    "success": "cd $HOME/.."
                 }
             },
             "cd_home_dir": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": ["shell", {
+                    "type": "shell_custom",
+                    "value": {
+                        "command": "pwd"
+                    }
+                }, {
                     "type": "regex",
-                    "value": ".*"
+                    "value": "\/home.*"
                 }],
                 "example": {
-                    "success": "cd ~"
+                    "success": "cd ~",
+                    "failure": "cd /"
                 }
             },
             "cd_and_cmd": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "before": "mkdir -p ~/Pictures"
+                    }
+                }, "wrapped_output", {
                     "type": "regex",
-                    "value": ".*etc.*"
+                    "value": ".*Pictures.*"
                 }],
                 "example": {
-                    "success": "cd / && ls",
+                    "success": "cd $HOME && ls",
                     "failure": ""
                 }
             },
@@ -686,13 +697,13 @@
                 }, "wrapped_output", {
                     "type": "check_file_contents",
                     "value": {
-                        "path": "~/code/secret.txt",
+                        "path": "~/showmehow-code/secret.txt",
                         "value": "kittens"
                     }
                 }],
                 "example": {
-                    "success": "echo 'kittens' > $HOME/code/secret.txt",
-                    "failure": "echo 'cats' > $HOME/code/secret.txt"
+                    "success": "echo 'kittens' > $HOME/showmehow-code/secret.txt",
+                    "failure": "echo 'cats' > $HOME/showmehow-code/secret.txt"
                 }
             }
         }

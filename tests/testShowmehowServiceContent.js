@@ -61,6 +61,45 @@ function recursivelyDropDirectory(directory) {
     directory.delete(null);
 }
 
+// recursivelyDropOptionalDirectory
+//
+// Recursively drops a directory if a variable is set (for instance
+// in an environment variable)
+function recursivelyDropOptionalDirectory(path) {
+    if (!path)
+        return;
+
+    return recursivelyDropDirectory(Gio.File.new_for_path(path));
+}
+
+// configureHomeDirectory
+//
+// If we are running under an overridden home directory, create some
+// folders and files to satisfy the expected layout.
+function configureHomeDirectory() {
+    // overriddenHome here represents /home, of which the 'user'
+    // subdirectory should by convention be set as $HOME.
+    let overiddenHome = GLib.getenv('OVERRIDDEN_HOME_BASE');
+    if (!overiddenHome) {
+        return;
+    }
+
+    // Create some users and some directories
+    let directoriesToCreate = [
+        GLib.build_filenamev([overiddenHome, 'shared']),
+        // This will work fine because $HOME needs to be set before
+        // gjs is started.
+        GLib.build_filenamev([GLib.get_home_dir(), 'Pictures'])
+    ];
+
+    directoriesToCreate.forEach(function(directory) {
+        try {
+            Gio.File.new_for_path(directory).make_directory_with_parents(null);
+        } catch (e if e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.EXISTS)) {
+        }
+    });
+}
+
 // sortExampleKeys
 //
 // We need to do this here to ensure that 'failure' always comes before
@@ -88,6 +127,7 @@ describe('Showmehow Service Lesson', function () {
     defaultLessons.warnings = warnings;
 
     beforeAll(function () {
+        configureHomeDirectory();
         GLib.setenv('GSETTINGS_BACKEND', 'memory', true);
         GLib.setenv('PATH', GLib.getenv('PATH') + ':/usr/games', true);
         GLib.setenv('CODING_TARGET_FILES_DIR', GLib.dir_make_tmp('showmehow-service-test-XXXXXX'), true);
@@ -96,7 +136,8 @@ describe('Showmehow Service Lesson', function () {
     });
 
     afterAll(function() {
-        recursivelyDropDirectory(Gio.File.new_for_path(GLib.getenv('CODING_TARGET_FILES_DIR')));
+        recursivelyDropOptionalDirectory(GLib.getenv('CODING_TARGET_FILES_DIR'));
+        recursivelyDropOptionalDirectory(GLib.getenv('OVERRIDDEN_HOME_BASE'));
     });
 
     defaultLessons.forEach(function(lesson) {
