@@ -70,7 +70,7 @@
                     "input",
                     {
                         "type": "regex",
-                        "value": "^install\\-programming$"
+                        "value": "^install\\-terminal$"
                     }
                 ],
                 "effects": {
@@ -88,12 +88,33 @@
                         ]
                     },
                     "failure": {
-                        "reply": "'install-programming' EXACTLY. I haven't got all day!"
+                        "reply": "'install-terminal' EXACTLY. I haven't got all day!"
                     }
                 },
                 "example": {
-                    "success": "install-programming",
-                    "failure": "install-programming-no"
+                    "success": "install-terminal",
+                    "failure": "install-terminal-no"
+                }
+            }
+        }
+    },
+    {
+        "name": "yoursystem",
+        "desc": "System quiz",
+        "available_to": [],
+        "entry": "find_configs",
+        "practice": {
+            "find_configs": {
+                "input": "console",
+                "mapper": [
+                    {
+                        "type": "regex",
+                        "value": "^\\.$"
+                    }
+                ],
+                "example": {
+                    "success": ".",
+                    "failure": "other"
                 }
             }
         }
@@ -844,8 +865,11 @@
                         "in_data_directory": "text-processing-fs"
                     }
                 }, "wrapped_output", {
-                    "type": "equal_to",
-                    "value": "Australia\nBrazil\nCOUNTRY\nCanada\nChina\nRussia\nU.K\nU.S.A\n\n"
+                    "type": "regex",
+                    "value": {
+                        "single_line": true,
+                        "expression": "^Australia\\s*Brazil\\s*(.|\n)*U.K\\s*U.S.A\\s*$"
+                    }
                 }],
                 "example": {
                     "success": "cat atlas.txt | awk '{ print $1 }' | sort",
@@ -965,7 +989,7 @@
         "available_to": ["chatbox"],
         "desc": "Python functions attachment",
         "practice": {
-            "python_functions::challenge": {
+            "challenge": {
                 "input": "console",
                 "mapper": [{
                     "type": "regex",
@@ -983,7 +1007,7 @@
         "available_to": ["chatbox"],
         "desc": "Python classes attachment",
         "practice": {
-            "python_classes::challenge": {
+            "challenge": {
                 "input": "console",
                 "mapper": [{
                     "type": "regex",
@@ -1160,7 +1184,7 @@
                         "runtime": "python",
                         "command": "print(environment_dict)"
                     }
-                }, {
+                }, "wrapped_output", {
                     "type": "regex",
                     "value": "^\\{'PATH': '/bin:/usr/bin', 'LD_LIBRARY_PATH': '/lib:/usr/lib:/usr/lib/x86_64-linux-gnu', 'GI_TYPELIB_PATH': '/usr/lib/girepository-1.0'\\}$"
                 }],
