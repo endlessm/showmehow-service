@@ -69,7 +69,7 @@ function recursivelyDropOptionalDirectory(path) {
     if (!path)
         return;
 
-    return recursivelyDropDirectory(Gio.File.new_for_path(path));
+    recursivelyDropDirectory(Gio.File.new_for_path(path));
 }
 
 // configureHomeDirectory
