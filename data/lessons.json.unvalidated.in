@@ -219,7 +219,7 @@
             },
             "fortune_cowsay": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": ["shell", "raw_output", {
                     "type": "regex",
                     "value": "^.*_.*$"
                 }],
@@ -894,7 +894,7 @@
         "practice": {
             "ps": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": ["shell", "raw_output", {
                     "type": "regex",
                     "value": "  PID TTY          TIME CMD"
                 }],
@@ -916,7 +916,7 @@
             },
             "ps_aux_grep": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": ["shell", "raw_output", {
                     "type": "regex",
                     "value": "^.*grep.*showmehow-service.*"
                 }],
@@ -927,7 +927,7 @@
             },
             "ps_aux_grep_awk": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": ["shell", "raw_output", {
                     "type": "regex",
                     "value": "^[0-9]+"
                 }],
