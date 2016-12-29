@@ -961,6 +961,24 @@
         }
     },
     {
+        "name": "weather_year",
+        "available_to": ["chatbox"],
+        "desc": "CodeView for Weather application",
+        "practice": {
+            "challenge": {
+                "input": "console",
+                "mapper": [{
+                    "type": "regex",
+                    "value": "2012"
+                }],
+                "example": {
+                    "success": "2012",
+                    "failure": "2016"
+                }
+            }
+        }
+    },
+    {
         "name": "python_functions",
         "available_to": ["chatbox"],
         "desc": "Python functions attachment",
