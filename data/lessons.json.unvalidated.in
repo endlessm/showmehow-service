@@ -441,7 +441,7 @@
                 }],
                 "effects": {
                     "success": {
-                        "reply": "There we go! No facebook icon!"
+                        "reply": "There we go! No Facebook icon!"
                     },
                     "failure": {
                         "reply": "Hmm, I thought you'd change the value of org.gnome.shell enable-social-bar to false, but it is still true"
@@ -477,10 +477,10 @@
                 }],
                 "effects": {
                     "success": {
-                        "reply": "Okay, phew, facebook is back"
+                        "reply": "Okay, phew, Facebook is back"
                     },
                     "failure": {
-                        "reply": "Quick! I need facebook to come back! Change enable-social-bar on org.gnome.shell back to 'true'!"
+                        "reply": "Quick! I need Facebook to come back! Change enable-social-bar on org.gnome.shell back to 'true'!"
                     }
                 },
                 "example": {
