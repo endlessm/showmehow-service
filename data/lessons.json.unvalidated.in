@@ -408,7 +408,7 @@
                         "reply": "Interesting.... I wonder what we can play around with here..."
                     },
                     "failure": {
-                        "reply": "I want to know about the settings available for org.gnome.shell in sorted order? Can you list-schemas on org.gnome.shell using gsettings and then pipe (|) the output to `sort`?"
+                        "reply": "I want to know about the settings available for org.gnome.shell in sorted order? Can you list-keys on org.gnome.shell using gsettings and then pipe (|) the output to `sort`?"
                     }
                 },
                 "example": {
@@ -441,7 +441,7 @@
                 }],
                 "effects": {
                     "success": {
-                        "reply": "There we go! No facebook icon!"
+                        "reply": "There we go! No Facebook icon!"
                     },
                     "failure": {
                         "reply": "Hmm, I thought you'd change the value of org.gnome.shell enable-social-bar to false, but it is still true"
@@ -477,10 +477,10 @@
                 }],
                 "effects": {
                     "success": {
-                        "reply": "Okay, phew, facebook is back"
+                        "reply": "Okay, phew, Facebook is back"
                     },
                     "failure": {
-                        "reply": "Quick! I need facebook to come back! Change enable-social-bar on org.gnome.shell back to 'true'!"
+                        "reply": "Quick! I need Facebook to come back! Change enable-social-bar on org.gnome.shell back to 'true'!"
                     }
                 },
                 "example": {
