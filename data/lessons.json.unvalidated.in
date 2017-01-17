@@ -180,7 +180,7 @@
             },
             "cat_cowsay": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": ["shell", "raw_output", {
                     "type": "regex",
                     "value": "^.*__.*$"
                 }],
