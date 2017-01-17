@@ -229,7 +229,7 @@
         "practice": {
             "gsettings": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": ["shell", "raw_output", {
                     "type": "regex",
                     "value": ".*Usage.*"
                 }],
@@ -240,7 +240,7 @@
             },
             "list_schemas": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": ["shell", "raw_output", {
                     "type": "regex",
                     "value": "org.*"
                 }],
@@ -251,7 +251,7 @@
             },
             "list_keys_help": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": ["shell", "raw_output", {
                     "type": "regex",
                     "value": "^.*List the keys in SCHEMA.*$"
                 }],
@@ -262,7 +262,7 @@
             },
             "list_settings": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": ["shell", "raw_output", {
                     "type": "regex",
                     "value": "^always-show-log-out$"
                 }],
@@ -281,7 +281,7 @@
                             "variant_type": "b"
                         }
                     }
-                }, "wrapped_output", {
+                }, "raw_output", {
                     "type": "shell_custom",
                     "value": {
                         "command": "gsettings get org.gnome.shell enable-social-bar",
@@ -309,7 +309,7 @@
                             "variant_type": "b"
                         }
                     }
-                }, "wrapped_output", {
+                }, "raw_output", {
                     "type": "shell_custom",
                     "value": {
                         "command": "gsettings get org.gnome.shell enable-social-bar",
@@ -329,7 +329,7 @@
             },
             "add_terminal_pinned_help": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": ["shell", "raw_output", {
                     "type": "regex",
                     "value": "^\\[.*\\]$"
                 }],
@@ -348,7 +348,7 @@
                             "variant_type": "as"
                         }
                     }
-                }, "wrapped_output", {
+                }, "raw_output", {
                     "type": "shell_custom",
                     "value": {
                         "command": "gsettings get org.gnome.shell taskbar-pins",
