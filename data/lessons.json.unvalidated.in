@@ -13,12 +13,6 @@
                         "value": ".*"
                     }
                 ],
-                "effects": {
-                    "success": {
-                        "reply": "Yes, I'm talking to you",
-                        "example": "yes?"
-                    }
-                },
                 "example": {
                     "success": "yes"
                 }
@@ -45,17 +39,6 @@
                         "value": "newsplash"
                     }
                 ],
-                "effects": {
-                    "success": {
-                        "reply": "Did you notice anything change on your desktop?",
-                        "side_effects": [
-                            {
-                                "type": "shell",
-                                "value": "gsettings set org.gnome.desktop.background picture-uri file://${CODING_FILES_DIR}/background_pic.jpg"
-                            }
-                        ]
-                    }
-                },
                 "example": {
                     "success": "newsplash"
                 }
@@ -69,24 +52,6 @@
                         "value": "^install\\-terminal$"
                     }
                 ],
-                "effects": {
-                    "success": {
-                        "reply": "Buckle up Dorothy, because Kansas is going bye-bye!\nSee you in the 'Coding Fun' app on your desktop!",
-                        "side_effects": [
-                            {
-                                "type": "shell",
-                                "value": "echo 'Would install Programming App'"
-                            },
-                            {
-                                "type": "unlock",
-                                "value": ["showmehow"]
-                            }
-                        ]
-                    },
-                    "failure": {
-                        "reply": "'install-terminal' EXACTLY. I haven't got all day!"
-                    }
-                },
                 "example": {
                     "success": "install-terminal",
                     "failure": "install-terminal-no"
@@ -137,20 +102,6 @@
                         "value": "Hey.*"
                     }
                 ],
-                "effects": {
-                    "success": {
-                        "reply": "That's right! Though now you need to tell showmehow what task you want to try. This is called an 'argument'. Try giving showmehow an argument so that it knows what to do. Want to know what argument to give it? There's only one, and it just told you what it was."
-                    },
-                    "failure": {
-                        "reply": "Nope, that wasn't what I thought would happen! Try typing just 'showmehow' and hit 'enter'. No more, no less (though surrounding spaces are okay).",
-                        "side_effects": [
-                            {
-                                "type": "shell",
-                                "value": "ln ${CODING_FILES_DIR}/sw.txt ${HOME}/sw.txt"
-                            }
-                        ]
-                    }
-                },
                 "example": {
                     "success": "showmehow",
                     "failure": "showmehow-no"
@@ -174,21 +125,6 @@
                         "value": "'showmehow' is a command.*"
                     }
                 ],
-                "effects": {
-                    "success": {
-                        "reply": "Great! Now that we're done with that, maybe you can run 'showmehow' again to find out what other things you can do in this mysterious place....",
-                        "side_effects": [
-                            {
-                                "type": "unlock",
-                                "value": ["joke", "readfile"]
-                            }
-                        ]
-
-                    },
-                    "failure": {
-                        "reply": "Hmmm. I want to know what happens when you ask how to use 'showmehow'"
-                    }
-                },
                 "example": {
                     "success": "showmehow showmehow",
                     "failure": "showmehow"
@@ -208,11 +144,6 @@
                     "type": "regex",
                     "value": ".+"
                 }],
-                "effects": {
-                    "success": {
-                        "reply": "Ha-ha. Okay, lets try something even funnier."
-                    }
-                },
                 "example": {
                     "success": "fortune"
                 }
@@ -223,14 +154,6 @@
                     "type": "regex",
                     "value": "^.*_.*$"
                 }],
-                "effects": {
-                    "success": {
-                        "reply": "Moo! Try some more jokes in the shell!"
-                    },
-                    "failure": {
-                        "reply": "Hmm, I thought a cow was going to say that"
-                    }
-                },
                 "example": {
                     "success": "fortune | cowsay",
                     "failure": "fortune"
@@ -250,14 +173,6 @@
                     "type": "regex",
                     "value": "NAME=.*"
                 }],
-                "effects": {
-                    "success":{
-                        "reply": "Endless OS, as expected. Meow!"
-                    },
-                    "failure": {
-                        "reply": "Hmm, are you sure you're reading /etc/os-release?"
-                    }
-                },
                 "example": {
                     "success": "cat /etc/os-release",
                     "failure": "cat /etc/resolv.conf"
@@ -269,20 +184,6 @@
                     "type": "regex",
                     "value": "^.*__.*$"
                 }],
-                "effects": {
-                    "success": {
-                        "reply": "Moo! You can read any file that is plain text using `cat`. Try it with files like /etc/resolv.conf",
-                        "side_effects": [
-                            {
-                                "type": "unlock",
-                                "value": ["breakit"]
-                            }
-                        ]
-                    },
-                    "failure": {
-                        "reply": "Did you get a cow to say what's in /etc/os-release? Try again"
-                    }
-                },
                 "example": {
                     "success": "cat /etc/os-release | cowsay",
                     "failure": "cat /etc/os-release"
@@ -302,20 +203,6 @@
                     "type": "regex",
                     "value": ".*command.*"
                 }],
-                "effects": {
-                    "success": {
-                        "reply": "See? Harmless. Don't be afraid to try new things!",
-                        "side_effects": [
-                            {
-                                "type": "unlock",
-                                "value": ["changesetting", "playsong"]
-                            }
-                        ]
-                    },
-                    "failure": {
-                        "reply": "Oops, you actually ended up running something!"
-                    }
-                },
                 "example": {
                     "success": "sdfksdfdf",
                     "failure": "ls"
@@ -346,14 +233,6 @@
                     "type": "regex",
                     "value": ".*Usage.*"
                 }],
-                "effects": {
-                    "success": {
-                        "reply": "The `gsettings` tool just told you about a bunch of `commands`. You can access these commands by providing the command name as an argument to `gsettings`."
-                    },
-                    "failure": {
-                        "reply": "I thought that you were going to run `gsettings`?"
-                    }
-                },
                 "example": {
                     "success": "gsettings",
                     "failure": "gsetings-typoed"
@@ -365,14 +244,6 @@
                     "type": "regex",
                     "value": "org.*"
                 }],
-                "effects": {
-                    "success": {
-                        "reply": "Those are all the categories. Now lets look at settings you can tweak in your shell."
-                    },
-                    "failure": {
-                        "reply": "Where are my settings categories? Try running the list-schemas subcommand for gsettings"
-                    }
-                },
                 "example": {
                     "success": "gsettings list-schemas",
                     "failure": "gsettings"
@@ -384,14 +255,6 @@
                     "type": "regex",
                     "value": "^.*List the keys in SCHEMA.*$"
                 }],
-                "effects": {
-                    "success": {
-                        "reply": "Okay, so gsettings [--schemadir SCHEMADIR] list-keys SCHEMA[:PATH] is how you do it"
-                    },
-                    "failure": {
-                        "reply": "I don't know how to use this list-keys option! Get me some help for it!"
-                    }
-                },
                 "example": {
                     "success": "gsettings help list-keys",
                     "failure": "gsettings"
@@ -403,14 +266,6 @@
                     "type": "regex",
                     "value": "^always-show-log-out$"
                 }],
-                "effects": {
-                    "success": {
-                        "reply": "Interesting.... I wonder what we can play around with here..."
-                    },
-                    "failure": {
-                        "reply": "I want to know about the settings available for org.gnome.shell in sorted order? Can you list-keys on org.gnome.shell using gsettings and then pipe (|) the output to `sort`?"
-                    }
-                },
                 "example": {
                     "success": "gsettings list-keys org.gnome.shell",
                     "failure": "gsettings"
@@ -439,14 +294,6 @@
                     "type": "regex",
                     "value": "false"
                 }],
-                "effects": {
-                    "success": {
-                        "reply": "There we go! No Facebook icon!"
-                    },
-                    "failure": {
-                        "reply": "Hmm, I thought you'd change the value of org.gnome.shell enable-social-bar to false, but it is still true"
-                    }
-                },
                 "example": {
                     "success": "gsettings set org.gnome.shell enable-social-bar false",
                     "failure": "gsettings set org.gnome.shell enable-social-bar true"
@@ -475,14 +322,6 @@
                     "type": "regex",
                     "value": "true"
                 }],
-                "effects": {
-                    "success": {
-                        "reply": "Okay, phew, Facebook is back"
-                    },
-                    "failure": {
-                        "reply": "Quick! I need Facebook to come back! Change enable-social-bar on org.gnome.shell back to 'true'!"
-                    }
-                },
                 "example": {
                     "success": "gsettings set org.gnome.shell enable-social-bar true",
                     "failure": "gsettings set org.gnome.shell enable-social-bar false"
@@ -494,14 +333,6 @@
                     "type": "regex",
                     "value": "^\\[.*\\]$"
                 }],
-                "effects": {
-                    "success": {
-                        "reply": "Okay, so it is a list in square brackets, where every element is surrounded by quotation marks and separated by a comma. Just like this: ['chromium-browser.desktop', 'my-other-app.desktop']"
-                    },
-                    "failure": {
-                        "reply": "You didn't show me your pinned apps!"
-                    }
-                },
                 "example": {
                     "success": "gsettings get org.gnome.shell taskbar-pins",
                     "failure": "gsettings get org.gnome.shell wobbly-effect"
@@ -530,14 +361,6 @@
                     "type": "regex",
                     "value": ".*org.gnome.Terminal.*"
                 }],
-                "effects": {
-                    "success": {
-                        "reply": "Sweet, looks like I'll be sticking around!"
-                    },
-                    "failure": {
-                        "reply": "I'm not there :( The Terminal's App ID is 'org.gnome.Terminal', so we should add the 'org.gnome.Terminal.desktop' entry to that list in taskbar-pins"
-                    }
-                },
                 "example": {
                     "success": "gsettings set org.gnome.shell taskbar-pins ['org.gnome.Terminal.desktop']",
                     "failure": "gsettings set org.gnome.shell taskbar-pins []"
@@ -557,12 +380,6 @@
                     "type": "regex",
                     "value": ".*"
                 }],
-                "effects": {
-                    "success": {
-                        "reply": "I love this song! Now you'll probably notice that we're stuck here. To get out of any command line application, you can use Control-C",
-                        "example": "echo hello"
-                    }
-                },
                 "example": {
                     "success": "echo hello"
                 }
