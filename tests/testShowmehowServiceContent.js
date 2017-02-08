@@ -1,7 +1,6 @@
 // tests/js/testShowmehowServiceContent.js
 //
-// Copyright (c) 2016 Endless Mobile Inc.
-// All Rights Reserved.
+// Copyright (c) 2016-2017 Endless Mobile Inc.
 //
 // These tests actually exercise all the lessonsto make sure that
 // they return the intended response. The ordering of tests here

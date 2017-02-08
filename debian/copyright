@@ -3,4 +3,4 @@ Upstream-Name: showmehow-service
 Upstream-Contact: Showmehow Service <sam@endlessm.com>
 Disclaimer: This package is not part of Debian. It is proprietary software.
 Copyright: Copyright 2016 Endless Mobile, Inc.
-License: Proprietary
+License: LGPL-2+

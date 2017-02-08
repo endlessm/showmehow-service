@@ -1,6 +1,8 @@
 /*
  * showmehow-cmd-helper.h
  *
+ * Copyright (c) 2016-2017 Endless Mobile, Inc.
+ *
  * This is a small helper class which wraps a GPollableInputStream
  * and returns a GBytes (since g_pollable_input_stream_read_nonblocking
  * only appears to return a ByteArray)
