@@ -445,11 +445,31 @@
             "cd": {
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
-                    "type": "regex",
-                    "value": ".*"
+                    "type": "shell_custom",
+                    "value": {
+                        "command": "pwd"
+                    }
+                }, {
+                    "type": "matches_environment",
+                    "value": {
+                        "variable": "HOME",
+                        "transform": [{
+                            "type": "regex_replace",
+                            "value": {
+                                "regex": "(.*)\/(.*)",
+                                "replace": "$1",
+                                "flags": "g"
+                            }
+                        }, "regex_escape"],
+                        "matcher": {
+                            "type": "regex",
+                            "value": "^@VARIABLE@$"
+                        }
+                    }
                 }],
                 "example": {
-                    "success": "cd $HOME/.."
+                    "success": "cd $HOME/..",
+                    "failure": "cd $HOME"
                 }
             },
             "cd_and_cmd": {
