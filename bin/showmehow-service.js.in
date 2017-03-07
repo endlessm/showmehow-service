@@ -29,6 +29,10 @@ const Controller = imports.lib.controller;
 const Descriptors = imports.lib.descriptors;
 const Service = imports.lib.service;
 
+// HOME might not be set if we're running through D-Bus activation, so
+// set the environment variable to the value of GLib.get_home_dir which will
+// fall back to passwd
+GLib.setenv('HOME', GLib.get_home_dir(), false);
 
 const ShowmehowServiceApplication = new Lang.Class({
     Name: 'ShowmehowServiceApplication',
