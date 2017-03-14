@@ -199,7 +199,7 @@
         "practice": {
             "breakit": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": ["shell", {
                     "type": "regex",
                     "value": ".*command.*"
                 }],
@@ -210,7 +210,7 @@
             },
             "breakit_again": {
                 "input": "console",
-                "mapper": ["shell", "wrapped_output", {
+                "mapper": ["shell", {
                     "type": "regex",
                     "value": ".*command.*"
                 }],
