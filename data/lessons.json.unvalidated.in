@@ -453,14 +453,14 @@
                     "type": "matches_environment",
                     "value": {
                         "variable": "HOME",
-                        "transform": ["resolve_symlink", {
+                        "transform": [{
                             "type": "regex_replace",
                             "value": {
                                 "regex": "(.*)\/(.*)",
                                 "replace": "$1",
                                 "flags": "g"
                             }
-                        }, "regex_escape"],
+                        }, "resolve_symlink", "regex_escape"],
                         "matcher": {
                             "type": "regex",
                             "value": "^@VARIABLE@$"
