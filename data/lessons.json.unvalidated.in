@@ -864,6 +864,22 @@
                     "value": {
                         "runtime": "python"
                     }
+                }, "wrapped_output", {
+                    "type": "regex",
+                    "value": "^11$"
+                }],
+                "example": {
+                    "success": "7 + 4",
+                    "failure": "7 + 2"
+                }
+            },
+            "add_numbers_assignment": {
+                "input": "console",
+                "mapper": [{
+                    "type": "shell",
+                    "value": {
+                        "runtime": "python"
+                    }
                 }, {
                     "type": "shell_custom",
                     "value": {
