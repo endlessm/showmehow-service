@@ -453,7 +453,7 @@
                     "type": "matches_environment",
                     "value": {
                         "variable": "HOME",
-                        "transform": [{
+                        "transform": ["resolve_symlink", {
                             "type": "regex_replace",
                             "value": {
                                 "regex": "(.*)\/(.*)",
