@@ -303,7 +303,7 @@
                     }
                 }, {
                     "type": "regex",
-                    "value": "^(\"24h\"|\"12h\")$"
+                    "value": "^('24h'|'12h')$"
                 }],
                 "example": {
                     "success": "gsettings set org.gnome.desktop.interface clock-format '24h'",
