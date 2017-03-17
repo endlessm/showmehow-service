@@ -460,7 +460,7 @@
                                 "replace": "$1",
                                 "flags": "g"
                             }
-                        }, "regex_escape"],
+                        }, "resolve_symlink", "regex_escape"],
                         "matcher": {
                             "type": "regex",
                             "value": "^@VARIABLE@$"
