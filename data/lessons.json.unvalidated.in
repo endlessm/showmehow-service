@@ -271,60 +271,43 @@
                     "failure": "gsettings"
                 }
             },
-            "disable_social_bar": {
+            "get_clock_format": {
                 "input": "console",
-                "mapper": [{
-                    "type": "shell",
-                    "value": {
-                        "hook": "parse_gsettings",
-                        "hook_settings": {
-                            "variant_type": "b"
-                        }
-                    }
-                }, "raw_output", {
-                    "type": "shell_custom",
-                    "value": {
-                        "command": "gsettings get org.gnome.shell enable-social-bar",
-                        "hook": "parse_gsettings",
-                        "hook_settings": {
-                            "variant_type": "b"
-                        }
-                    }
-                }, {
+                "mapper": ["shell", "raw_output", {
                     "type": "regex",
-                    "value": "false"
+                    "value": "^('24h'|'12h')$"
                 }],
                 "example": {
-                    "success": "gsettings set org.gnome.shell enable-social-bar false",
-                    "failure": "gsettings set org.gnome.shell enable-social-bar true"
+                    "success": "gsettings get org.gnome.desktop.interface clock-format",
+                    "failure": "gsettings get org.gnome.desktop.interface clock"
                 }
             },
-            "enable_social_bar": {
+            "change_clock_format": {
                 "input": "console",
                 "mapper": [{
                     "type": "shell",
                     "value": {
                         "hook": "parse_gsettings",
                         "hook_settings": {
-                            "variant_type": "b"
+                            "variant_type": "s"
                         }
                     }
                 }, "raw_output", {
                     "type": "shell_custom",
                     "value": {
-                        "command": "gsettings get org.gnome.shell enable-social-bar",
+                        "command": "gsettings get org.gnome.desktop.interface clock-format",
                         "hook": "parse_gsettings",
                         "hook_settings": {
-                            "variant_type": "b"
+                            "variant_type": "s"
                         }
                     }
                 }, {
                     "type": "regex",
-                    "value": "true"
+                    "value": "^('24h'|'12h')$"
                 }],
                 "example": {
-                    "success": "gsettings set org.gnome.shell enable-social-bar true",
-                    "failure": "gsettings set org.gnome.shell enable-social-bar false"
+                    "success": "gsettings set org.gnome.desktop.interface clock-format '24h'",
+                    "failure": "gsettings set org.gnome.desktop.interface clock-format '23h'"
                 }
             },
             "add_terminal_pinned_help": {
