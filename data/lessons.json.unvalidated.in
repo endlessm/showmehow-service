@@ -264,7 +264,7 @@
                 "input": "console",
                 "mapper": ["shell", "raw_output", {
                     "type": "regex",
-                    "value": "^gtk-theme$"
+                    "value": "^can-change-accels$"
                 }],
                 "example": {
                     "success": "gsettings list-keys org.gnome.desktop.interface",
