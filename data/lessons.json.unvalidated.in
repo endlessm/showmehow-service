@@ -293,17 +293,8 @@
                         }
                     }
                 }, "raw_output", {
-                    "type": "shell_custom",
-                    "value": {
-                        "command": "gsettings get org.gnome.desktop.interface clock-format",
-                        "hook": "parse_gsettings",
-                        "hook_settings": {
-                            "variant_type": "s"
-                        }
-                    }
-                }, {
                     "type": "regex",
-                    "value": "^('24h'|'12h')$"
+                    "value": "^Set org.gnome.desktop.interface clock-format to value '(24|12)h'$"
                 }],
                 "example": {
                     "success": "gsettings set org.gnome.desktop.interface clock-format '24h'",
