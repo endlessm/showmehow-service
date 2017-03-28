@@ -81,7 +81,7 @@
         }
     },
     {
-        "name": "showmehow",
+        "name": "info",
         "desc": "Show me how to do things in this mysterious environment...",
         "available_to": ["console"],
         "entry": "showmehow",
@@ -126,7 +126,7 @@
                     }
                 ],
                 "example": {
-                    "success": "showmehow showmehow",
+                    "success": "showmehow info",
                     "failure": "showmehow"
                 }
             }
