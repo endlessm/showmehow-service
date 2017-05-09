@@ -481,6 +481,12 @@
                         "before": "rm ~/showmehow-code/secret.txt"
                     }
                 }, "wrapped_output", {
+                    "type": "shell_custom",
+                    "value": {
+                        "command": "sync",
+                        "runtime": "bash"
+                    }
+                }, {
                     "type": "check_file_exists",
                     "value": "~/showmehow-code/secret.txt"
                 }],
@@ -497,6 +503,12 @@
                         "before": "rm ~/showmehow-code/secret.txt"
                     }
                 }, "wrapped_output", {
+                    "type": "shell_custom",
+                    "value": {
+                        "command": "sync",
+                        "runtime": "bash"
+                    }
+                }, {
                     "type": "check_file_contents",
                     "value": {
                         "path": "~/showmehow-code/secret.txt",
