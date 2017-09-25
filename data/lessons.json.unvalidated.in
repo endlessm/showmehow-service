@@ -308,7 +308,7 @@
                     "value": "^\\[.*\\]$"
                 }],
                 "example": {
-                    "success": "gsettings get org.gnome.shell taskbar-pins",
+                    "success": "gsettings get org.gnome.shell favorite-apps",
                     "failure": "gsettings get org.gnome.shell wobbly-effect"
                 }
             },
@@ -325,7 +325,7 @@
                 }, "raw_output", {
                     "type": "shell_custom",
                     "value": {
-                        "command": "gsettings get org.gnome.shell taskbar-pins",
+                        "command": "gsettings get org.gnome.shell favorite-apps",
                         "hook": "parse_gsettings",
                         "hook_settings": {
                             "variant_type": "as"
@@ -336,8 +336,8 @@
                     "value": ".*org.gnome.Terminal.*"
                 }],
                 "example": {
-                    "success": "gsettings set org.gnome.shell taskbar-pins ['org.gnome.Terminal.desktop']",
-                    "failure": "gsettings set org.gnome.shell taskbar-pins []"
+                    "success": "gsettings set org.gnome.shell favorite-apps ['org.gnome.Terminal.desktop']",
+                    "failure": "gsettings set org.gnome.shell favorite-apps []"
                 }
             }
         }
