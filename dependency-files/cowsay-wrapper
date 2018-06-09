@@ -1,0 +1,3 @@
+#!/bin/bash
+
+COWPATH=/app/share/cowsay/cows:$COWPATH /app/bin/cowsay.real $@
