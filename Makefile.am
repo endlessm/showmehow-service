@@ -212,6 +212,7 @@ AM_JS_LOG_FLAGS = --tap --no-config @JASMINE_REPORT_ARGUMENT@
 TESTS_ENVIRONMENT = \
 	export GJS_PATH="$(top_srcdir):$(top_srcdir)/lib:$(top_builddir):$(top_builddir)/lib"; \
 	export GI_TYPELIB_PATH="$(top_builddir)$${GI_TYPELIB_PATH:+:$$GI_TYPELIB_PATH}"; \
+	export GSETTINGS_SCHEMA_DIR="/run/host/usr/share/glib-2.0/schemas"; \
 	export LD_LIBRARY_PATH="$(top_builddir)/.libs$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}"; \
 	export G_TEST_SRCDIR="$(abs_srcdir)/tests"; \
 	export G_TEST_BUILDDIR="$(abs_builddir)/tests"; \

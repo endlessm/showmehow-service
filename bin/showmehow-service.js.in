@@ -9,6 +9,12 @@
 
 
 const GLib = imports.gi.GLib;
+
+// Append the host schemas directory before anyone else can
+GLib.setenv('GSETTINGS_SCHEMA_DIR',
+            '/run/host/usr/share/glib-2.0/schemas',
+            true);
+
 const Gio = imports.gi.Gio;
 const Showmehow = imports.gi.Showmehow;
 
