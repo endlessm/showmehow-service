@@ -1015,11 +1015,11 @@
                     "type": "shell_custom",
                     "value": {
                         "runtime": "python",
-                        "command": "print(environment_dict)"
+                        "command": "print(sorted(environment_dict.items(), key=lambda i: i[0]))"
                     }
                 }, "wrapped_output", {
                     "type": "regex",
-                    "value": "^\\{'PATH': '/bin:/app/bin:/usr/bin', 'LD_LIBRARY_PATH': '/lib:/app/lib:/usr/lib:/usr/lib/x86_64-linux-gnu', 'GI_TYPELIB_PATH': '/app/lib/girepository-1.0:/usr/lib/girepository-1.0'\\}$"
+                    "value": "^.*\\('GI_TYPELIB_PATH', '/app/lib/girepository-1.0:/usr/lib/girepository-1.0'\\), \\('LD_LIBRARY_PATH', '/lib:/app/lib:/usr/lib:/usr/lib/x86_64-linux-gnu'\\), \\('PATH', '/bin:/app/bin:/usr/bin'\\).*$"
                 }],
                 "example": {
                     "success": "environment_dict = { k: v for k, v in [x.split('=') for x in environment.split('\\n')] }",
