@@ -376,7 +376,7 @@
                     }
                 }, {
                     "type": "regex",
-                    "value": ".*boot.*"
+                    "value": ".*app.*"
                 }],
                 "example": {
                     "success": "cd /",
@@ -387,7 +387,7 @@
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
-                    "value": ".*boot.*"
+                    "value": ".*app.*"
                 }],
                 "example": {
                     "success": "ls",
@@ -450,7 +450,7 @@
                 "input": "console",
                 "mapper": ["shell", "wrapped_output", {
                     "type": "regex",
-                    "value": ".*boot.*"
+                    "value": ".*app.*"
                 }],
                 "example": {
                     "success": "cd / && ls",
