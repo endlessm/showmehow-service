@@ -1,0 +1,225 @@
+{
+    "app-id": "com.endlessm.ShowmehowService",
+    "build-options": {
+        "cflags": "-O2 -g",
+        "cxxflags": "-O2 -g",
+        "env": {
+            "V": "1"
+        },
+        "test-args": [
+            "--filesystem=host:ro"
+        ]
+    },
+    "command": "showmehow-service",
+    "finish-args": [
+        "--socket=x11",
+        "--share=ipc",
+        "--system-talk-name=com.endlessm.Metrics",
+        "--filesystem=xdg-run/dconf",
+        "--filesystem=~/.config/dconf:ro",
+        "--filesystem=host:ro",
+        "--filesystem=home",
+        "--own-name=com.endlessm.ShowmehowService",
+        "--env=DCONF_USER_CONFIG_DIR=.config/dconf"
+    ],
+    "modules": [
+        {
+            "name": "perl",
+            "cleanup": [
+                "*.pod",
+                "/bin/perl5.24.1",
+                "/bin/c2ph",
+                "/bin/corelist",
+                "/bin/cpan",
+                "/bin/enc2xs",
+                "/bin/encguess",
+                "/bin/h2*",
+                "/bin/instmodsh",
+                "/bin/json_pp",
+                "/bin/libnetcfg",
+                "/bin/perlbug",
+                "/bin/perldoc",
+                "/bin/perlthanks",
+                "/bin/piconv",
+                "/bin/pl2pm",
+                "/bin/pod*",
+                "/bin/prove",
+                "/bin/pstruct",
+                "/bin/ptar*",
+                "/bin/shasum",
+                "/bin/splain",
+                "/bin/xsubpp",
+                "/bin/zipdetails"
+            ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "http://www.cpan.org/src/5.0/perl-5.24.1.tar.gz",
+                    "sha256": "e6c185c9b09bdb3f1b13f678999050c639859a7ef39c8cad418448075f5918af"
+                },
+                {
+                    "type": "script",
+                    "dest-filename": "configure",
+                    "commands": [
+                        "./Configure -des -Dprefix=/app"
+                    ]
+                }
+            ],
+            "post-install": [
+                "find /app/lib/perl5 -type f -exec chmod u+w {} \\;"
+            ]
+        },
+        {
+            "name": "perl-text-charwidth",
+            "buildsystem": "simple",
+            "build-options": {
+                "no-debuginfo": true
+            },
+            "build-commands": [
+                "perl Makefile.PL",
+                "make",
+                "make install"
+            ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://cpan.metacpan.org/authors/id/K/KU/KUBOTA/Text-CharWidth-0.04.tar.gz",
+                    "sha256": "abded5f4fdd9338e89fd2f1d8271c44989dae5bf50aece41b6179d8e230704f8"
+                }
+            ]
+        },
+        {
+            "name": "cowsay",
+            "buildsystem": "simple",
+            "build-commands": [
+                "sed -e 's#%BANGPERL%#!/app/bin/perl#' -i cowsay",
+                "install -D cowsay /app/bin/cowsay.real",
+                "install -D cowsay-wrapper /app/bin/cowsay",
+                "mkdir -p /app/share/cowsay",
+                "cp -a cows /app/share/cowsay",
+                "rm /app/share/cowsay/cows/bong.cow",
+                "rm /app/share/cowsay/cows/sodomized.cow",
+                "rm /app/share/cowsay/cows/satanic.cow"
+            ],
+            "sources": [
+                {
+                    "type": "file",
+                    "path": "dependency-files/cowsay-wrapper"
+                },
+                {
+                    "type": "archive",
+                    "url": "https://github.com/tnalpgge/rank-amateur-cowsay/archive/cowsay-3.04.tar.gz",
+                    "sha256": "d8b871332cfc1f0b6c16832ecca413ca0ac14d58626491a6733829e3d655878b"
+                }
+            ]
+        },
+        {
+            "name": "librecode",
+            "cleanup": [
+                "/bin",
+                "/share/doc"
+            ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://github.com/rrthomas/recode/releases/download/v3.7/recode-3.7.tar.gz",
+                    "sha256": "188ce229f01485ecd847b9c2828615c14611473efffbab04b5e2fe138f839e64"
+                }
+            ]
+        },
+        {
+            "name": "fortune",
+            "buildsystem": "cmake",
+            "subdir": "fortune-mod",
+            "builddir": true,
+            "cleanup": [
+                "/share/games/fortunes/off",
+                "/share/man"
+            ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://github.com/shlomif/fortune-mod/archive/fortune-mod-2.6.0.tar.gz",
+                    "sha256": "e49f4f41962a237fb0c619b8aaa97ffa645b3271bd32e54d24b6abdc34bf4d57"
+                },
+                {
+                    "type": "file",
+                    "url": "https://bitbucket.org/shlomif/shlomif-cmake-modules/raw/c505713d7a7cda608f97f01577e5868a711b883e/shlomif-cmake-modules/Shlomif_Common.cmake",
+                    "sha256": "62f188a9f1b7ab0e757eb0bc6540d9c0026d75edc7acc1c3cdf7438871d0a94f",
+                    "dest": "fortune-mod/cmake"
+                },
+                {
+                    "type": "patch",
+                    "path": "dependency-files/fortune-install-in-bin.patch"
+                }
+            ]
+        },
+        {
+            "name": "jasmine-gjs",
+            "cleanup": ["*"],
+            "sources": [
+                {
+                    "type": "git",
+                    "url": "https://github.com/ptomato/jasmine-gjs"
+                }
+            ]
+        },
+        {
+            "name": "coding-game-service",
+            "config-opts": [
+                "--disable-integration",
+                "--disable-service"
+            ],
+            "cleanup": [
+                "*"
+            ],
+            "sources": [
+                {
+                    "type": "git",
+                    "branch": "master",
+                    "url": "git://github.com/endlessm/coding-game-service"
+                }
+            ]
+        },
+        {
+            "name": "showmehow",
+            "buildsystem": "simple",
+            "build-commands": [
+                "python3 setup.py install --prefix=/app --force --no-compile -O0 --single-version-externally-managed --root=/",
+                "mkdir -p $FLATPAK_DEST/share/glib-2.0/schemas",
+                "cp data/com.endlessm.showmehow.gschema.xml $FLATPAK_DEST/share/glib-2.0/schemas",
+                "glib-compile-schemas $FLATPAK_DEST/share/glib-2.0/schemas"
+            ],
+            "cleanup": [
+                "/lib/python3.5",
+                "/bin"
+            ],
+            "sources": [
+                {
+                    "type": "git",
+                    "branch": "master",
+                    "url": "git://github.com/endlessm/showmehow"
+                }
+            ]
+        },
+        {
+            "name": "showmehow-service",
+            "run-tests": "@RUN_TESTS@",
+            "cleanup": [
+                "/include",
+                "/lib/pkgconfig",
+                "*.a"
+            ],
+            "sources": [
+                {
+                    "branch": "@GIT_CLONE_BRANCH@",
+                    "path": ".",
+                    "type": "git"
+                }
+            ]
+        }
+    ],
+    "runtime": "org.gnome.Platform",
+    "runtime-version": "3.28",
+    "sdk": "org.gnome.Sdk"
+}
