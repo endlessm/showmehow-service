@@ -58,8 +58,8 @@ all_js_files = \
 AM_CONFIG_MACRO_DIR =
 AM_DISTCHECK_CONFIGURE_FLAGS = --enable-introspection
 EXTRA_DIST = \
-	com.endlessm.Showmehow.Service.xml \
-	com.endlessm.Showmehow.Service.service.in \
+	com.endlessm.ShowmehowService.xml \
+	com.endlessm.ShowmehowService.service.in \
 	com.endlessm.showmehow.gresource.xml \
 	data/lessons.json.unvalidated.in \
 	files/coding-shared-dir.in \
@@ -81,7 +81,7 @@ showmehow-validator: $(abs_top_srcdir)/bin/showmehow-validator.js
 	chmod +x $@
 
 # GDBus-Codegen for Showmehow
-Showmehow.c: $(abs_top_srcdir)/com.endlessm.Showmehow.Service.xml
+Showmehow.c: $(abs_top_srcdir)/com.endlessm.ShowmehowService.xml
 	gdbus-codegen --generate-c-code Showmehow --c-namespace Showmehow --c-generate-object-manager --interface-prefix com.endlessm.Showmehow. $<
 
 Showmehow.h: Showmehow.c
@@ -181,10 +181,10 @@ CLEANFILES += $(gir_DATA) $(typelib_DATA)
 endif
 
 servicedir = $(datadir)/dbus-1/services
-service_DATA = com.endlessm.Showmehow.Service.service
+service_DATA = com.endlessm.ShowmehowService.service
 
 # DBus Service
-com.endlessm.Showmehow.Service.service: $(abs_top_srcdir)/com.endlessm.Showmehow.Service.service.in
+com.endlessm.ShowmehowService.service: $(abs_top_srcdir)/com.endlessm.ShowmehowService.service.in
 	$(AM_V_GEN) sed -e 's|@bindir[@]|${bindir}|g' $< > $@
 
 # Script for placing files in the shared dir 

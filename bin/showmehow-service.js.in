@@ -87,7 +87,7 @@ const ShowmehowServiceApplication = new Lang.Class({
 
 let args = [System.programInvocationName].concat(ARGV);
 let application = new ShowmehowServiceApplication({
-    'application-id': 'com.endlessm.Showmehow.Service',
+    'application-id': 'com.endlessm.ShowmehowService',
     'flags': Gio.ApplicationFlags.IS_SERVICE
 });
 application.run(args);
