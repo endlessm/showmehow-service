@@ -1,0 +1,25 @@
+From 531b009f82d9ba00b8917c30306e3e96f3ba2bf4 Mon Sep 17 00:00:00 2001
+From: Cosimo Cecchi <cosimo@endlessm.com>
+Date: Tue, 17 Jul 2018 16:32:44 -0700
+Subject: [PATCH] Install executable in ${PREFIX}/bin
+
+---
+ fortune-mod/CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/fortune-mod/CMakeLists.txt b/fortune-mod/CMakeLists.txt
+index ecb7fce..c3d2e66 100644
+--- a/fortune-mod/CMakeLists.txt
++++ b/fortune-mod/CMakeLists.txt
+@@ -113,7 +113,7 @@ ENDMACRO()
+ my_exe(
+     "fortune"
+     "fortune/fortune.c"
+-    "games"
++    "bin"
+ )
+ 
+ my_exe(
+-- 
+2.11.0
+
