@@ -5,10 +5,7 @@
         "cxxflags": "-O2 -g",
         "env": {
             "V": "1"
-        },
-        "test-args": [
-            "--filesystem=host:ro"
-        ]
+        }
     },
     "command": "showmehow-service",
     "finish-args": [
