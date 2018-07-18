@@ -10,9 +10,11 @@
 
 const GLib = imports.gi.GLib;
 
-// Append the host schemas directory before anyone else can
+// Set GSETTINGS_SCHEMA_DIR to schemas in our app dir
+// before anyone else can or the schema directories are
+// initialized.
 GLib.setenv('GSETTINGS_SCHEMA_DIR',
-            '/run/host/usr/share/glib-2.0/schemas',
+            '/app/share/glib-2.0/schemas',
             true);
 
 const Gio = imports.gi.Gio;

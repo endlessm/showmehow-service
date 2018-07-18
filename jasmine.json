@@ -4,7 +4,7 @@
     "options": "--verbose",
     "environment": {
         "GI_TYPELIB_PATH": ".",
-        "GSETTINGS_SCHEMA_DIR": "/run/host/usr/share/glib-2.0/schemas",
+        "GSETTINGS_SCHEMA_DIR": "/app/share/glib-2.0/schemas",
         "LD_LIBRARY_PATH": ".libs",
         "LC_ALL": "C"
     }
