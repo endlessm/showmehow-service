@@ -5,10 +5,7 @@
         "cxxflags": "-O2 -g",
         "env": {
             "V": "1"
-        },
-        "test-args": [
-            "--filesystem=host:ro"
-        ]
+        }
     },
     "command": "showmehow-service",
     "finish-args": [
@@ -151,6 +148,22 @@
                 {
                     "type": "patch",
                     "path": "dependency-files/fortune-install-in-bin.patch"
+                }
+            ]
+        },
+        {
+            "name": "gnome-shell-schema",
+            "buildsystem": "simple",
+            "build-commands": [
+                "mkdir -p /app/share/glib-2.0/schemas",
+                "cp org.gnome.shell.gschema.xml.in /app/share/glib-2.0/schemas/org.gnome.shell.gschema.xml",
+                "glib-compile-schemas /app/share/glib-2.0/schemas"
+            ],
+            "sources": [
+                {
+                    "type": "file",
+                    "url": "https://raw.githubusercontent.com/endlessm/gnome-shell/9558a545b906b179d933416a5b18f99ca608a139/data/org.gnome.shell.gschema.xml.in",
+                    "sha256": "8878d21427372aeed066233e1610b2c49bc88ead376e106eeb5b95dabdba55f3"
                 }
             ]
         },
