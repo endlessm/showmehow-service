@@ -56,7 +56,7 @@ all_js_files = \
 
 
 AM_CONFIG_MACRO_DIR =
-AM_DISTCHECK_CONFIGURE_FLAGS = --enable-introspection
+AM_DISTCHECK_CONFIGURE_FLAGS = --enable-introspection --enable-service
 EXTRA_DIST = \
 	com.endlessm.ShowmehowService.xml \
 	com.endlessm.ShowmehowService.service.in \
@@ -70,6 +70,7 @@ EXTRA_DIST = \
 	$(NULL)
 CLEANFILES =
 
+if SHOWMEHOW_SERVICE_ENABLED
 # Rename the showmehow-service script
 showmehow-service: $(srcdir)/bin/showmehow-service.js.in
 	$(AM_V_GEN) sed -e 's,%PKGDATADIR%,$(pkgdatadir),g' $< > $@.tmp && mv -f $@.tmp $@
@@ -79,17 +80,6 @@ showmehow-service: $(srcdir)/bin/showmehow-service.js.in
 showmehow-validator: $(abs_top_srcdir)/bin/showmehow-validator.js
 	cp $< $@
 	chmod +x $@
-
-# GDBus-Codegen for Showmehow
-Showmehow.c: $(abs_top_srcdir)/com.endlessm.ShowmehowService.xml
-	gdbus-codegen --generate-c-code Showmehow --c-namespace Showmehow --c-generate-object-manager --interface-prefix com.endlessm.Showmehow. $<
-
-Showmehow.h: Showmehow.c
-
-gdbus_codegen_built_sources = \
-	Showmehow.c \
-	Showmehow.h \
-	$(NULL)
 
 # Validation of lessons (produces data.lessons)
 data/lessons.json: $(abs_top_srcdir)/data/lessons.json.unvalidated.in $(all_js_files)
@@ -131,7 +121,36 @@ resource_DATA = com.endlessm.showmehow.gresource
 com.endlessm.showmehow.gresource: $(abs_top_srcdir)/com.endlessm.showmehow.gresource.xml $(resource_files)
 	$(AM_V_GEN) glib-compile-resources --target=$@ --sourcedir=$(srcdir) --sourcedir=$(builddir) $<
 
+# Scripts to install
+bin_SCRIPTS = \
+	showmehow-service \
+	showmehow-validator \
+	$(NULL)
+
+servicedir = $(datadir)/dbus-1/services
+service_DATA = com.endlessm.ShowmehowService.service
+
+# DBus Service
+com.endlessm.ShowmehowService.service: $(abs_top_srcdir)/com.endlessm.ShowmehowService.service.in
+	$(AM_V_GEN) sed -e 's|@bindir[@]|${bindir}|g' $< > $@
+
+# Script for placing files in the shared dir
+pkglibexec_SCRIPTS = files/coding-shared-dir
+
+endif SHOWMEHOW_SERVICE_ENABLED
+
 # Generate the Showmehow GDBus Skeleton library
+# GDBus-Codegen for Showmehow
+Showmehow.c: $(abs_top_srcdir)/com.endlessm.ShowmehowService.xml
+	gdbus-codegen --generate-c-code Showmehow --c-namespace Showmehow --c-generate-object-manager --interface-prefix com.endlessm.Showmehow. $<
+
+Showmehow.h: Showmehow.c
+
+gdbus_codegen_built_sources = \
+	Showmehow.c \
+	Showmehow.h \
+	$(NULL)
+
 libshowmehow_1_0_la_SOURCES = \
 	$(gdbus_codegen_built_sources) \
 	showmehow-cmd-helper.c \
@@ -142,12 +161,6 @@ libshowmehow_1_0_la_LIBADD = $(SHOWMEHOW_SERVICE_LIBS)
 
 # All libraries
 lib_LTLIBRARIES = libshowmehow-1.0.la
-
-# Scripts to install
-bin_SCRIPTS = \
-	showmehow-service \
-	showmehow-validator \
-	$(NULL)
 
 # Header files to install
 showmehowincludedir = $(includedir)/showmehow-service
@@ -179,16 +192,6 @@ typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
 
 CLEANFILES += $(gir_DATA) $(typelib_DATA)
 endif
-
-servicedir = $(datadir)/dbus-1/services
-service_DATA = com.endlessm.ShowmehowService.service
-
-# DBus Service
-com.endlessm.ShowmehowService.service: $(abs_top_srcdir)/com.endlessm.ShowmehowService.service.in
-	$(AM_V_GEN) sed -e 's|@bindir[@]|${bindir}|g' $< > $@
-
-# Script for placing files in the shared dir 
-pkglibexec_SCRIPTS = files/coding-shared-dir
 
 # Run tests when running 'make check'
 TESTS = \

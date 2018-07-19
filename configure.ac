@@ -32,6 +32,14 @@ AC_ARG_WITH([systemdsystemunitdir],
     [systemdsystemunitdir="$withval"])
 AC_SUBST([systemdsystemunitdir])
 
+# Build options
+AC_ARG_ENABLE([service], [Showmehow service], [
+  SHOWMEHOW_SERVICE_ENABLED=$enableval
+], [
+  SHOWMEHOW_SERVICE_ENABLED=yes
+])
+AM_CONDITIONAL([SHOWMEHOW_SERVICE_ENABLED], [test "x$SHOWMEHOW_SERVICE_ENABLED" = "xyes"])
+
 # Checks for header files.
 
 # Checks for typedefs, structures, and compiler characteristics.
@@ -54,3 +62,8 @@ EOS_COVERAGE_REPORT([js])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
+
+echo "
+        Build Showmehow service:    ${SHOWMEHOW_SERVICE_ENABLED}
+
+"
