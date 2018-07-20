@@ -16,5 +16,4 @@ sed \
   > com.endlessm.ShowmehowService.json
 
 flatpak-builder build --ccache com.endlessm.ShowmehowService.json
-flatpak build-export ${REPO} build ${BRANCH}
 flatpak build-bundle ${REPO} com.endlessm.ShowmehowService.flatpak com.endlessm.ShowmehowService
