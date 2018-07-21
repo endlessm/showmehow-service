@@ -216,26 +216,8 @@
             ]
         },
         {
-            "name": "showmehow-service-arm",
-            "run-tests": false,
-            "only-arches": ["arm"],
-            "cleanup": [
-                "/include",
-                "/lib/pkgconfig",
-                "*.a"
-            ],
-            "sources": [
-                {
-                    "branch": "@GIT_CLONE_BRANCH@",
-                    "path": ".",
-                    "type": "git"
-                }
-            ]
-        },
-        {
             "name": "showmehow-service-tests",
             "run-tests": "@RUN_TESTS@",
-            "skip-arches": ["arm"],
             "cleanup": [
                 "/include",
                 "/lib/pkgconfig",
