@@ -181,7 +181,9 @@ describe('Showmehow Service Lesson', function () {
                         let input = task.example[result];
                         it('returns ' + result + ' when called with ' + input, function(done) {
                             let errorHandler = function(domain, code, message) {
-                                throw new Error('Error ' + domain + ':' + code + ' "' + message + '" occurred');
+                                // Need to upgrade jasmine API to use fail()
+                                expect(`Error ${domain}: ${code} "${message}" occurred`).toEqual('');
+                                done();
                             };
 
                             let successHandler = function(response) {
