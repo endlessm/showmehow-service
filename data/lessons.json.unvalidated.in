@@ -848,7 +848,9 @@
                 "mapper": [{
                     "type": "shell",
                     "value": {
-                        "runtime": "python"
+                        "runtime": "python",
+                        "until_match_stdout": "^11$",
+                        "repeat_times": 3
                     }
                 }, "wrapped_output", {
                     "type": "regex",

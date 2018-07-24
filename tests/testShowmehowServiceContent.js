@@ -118,12 +118,34 @@ function sortExampleKeys(keys) {
     });
 }
 
+let CUSTOM_MATCHERS = {
+    toHaveResult: function(util, customEqualityTesters) {
+        return {
+            compare: function(actual, expected) {
+                let pass = util.equals(actual.result, expected);
+                return {
+                    pass,
+                    message: pass ? (
+                        `Expected ${JSON.stringify(actual, null, 2)} result to be ${expected}`
+                    ) : (
+                        `Expected ${JSON.stringify(actual, null, 2)} result not to be ${expected}`
+                    )
+                };
+            }
+        };
+    }
+};
+
 describe('Showmehow Service Lesson', function () {
     let controller, service;
     let [defaultLessons, warnings] = Descriptors.loadLessonDescriptorsFromFile(Gio.File.new_for_path('data/lessons.json'));
 
     /* Set the 'warnings' key, since this is what ShowmehowController expects internally */
     defaultLessons.warnings = warnings;
+
+    beforeEach(function () {
+        jasmine.addMatchers(CUSTOM_MATCHERS);
+    });
 
     beforeAll(function () {
         configureHomeDirectory();
@@ -163,7 +185,7 @@ describe('Showmehow Service Lesson', function () {
                             };
 
                             let successHandler = function(response) {
-                                expect(response.result).toEqual(result);
+                                expect(response).toHaveResult(result);
                                 done();
                             }
 
