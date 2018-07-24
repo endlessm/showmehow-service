@@ -101,8 +101,7 @@ install-data-local:
 	mkdir -p $(DESTDIR)$(pkgdatadir)
 	for i in $(lesson_directories); do \
 		mkdir -p $(DESTDIR)$(pkgdatadir)/$$i && \
-		cp -r $(srcdir)/$$i $(DESTDIR)$(pkgdatadir)/$$i/.. && \
-		chmod -R +w $(DESTDIR)$(pkgdatadir)/$$i; \
+		cp -r $(srcdir)/$$i $$(dirname $(DESTDIR)$(pkgdatadir)/$$i/..); \
 	done
 
 uninstall-local:
